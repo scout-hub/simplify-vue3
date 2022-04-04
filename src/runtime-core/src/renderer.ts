@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 15:21:48
+ * @LastEditTime: 2022-04-04 21:16:54
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, Text } from "./vnode";
@@ -42,6 +42,8 @@ function baseCreateRenderer(options) {
     createElement: hostCreateElement,
     patchProp: hostPatchProp,
     insert: hostInsert,
+    remove: hostRemove,
+    setElementText: hostSetElementText,
   } = options;
 
   /**
@@ -178,7 +180,7 @@ function baseCreateRenderer(options) {
       mountElement(n2, container, parentComponent);
     } else {
       // 更新
-      patchElement(n1, n2);
+      patchElement(n1, n2, parentComponent);
     }
   };
 
@@ -186,14 +188,14 @@ function baseCreateRenderer(options) {
    * @description: 更新元素
    * @param n1 旧的虚拟节点
    * @param n2 新的虚拟节点
+   * @param parentComponent 父组件实例
    */
-  const patchElement = (n1, n2) => {
-    console.log({
-      n1,
-      n2,
-    });
+  const patchElement = (n1, n2, parentComponent) => {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
+
+    patchChildren(n1, n2, el, parentComponent);
+
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
     /**
@@ -203,6 +205,60 @@ function baseCreateRenderer(options) {
      * 3、旧的key在新的上面不存在 ———— 删除属性
      */
     patchProps(el, n2, oldProps, newProps);
+  };
+
+  /**
+   * @description: 更新孩子节点
+   * @param n1 旧的虚拟节点
+   * @param n2 新的虚拟节点
+   * @param container 容器
+   * @param parentComponent 父组件实例
+   */
+  const patchChildren = (n1, n2, container, parentComponent) => {
+    const c1 = n1.children;
+    const c2 = n2.children;
+    const prevShapeFlag = n1 ? n1.shapeFlag : 0;
+    const { shapeFlag } = n2;
+    // 更新的几种情况
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // 1. 新的虚拟节点的子节点是一个文本节点，旧的虚拟节点的子节点是一个数组，则删除旧的节点元素，然后创建新的文本节点
+      unmountChildren(c1);
+      // 2. 旧的虚拟节点也是一个文本节点，但是文本内容不同，此时只需要更新文本内容
+      if (c1 !== c2) {
+        hostSetElementText(container, c2);
+      }
+    } else {
+      // 走进这里说明新的孩子节点不存在或者是数组类型
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // 3. 新旧孩子节点都是数组的情况下需要进行 dom diff，这种情况也是最复杂的
+        } else {
+          // 4. 新的节点不存在，则删除旧的子节点
+          unmountChildren(c1);
+        }
+      } else {
+        // 旧的孩子节点为文本节点。这种情况不管怎样，旧的文本节点都必须清空
+        if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+          // 5. 旧的是一个文本节点，新的子节点不存在，将文本清空
+          hostSetElementText(container, "");
+        }
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // 6. 旧的是文本节点，新的是数组节点，则清空文本并创建新的子节点
+          mountChildren(c2, container, parentComponent);
+        }
+      }
+    }
+  };
+
+  /**
+   * @description: 删除数组类型的子节点
+   * @param children 孩子节点vnode
+   */
+  const unmountChildren = (children) => {
+    const childrenLength = children.length;
+    for (let i = 0; i < childrenLength; i++) {
+      hostRemove(children[i].el);
+    }
   };
 
   /**
