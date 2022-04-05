@@ -2,13 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 17:04:29
+ * @LastEditTime: 2022-04-05 20:53:47
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
-import { effect } from "../../reactivity/src/index";
+import { ReactiveEffect } from "../../reactivity/src/index";
 import { EMPTY_OBJ, ShapeFlags } from "../../shared/src/index";
+import { shouldUpdateComponent } from "./componentRenderUtils";
 
 /**
  * @description: 自定义渲染器
@@ -126,7 +127,23 @@ function baseCreateRenderer(options) {
       mountComponent(n2, container, anchor, parentComponent);
     } else {
       // TODO 更新组件
-      // updateComponent();
+      updateComponent(n1, n2);
+    }
+  };
+
+  /**
+   * @description: 更新组件
+   * @param  n1 老的虚拟节点
+   * @return  n2 新的虚拟节点
+   */
+  const updateComponent = (n1, n2) => {
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2;
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
     }
   };
 
@@ -139,7 +156,10 @@ function baseCreateRenderer(options) {
    */
   const mountComponent = (initialVNode, container, anchor, parentComponent) => {
     // 获取组件实例
-    const instance = createComponentInstance(initialVNode, parentComponent);
+    const instance = (initialVNode.component = createComponentInstance(
+      initialVNode,
+      parentComponent
+    ));
     // 初始化组件
     setupComponent(instance);
     setupRenderEffect(instance, initialVNode, container, anchor);
@@ -153,8 +173,7 @@ function baseCreateRenderer(options) {
    * @param  anchor 锚点元素
    */
   const setupRenderEffect = (instance, initialVNode, container, anchor) => {
-    // 收集依赖，在依赖的响应式数据变化后可以执行更新
-    effect(() => {
+    const componentUpdateFn = () => {
       // 通过isMounted判断组件是否创建过，如果没创建过则表示初始化渲染，否则为更新
       if (!instance.isMounted) {
         const subTree = (instance.subTree = instance.render());
@@ -164,13 +183,36 @@ function baseCreateRenderer(options) {
         // 到这一步说明元素都已经渲染完成了，也就能够获取到根节点，这里的subTree就是根组件
         initialVNode.el = subTree.el;
       } else {
+        let { next, vnode } = instance;
+        if (next) {
+          // 更新组件的渲染数据
+          next.el = vnode.el;
+          updateComponentPreRender(instance, next);
+        }
         // 更新
         const nextTree = instance.render();
         const prevTree = instance.subTree;
         instance.subTree = nextTree;
         patch(prevTree, nextTree, container, anchor, instance);
       }
-    });
+    };
+    const effect = new ReactiveEffect(componentUpdateFn);
+    const update = (instance.update = effect.run.bind(effect));
+    // 收集依赖，在依赖的响应式数据变化后可以执行更新
+    update();
+  };
+
+  /**
+   * @description: 更新组件上面预渲染的数据
+   * @param instance 组件实例
+   * @param nextVnode 新的虚拟节点
+   */
+  const updateComponentPreRender = (instance, nextVnode) => {
+    nextVnode.component = instance;
+    instance.vnode = nextVnode;
+    instance.next = null;
+    // updateProps
+    instance.props = nextVnode.props;
   };
 
   /**
@@ -549,7 +591,7 @@ function baseCreateRenderer(options) {
 }
 
 /**
- * @description: 最长递增子序列
+ * @description: 最长递增子序列（vue3中的源码）
  * @param 需要计算的数组
  * @return 最长递增序列的递增索引
  */

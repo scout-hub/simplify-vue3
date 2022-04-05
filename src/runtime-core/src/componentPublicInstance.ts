@@ -2,12 +2,15 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-02 17:39:34
+ * @LastEditTime: 2022-04-05 19:57:21
  */
+import { shallowReadonly } from "../../reactivity/src";
+
 // 建立map映射对应vnode上的属性，利于扩展
 const publicPropertiesMap = {
   $el: (i) => i.vnode.el,
-  $slots: (i) => i.slots,
+  $slots: (i) => shallowReadonly(i.slots),
+  $props: (i) => shallowReadonly(i.props),
 };
 
 export const PublicInstanceProxyHandlers = {

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 13:08:34
+ * @LastEditTime: 2022-04-05 20:15:21
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -27,6 +27,7 @@ export function createComponentInstance(vnode, parent) {
     type: vnode.type,
     emit: null,
     parent,
+    next: null,
     provides: parent ? parent.provides : Object.create(null),
   };
 

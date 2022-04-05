@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 15:49:08
+ * @LastEditTime: 2022-04-05 20:15:24
  */
 
 import {
@@ -68,6 +68,7 @@ function createBaseVNode(
     children,
     el: null,
     shapeFlag,
+    component: null,
     key: props && props.key,
   };
 
