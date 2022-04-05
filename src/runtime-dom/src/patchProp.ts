@@ -5,9 +5,9 @@
  * @LastEditTime: 2022-04-04 14:04:53
  */
 import { isOn } from "../../shared/src/index";
-import { patchAttr } from "../modules/attrs";
-import { patchEvent } from "../modules/events";
-import { patchDOMProp } from "../modules/props";
+import { patchAttr } from "./modules/attrs";
+import { patchEvent } from "./modules/events";
+import { patchDOMProp } from "./modules/props";
 
 /**
  * @description: 处理props属性

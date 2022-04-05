@@ -5,7 +5,7 @@
  * @LastEditTime: 2022-03-29 15:42:46
  */
 
-import { isArray } from "../../shared/src/index";
+import { isArray } from "../../../shared/src/index";
 
 // 事件绑定
 export function addEventListener(el, event, handler) {
