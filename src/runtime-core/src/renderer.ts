@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 20:53:47
+ * @LastEditTime: 2022-04-05 21:18:36
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -10,6 +10,7 @@ import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
 import { EMPTY_OBJ, ShapeFlags } from "../../shared/src/index";
 import { shouldUpdateComponent } from "./componentRenderUtils";
+import { queueJob } from "./scheduler";
 
 /**
  * @description: 自定义渲染器
@@ -196,7 +197,10 @@ function baseCreateRenderer(options) {
         patch(prevTree, nextTree, container, anchor, instance);
       }
     };
-    const effect = new ReactiveEffect(componentUpdateFn);
+    const effect = new ReactiveEffect(componentUpdateFn, () => {
+      // 自定义调度器，当多个同步任务触发更新时，将任务放入微任务队列中，避免多次更新
+      queueJob(instance.update);
+    });
     const update = (instance.update = effect.run.bind(effect));
     // 收集依赖，在依赖的响应式数据变化后可以执行更新
     update();
@@ -240,6 +244,7 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const patchElement = (n1, n2, parentComponent) => {
+    console.log("更新了元素");
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
 
