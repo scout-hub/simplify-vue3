@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 14:11:07
+ * @LastEditTime: 2022-04-05 16:48:52
  */
 import {
     h,
@@ -182,23 +182,63 @@ export default {
         //     ]);
 
         // 6.6 相同的前置和后置节点，且需要删除元素
+        // return this.update ?
+        //     h("div", null, [
+        //         h('div', {
+        //             key: 1
+        //         }, '1'),
+        //         h('div', {
+        //             key: 2
+        //         }, '2'),
+        //         h('div', {
+        //             key: 4
+        //         }, '4'),
+        //     ]) :
+        //     h("div", {
+        //         onClick: this.change,
+        //     }, [
+        //         h('div', {
+        //             key: 1
+        //         }, '1'),
+        //         h('div', {
+        //             key: 2
+        //         }, '2'),
+        //         h('div', {
+        //             key: 3
+        //         }, '3'),
+        //         h('div', {
+        //             key: 4
+        //         }, '4'),
+        //     ]);
+
+        // 6.7 复杂子节点数组更新，存在既有删除又有新增元素但是无需要移动节点的情况
         return this.update ?
             h("div", null, [
                 h('div', {
                     key: 1
                 }, '1'),
                 h('div', {
-                    key: 2
-                }, '2'),
+                    key: 3
+                }, '3'),
                 h('div', {
                     key: 4
                 }, '4'),
+                h('div', {
+                    key: 2,
+                    class: 'xx'
+                }, '2'),
+                h('div', {
+                    key: 7
+                }, '7'),
+                h('div', {
+                    key: 5
+                }, '5')
             ]) :
             h("div", {
                 onClick: this.change,
             }, [
                 h('div', {
-                    key: 1
+                    key: 1,
                 }, '1'),
                 h('div', {
                     key: 2
@@ -209,6 +249,12 @@ export default {
                 h('div', {
                     key: 4
                 }, '4'),
+                h('div', {
+                    key: 6
+                }, '6'),
+                h('div', {
+                    key: 5
+                }, '5')
             ]);
     }
 };

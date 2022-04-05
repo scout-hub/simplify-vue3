@@ -2,11 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 10:40:06
+ * @LastEditTime: 2022-04-05 15:49:08
  */
 
 import {
-  extend,
   isArray,
   isObject,
   isString,
@@ -69,6 +68,7 @@ function createBaseVNode(
     children,
     el: null,
     shapeFlag,
+    key: props && props.key,
   };
 
   if (needFullChildrenNormalization) {
