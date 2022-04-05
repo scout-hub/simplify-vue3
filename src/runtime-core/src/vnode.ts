@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 14:55:14
+ * @LastEditTime: 2022-04-05 10:40:06
  */
 
 import {
@@ -16,6 +16,15 @@ import {
 
 export const Fragment = Symbol("Fragment");
 export const Text = Symbol("Text");
+
+/**
+ * @description: 是否是同一类型的vnode
+ * @param n1 旧的虚拟节点
+ * @param n2 新的虚拟节点
+ */
+export function isSameVNodeType(n1, n2) {
+  return n1.type === n2.type && n1.key === n2.key;
+}
 
 // 创建虚拟节点函数
 export function createVnode(type, props: any = null, children = null) {
