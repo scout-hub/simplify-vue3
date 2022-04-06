@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 14:11:53
+ * @LastEditTime: 2022-04-06 22:20:00
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -47,4 +47,9 @@ export const invokeArrayFns = (fns: Function[]) => {
   for (let i = 0; i < length; i++) {
     fns[i]();
   }
+};
+
+// 判断某个对象中是否有指定属性
+export const hasOwn = (target, key) => {
+  return Object.prototype.hasOwnProperty.call(target, key);
 };

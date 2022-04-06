@@ -2,9 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 19:57:21
+ * @LastEditTime: 2022-04-06 21:49:25
  */
 import { shallowReadonly } from "../../reactivity/src";
+import { hasOwn } from "../../shared/src";
 
 // 建立map映射对应vnode上的属性，利于扩展
 const publicPropertiesMap = {
@@ -30,7 +31,3 @@ export const PublicInstanceProxyHandlers = {
     }
   },
 };
-
-function hasOwn(target, key) {
-  return Object.prototype.hasOwnProperty.call(target, key);
-}

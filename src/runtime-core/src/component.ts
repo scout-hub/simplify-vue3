@@ -2,13 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 17:32:57
+ * @LastEditTime: 2022-04-06 20:39:38
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
-import { isObject, ShapeFlags } from "../../shared/src/index";
+import { EMPTY_OBJ, isObject, ShapeFlags } from "../../shared/src/index";
 import { emit } from "./componentEmits";
-import { initProps } from "./componentProps";
+import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
 
@@ -28,18 +28,26 @@ export const enum LifecycleHooks {
  * @param parent 父组件实例
  */
 export function createComponentInstance(vnode, parent) {
+  const type = vnode.type;
+
   const componentInstance = {
+    vnode,
+    type,
+    parent,
     isMounted: false,
     subTree: null,
-    vnode,
-    ctx: {},
-    slots: {},
-    type: vnode.type,
     emit: null,
-    parent,
     next: null,
+    proxy: null,
     provides: parent ? parent.provides : Object.create(null),
-    
+    propsOptions: normalizePropsOptions(type),
+
+    props: EMPTY_OBJ,
+    attrs: EMPTY_OBJ,
+    slots: EMPTY_OBJ,
+    ctx: EMPTY_OBJ,
+    setupState: EMPTY_OBJ,
+
     // lifecycle hooks
     bm: null,
     m: null,
@@ -71,7 +79,7 @@ export function setupComponent(instance) {
   const { props, children } = instance.vnode;
   const isStateful = isStatefulComponent(instance);
   // 初始化props
-  initProps(instance, props);
+  initProps(instance, props, isStateful);
   // 初始化slots
   initSlots(instance, children);
   const setupResult = isStateful ? setupStatefulComponent(instance) : undefined;
