@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 12:44:51
+ * @LastEditTime: 2022-04-06 17:15:58
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -10,7 +10,9 @@ import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
 import { EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
 import { shouldUpdateComponent } from "./componentRenderUtils";
-import { queueJob } from "./scheduler";
+import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
+
+export const queuePostRenderEffect = queuePostFlushCb;
 
 /**
  * @description: 自定义渲染器
@@ -36,6 +38,8 @@ function baseCreateRenderer(options) {
     } else {
       patch(container._vnode || null, vnode, container, null, null);
     }
+    // 执行lifecycle hook
+    flushPostFlushCbs();
     // 缓存当前vnode，下一次更新的时候，该值就是旧的vnode
     container._vnode = vnode;
   };
@@ -178,34 +182,47 @@ function baseCreateRenderer(options) {
       // 通过isMounted判断组件是否创建过，如果没创建过则表示初始化渲染，否则为更新
       if (!instance.isMounted) {
         const { bm, m } = instance;
-        // 触发beforeMount生命周期钩子函数
+        // beforeMount hook
         if (bm) {
           invokeArrayFns(bm);
         }
         const subTree = (instance.subTree = instance.render());
         patch(null, subTree, container, anchor, instance);
-        // 表示组件Dom已经创建完成
-        instance.isMounted = true;
 
         // 到这一步说明元素都已经渲染完成了，也就能够获取到根节点，这里的subTree就是根组件
         initialVNode.el = subTree.el;
-        // 触发mounted生命周期钩子函数
-        // TODO 源码中时添加到任务队列中，不是直接触发，待研究
+
+        // mount hook
         if (m) {
-          invokeArrayFns(m);
+          // invokeArrayFns(m);
+          // 加入到pendingPostFlush队列，保证在组件mounted完成后触发
+          queuePostRenderEffect(m);
         }
+
+        // 表示组件Dom已经创建完成
+        instance.isMounted = true;
       } else {
-        let { next, vnode } = instance;
+        console.log("组件更新了", instance);
+        let { next, vnode, bu, u } = instance;
         if (next) {
           // 更新组件的渲染数据
           next.el = vnode.el;
           updateComponentPreRender(instance, next);
+        }
+        if (bu) {
+          invokeArrayFns(bu);
         }
         // 更新
         const nextTree = instance.render();
         const prevTree = instance.subTree;
         instance.subTree = nextTree;
         patch(prevTree, nextTree, container, anchor, instance);
+        // updated hook
+        if (u) {
+          // invokeArrayFns(u);
+          // 保证组件更新完成后触发updated hook
+          queuePostRenderEffect(u);
+        }
       }
     };
     const effect = new ReactiveEffect(componentUpdateFn, () => {
@@ -255,7 +272,6 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const patchElement = (n1, n2, parentComponent) => {
-    console.log("更新了元素");
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
 

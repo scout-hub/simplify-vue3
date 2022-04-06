@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-06 10:04:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 12:41:32
+ * @LastEditTime: 2022-04-06 13:18:43
  */
 import {
   currentInstance,
@@ -47,7 +47,11 @@ export const createHook = (lifecycleHook) => (hook) =>
   injectHooks(lifecycleHook, hook);
 
 // 只能在setup中使用，因为内部需要使用当前组件实例
-// 组件挂载之前触发的函数
+// 组件挂载之前触发
 export const onBeforeMount = createHook(LifecycleHooks.BEFORE_MOUNT);
-// 组件挂载后触发的函数
+// 组件挂载后触发
 export const onMounted = createHook(LifecycleHooks.MOUNTED);
+// 组件更新前触发
+export const onBeforeUpdate = createHook(LifecycleHooks.BEFORE_UPDATE);
+// 更新后触发
+export const onUpdated = createHook(LifecycleHooks.UPDATED);

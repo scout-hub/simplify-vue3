@@ -10,4 +10,9 @@ export { getCurrentInstance } from "./component";
 export { provide, inject } from "./apiInject";
 export { createRenderer } from "./renderer";
 export { h } from "./h";
-export { onBeforeMount, onMounted } from "./apiLifecycle";
+export {
+  onBeforeMount,
+  onMounted,
+  onBeforeUpdate,
+  onUpdated,
+} from "./apiLifecycle";

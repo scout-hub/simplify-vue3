@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 12:39:50
+ * @LastEditTime: 2022-04-06 13:18:28
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -16,6 +16,8 @@ import { initSlots } from "./componentSlots";
 export const enum LifecycleHooks {
   BEFORE_MOUNT = "bm",
   MOUNTED = "m",
+  BEFORE_UPDATE = "bu",
+  UPDATED = "u",
 }
 
 /**
@@ -37,6 +39,9 @@ export function createComponentInstance(vnode, parent) {
     provides: parent ? parent.provides : Object.create(null),
     // lifecycle hooks
     bm: null,
+    m: null,
+    bu: null,
+    u: null,
   };
 
   // 在_属性中存储组件实例对象

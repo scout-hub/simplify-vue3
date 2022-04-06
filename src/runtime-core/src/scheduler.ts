@@ -2,8 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 21:16:28
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 21:52:09
+ * @LastEditTime: 2022-04-06 16:43:28
  */
+
+import { isArray } from "../../shared/src";
 
 // 微任务队列
 const queue: Function[] = [];
@@ -13,6 +15,11 @@ const resolvedPromise = Promise.resolve();
 let currentFlushPromise;
 // 是否正在调度任务
 let isFlushing = false;
+
+// 正在等待的PostFlush队列
+const pendingPostFlushCbs: Function[] = [];
+// 正在执行的PostFlush队列
+let activePostFlushCbs: Function[] | null = null;
 
 /**
  * @description: 将回调推迟到下一个 DOM 更新周期之后执行。在更改了一些数据以等待 DOM 更新后立即使用它
@@ -35,11 +42,54 @@ export function queueJob(job) {
 }
 
 /**
+ * @description:
+ * @param  cb postFlush类型的回调任务
+ * @param  activeQueue 正在执行的postFlush队列
+ * @param  pendingQueue 等待执行的postFlush队列
+ */
+function queueCb(cb, activeQueue: Function[] | null, pendingQueue: Function[]) {
+  // cb是array说明是组件的生命周期回调函数
+  if (isArray(cb)) {
+    pendingQueue.push(...cb);
+  }
+  queueFlush();
+}
+
+/**
+ * @description: 往pendingPostFlushCbs中添加postFlush类型的任务
+ * @param cb 回调任务
+ */
+export function queuePostFlushCb(cb) {
+  queueCb(cb, activePostFlushCbs, pendingPostFlushCbs);
+}
+
+/**
+ * @description: 执行postFlush任务
+ */
+export function flushPostFlushCbs() {
+  if (!pendingPostFlushCbs.length) return;
+  const deduped = [...new Set(pendingPostFlushCbs)];
+  // 清空队列，避免flushPostFlushCbs多次调用执行多次相同任务
+  pendingPostFlushCbs.length = 0;
+
+  if (activePostFlushCbs) {
+    activePostFlushCbs.push(...deduped);
+    return;
+  }
+  activePostFlushCbs = deduped;
+  for (let i = 0; i < activePostFlushCbs.length; i++) {
+    const postFlushJob = activePostFlushCbs[i];
+    postFlushJob();
+  }
+  activePostFlushCbs = null;
+}
+
+/**
  * @description: 执行微任务
  */
 function queueFlush() {
+  // 避免多次调用
   if (!isFlushing) {
-    // 避免多次调用
     currentFlushPromise = resolvedPromise.then(flushJobs);
   }
 }
@@ -59,5 +109,7 @@ function flushJobs() {
     isFlushing = false;
     // 任务执行完成，重置微任务队列
     queue.length = 0;
+    // 执行需要在更新之后触发的任务
+    flushPostFlushCbs();
   }
 }
