@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 14:53:41
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-03 15:26:34
+ * @LastEditTime: 2022-04-06 17:53:11
  */
 
 import { createVnode } from "./vnode";
@@ -10,6 +10,7 @@ import { createVnode } from "./vnode";
 export function createAppApi(render) {
   return function createApp(rootComponent) {
     const app = {
+      _container: null,
       use() {},
       mixin() {},
       component() {},
@@ -19,8 +20,11 @@ export function createAppApi(render) {
         const vnode = createVnode(rootComponent);
         // 渲染真实节点
         render(vnode, rootContainer);
+        app._container = rootContainer;
       },
-      unmount() {},
+      unmount() {
+        render(null, app._container);
+      },
       provide() {},
     };
     return app;

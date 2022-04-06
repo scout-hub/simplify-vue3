@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 17:15:36
+ * @LastEditTime: 2022-04-06 18:01:26
  */
 import {
     h,
@@ -11,18 +11,29 @@ import {
     onMounted,
     getCurrentInstance,
     onBeforeUpdate,
-    onUpdated
+    onUpdated,
+    onBeforeUnmount,
+    onUnmounted,
+    createApp
 } from "../../lib/my-mini-vue.esm.js";
 
 const Child = {
     name: 'Child',
-    setup() {},
+    setup() {
+        onBeforeUnmount(() => {
+            console.log('beforeUnmount children');
+        });
+
+        onUnmounted(() => {
+            console.log('unmounted children');
+        });
+    },
     render() {
-        return h('div', null, `${this.$props.count}xxx`);
+        return h('div', null, 123);
     }
 }
 
-export default {
+const App = {
     name: "App",
     setup() {
         onBeforeMount(() => {
@@ -41,22 +52,28 @@ export default {
             const instance = getCurrentInstance();
             console.log(instance.vnode.el.children[0].innerText);
         });
-        const count = ref(1);
+
+        onBeforeUnmount(() => {
+            console.log('beforeUnmount parent');
+        });
+
+        onUnmounted(() => {
+            console.log('unmounted parent');
+        });
+
         const click = () => {
-            for (let i = 0; i < 10; i++) {
-                count.value = i;
-            }
+            app.unmount();
         }
         return {
-            count,
             click
         }
     },
     render() {
         return h("div", {
             onClick: this.click
-        }, [h(Child, {
-            count: this.count
-        })]);
+        }, [h(Child), h('span', null, 1231)]);
     }
 };
+
+const app = createApp(App)
+app.mount('#app');

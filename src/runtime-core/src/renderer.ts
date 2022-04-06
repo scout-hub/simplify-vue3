@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 17:15:58
+ * @LastEditTime: 2022-04-06 18:05:59
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -27,23 +27,6 @@ export function createRenderer(options) {
  * @param options 传入的平台渲染方法集合
  */
 function baseCreateRenderer(options) {
-  /**
-   * @description: 渲染函数
-   * @param vnode 虚拟节点
-   * @param container 容器
-   */
-  const render = (vnode, container) => {
-    // 新的虚拟节点为null，说明是卸载操作
-    if (vnode === null) {
-    } else {
-      patch(container._vnode || null, vnode, container, null, null);
-    }
-    // 执行lifecycle hook
-    flushPostFlushCbs();
-    // 缓存当前vnode，下一次更新的时候，该值就是旧的vnode
-    container._vnode = vnode;
-  };
-
   const {
     createElement: hostCreateElement,
     patchProp: hostPatchProp,
@@ -61,9 +44,8 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const patch = (n1, n2, container, anchor, parentComponent) => {
-    if (n1 === n2) {
-      return;
-    }
+    if (n1 === n2) return;
+
     const { shapeFlag, type } = n2;
 
     switch (type) {
@@ -79,7 +61,7 @@ function baseCreateRenderer(options) {
         // if is element
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(n1, n2, container, anchor, parentComponent);
-        } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        } else if (shapeFlag & ShapeFlags.COMPONENT) {
           // if is component
           processComponent(n1, n2, container, anchor, parentComponent);
         }
@@ -546,7 +528,7 @@ function baseCreateRenderer(options) {
   const unmountChildren = (children) => {
     const childrenLength = children.length;
     for (let i = 0; i < childrenLength; i++) {
-      hostRemove(children[i].el);
+      unmount(children[i]);
     }
   };
 
@@ -617,7 +599,71 @@ function baseCreateRenderer(options) {
     });
   };
 
+  /**
+   * @description: 渲染函数
+   * @param vnode 虚拟节点
+   * @param container 容器
+   */
+  const render = (vnode, container) => {
+    // 新的虚拟节点为null，说明是卸载操作
+    if (vnode === null && container._vnode) {
+      unmount(container._vnode);
+    } else {
+      patch(container._vnode || null, vnode, container, null, null);
+    }
+    // 执行lifecycle hook
+    flushPostFlushCbs();
+    // 缓存当前vnode，下一次更新的时候，该值就是旧的vnode
+    container._vnode = vnode;
+  };
+
+  /**
+   * @description: 组件卸载
+   * @param vnode 老的虚拟节点
+   */
+  const unmount = (vnode) => {
+    const { shapeFlag, component, children } = vnode;
+    if (shapeFlag & ShapeFlags.COMPONENT) {
+      // 销毁组件
+      unmountComponent(component);
+    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      unmountChildren(children);
+    } else {
+      // 销毁元素
+      remove(vnode);
+    }
+  };
+
+  /**
+   * @description: 删除元素节点
+   * @param vnode 虚拟节点
+   */
+  const remove = (vnode) => {
+    const { el } = vnode;
+    hostRemove(el);
+  };
+
+  /**
+   * @description: 卸载组件
+   * @param component 组件实例
+   */
+  const unmountComponent = (component) => {
+    const { um, bum, subTree } = component;
+
+    // beforeUnmount hook
+    if (bum) {
+      invokeArrayFns(bum);
+    }
+    unmount(subTree);
+    
+    // unmounted hook
+    if (um) {
+      queuePostRenderEffect(um);
+    }
+  };
+
   return {
+    render,
     createApp: createAppApi(render),
   };
 }

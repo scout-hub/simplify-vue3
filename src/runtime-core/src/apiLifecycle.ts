@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-06 10:04:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 13:18:43
+ * @LastEditTime: 2022-04-06 17:33:54
  */
 import {
   currentInstance,
@@ -55,3 +55,7 @@ export const onMounted = createHook(LifecycleHooks.MOUNTED);
 export const onBeforeUpdate = createHook(LifecycleHooks.BEFORE_UPDATE);
 // 更新后触发
 export const onUpdated = createHook(LifecycleHooks.UPDATED);
+// 组件卸载之前触发
+export const onBeforeUnmount = createHook(LifecycleHooks.BEFORE_UNMOUNT);
+// 组件卸载完成后触发
+export const onUnmounted = createHook(LifecycleHooks.UNMOUNTED);

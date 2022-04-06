@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 15:12:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 20:50:39
+ * @LastEditTime: 2022-04-06 17:24:36
  */
 /**
  * 用二进制表示组件类型，在判断组件类型和修改类型的时候通过位运算的方式去判断或者比较，性能更优，但是代码可读性相对更低
@@ -22,4 +22,5 @@ export const enum ShapeFlags {
   TEXT_CHILDREN = 1 << 3, // 001000
   ARRAY_CHILDREN = 1 << 4, // 010000
   SLOTS_CHILDREN = 1 << 5, // 100000
+  COMPONENT = ShapeFlags.STATEFUL_COMPONENT | ShapeFlags.FUNCTIONAL_COMPONENT,
 }
