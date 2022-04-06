@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 14:12:12
+ * @LastEditTime: 2022-04-06 10:24:34
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -40,3 +40,11 @@ export const toHandlerKey = (str: string) =>
   str ? `on${capitalize(str)}` : "";
 
 export const EMPTY_OBJ = {};
+
+// 循环数组中的所有方法
+export const invokeArrayFns = (fns: Function[]) => {
+  const length = fns.length;
+  for (let i = 0; i < length; i++) {
+    fns[i]();
+  }
+};

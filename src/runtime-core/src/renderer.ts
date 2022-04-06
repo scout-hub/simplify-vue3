@@ -2,13 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 10:02:27
+ * @LastEditTime: 2022-04-06 12:44:51
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
-import { EMPTY_OBJ, ShapeFlags } from "../../shared/src/index";
+import { EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
 import { shouldUpdateComponent } from "./componentRenderUtils";
 import { queueJob } from "./scheduler";
 
@@ -167,7 +167,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
-   * @description: 执行渲染和挂载
+   * @description: 执行渲染和更新
    * @param  instance 组件实例
    * @param  initialVNode 初始虚拟节点
    * @param  container 容器
@@ -177,12 +177,23 @@ function baseCreateRenderer(options) {
     const componentUpdateFn = () => {
       // 通过isMounted判断组件是否创建过，如果没创建过则表示初始化渲染，否则为更新
       if (!instance.isMounted) {
+        const { bm, m } = instance;
+        // 触发beforeMount生命周期钩子函数
+        if (bm) {
+          invokeArrayFns(bm);
+        }
         const subTree = (instance.subTree = instance.render());
         patch(null, subTree, container, anchor, instance);
         // 表示组件Dom已经创建完成
         instance.isMounted = true;
+
         // 到这一步说明元素都已经渲染完成了，也就能够获取到根节点，这里的subTree就是根组件
         initialVNode.el = subTree.el;
+        // 触发mounted生命周期钩子函数
+        // TODO 源码中时添加到任务队列中，不是直接触发，待研究
+        if (m) {
+          invokeArrayFns(m);
+        }
       } else {
         let { next, vnode } = instance;
         if (next) {

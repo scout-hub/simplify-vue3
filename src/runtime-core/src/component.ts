@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 20:15:21
+ * @LastEditTime: 2022-04-06 12:39:50
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -11,6 +11,12 @@ import { emit } from "./componentEmits";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
+
+// 生命周期钩子名称枚举
+export const enum LifecycleHooks {
+  BEFORE_MOUNT = "bm",
+  MOUNTED = "m",
+}
 
 /**
  * @description: 创建组件实例
@@ -29,6 +35,8 @@ export function createComponentInstance(vnode, parent) {
     parent,
     next: null,
     provides: parent ? parent.provides : Object.create(null),
+    // lifecycle hooks
+    bm: null,
   };
 
   // 在_属性中存储组件实例对象
@@ -121,13 +129,13 @@ function finishComponentSetup(instance) {
  * @description: 修改当前组件实例
  * @param instance 当前组件实例
  */
-function setCurrentInstance(instance) {
+export const setCurrentInstance = (instance) => {
   currentInstance = instance;
-}
+};
 
 /**
  * @description: 重置当前组件实例
  */
-function unsetCurrentInstance() {
+export const unsetCurrentInstance = () => {
   currentInstance = null;
-}
+};
