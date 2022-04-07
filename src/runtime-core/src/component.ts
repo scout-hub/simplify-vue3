@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:47:25
+ * @LastEditTime: 2022-04-07 21:17:39
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -100,7 +100,7 @@ export function getCurrentInstance() {
  * @param instance
  */
 function setupStatefulComponent(instance) {
-  const { type: component, props, emit } = instance;
+  const { type: component, props, emit, attrs, slots } = instance;
   const { setup } = component;
 
   // 这里只是代理了instance上的ctx对象
@@ -112,7 +112,8 @@ function setupStatefulComponent(instance) {
   if (setup) {
     setCurrentInstance(instance);
     // props是浅只读的，在开发模式下是shallowReadonly类型，生产环境下不会进行shallowReadonly处理，这里默认进行shallowReadonly处理
-    const setupResult = setup(shallowReadonly(props), { emit }) || {};
+    const setupResult =
+      setup(shallowReadonly(props), { emit, attrs, slots }) || {};
     unsetCurrentInstance();
     handleSetupResult(instance, setupResult);
   }

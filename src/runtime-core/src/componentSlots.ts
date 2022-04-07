@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 21:16:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-03 21:47:03
+ * @LastEditTime: 2022-04-07 21:22:43
  */
 
 import { isArray, ShapeFlags } from "../../shared/src/index";
@@ -15,7 +15,7 @@ import { isArray, ShapeFlags } from "../../shared/src/index";
 export function initSlots(instance, children) {
   // 判断是不是插槽节点
   if (ShapeFlags.SLOTS_CHILDREN & instance.vnode.shapeFlag) {
-    normalizeObjectSlots(children, instance.slots);
+    normalizeObjectSlots(children, (instance.slots = {}));
   }
 }
 
