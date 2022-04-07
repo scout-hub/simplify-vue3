@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 20:59:00
+ * @LastEditTime: 2022-04-07 21:10:51
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -301,6 +301,12 @@ export function updateProps(instance, rawProps, rawPrevProps) {
   const { props, attrs } = instance;
   // 简单一点，全量更新
   setFullProps(instance, rawProps, props, attrs);
+  // 删除不存在的props
+  for (const key in rawPrevProps) {
+    if (!(key in rawProps)) {
+      delete props[key];
+    }
+  }
 }
 
 /**
