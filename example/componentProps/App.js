@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:43:45
+ * @LastEditTime: 2022-04-07 11:59:44
  */
 import {
     h
@@ -22,7 +22,7 @@ const Child = {
     render() {
         return h('div', {
             onClick: () => {
-                console.log(3);
+                console.log(this.$attrs);
             }
         }, this.msg);
     }

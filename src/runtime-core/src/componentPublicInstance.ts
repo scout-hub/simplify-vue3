@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 21:49:25
+ * @LastEditTime: 2022-04-07 11:59:07
  */
 import { shallowReadonly } from "../../reactivity/src";
 import { hasOwn } from "../../shared/src";
@@ -12,6 +12,7 @@ const publicPropertiesMap = {
   $el: (i) => i.vnode.el,
   $slots: (i) => shallowReadonly(i.slots),
   $props: (i) => shallowReadonly(i.props),
+  $attrs: (i) => shallowReadonly(i.attrs),
 };
 
 export const PublicInstanceProxyHandlers = {
