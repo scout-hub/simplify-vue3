@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 22:52:56
+ * @LastEditTime: 2022-04-07 11:43:45
  */
 import {
     h
@@ -16,9 +16,15 @@ const Child = {
             default: 'xxx'
         }
     },
-    setup() {},
+    setup(props) {
+        console.log(props);
+    },
     render() {
-        return h('div', null, 123);
+        return h('div', {
+            onClick: () => {
+                console.log(3);
+            }
+        }, this.msg);
     }
 }
 
@@ -31,9 +37,16 @@ export default {
     },
     render() {
         return h("div", null, [h(Child, {
-            msg: this.msg,
             id: 'div',
-            class: 'red',
-        })]);
+            class: ['red', 'green'],
+            onClick: [
+                () => {
+                    console.log(1);
+                },
+                () => {
+                    console.log(2);
+                }
+            ]
+        }), h('div', null, this.msg)]);
     }
 };

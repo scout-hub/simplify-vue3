@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 20:16:47
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-29 15:42:46
+ * @LastEditTime: 2022-04-07 11:52:21
  */
 
 import { isArray } from "../../../shared/src/index";
@@ -91,7 +91,6 @@ export function patchEvent(el, key, preValue, nextValue) {
 function createInvoker(events) {
   const invoker: any = (e) => {
     const timestamp = e.timeStamp;
-    // console.log(timestamp);
     /**
      * 2、控制原始事件的执行（涉及到事件冒泡机制）
      * 假设父vnode上有onClick事件，事件值取决于一个响应式数据的值，比如：onClick: isTrue ? () => console.log(1) : null，

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 22:50:42
+ * @LastEditTime: 2022-04-07 11:50:14
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -29,14 +29,19 @@ const enum BooleanFlags {
 export function initProps(instance, rawProps, isStateful) {
   // instance.props = rawProps || {};
   const attrs = {};
+  // 创建一个props对象，区分组件实例上的props和虚拟dom上的props
+  // 组件实例上的props只能访问到组件propsOptions定义的属性，区分出了attrs
+  // vnode上的props是渲染用的props，没有区分attrs
   const props = {};
 
   setFullProps(instance, rawProps, props, attrs);
-
+  // 有状态组件
   if (isStateful) {
-    console.log(props);
     instance.props = shallowReactive(props);
+  } else {
+    // 函数式组件
   }
+  instance.attrs = attrs;
 }
 
 /**

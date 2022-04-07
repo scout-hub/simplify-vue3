@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 20:39:38
+ * @LastEditTime: 2022-04-07 11:47:25
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -137,9 +137,9 @@ function handleSetupResult(instance, setupResult) {
  * @param instance 组件实例
  */
 function finishComponentSetup(instance) {
-  const { type: component, proxy } = instance;
+  const { type: component } = instance;
   if (component.render) {
-    instance.render = component.render.bind(proxy);
+    instance.render = component.render;
   }
 }
 

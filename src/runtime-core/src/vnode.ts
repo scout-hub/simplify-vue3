@@ -2,12 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 20:15:24
+ * @LastEditTime: 2022-04-07 11:39:31
  */
 
 import {
+  extend,
   isArray,
   isObject,
+  isOn,
   isString,
   normalizeClass,
   ShapeFlags,
@@ -107,4 +109,65 @@ export function normalizeChildren(vnode, children) {
     type = ShapeFlags.TEXT_CHILDREN;
   }
   vnode.shapeFlag |= type;
+}
+
+/**
+ * @description: 解析vnode（这里暂时只处理有状态组件的情况）
+ * @param child 虚拟节点
+ */
+export function normalizeVNode(child) {
+  if (isObject(child)) {
+    // 显然已经是一个vnode类型的数据
+    // 如果vnode上没有el，说明是初始化渲染，直接返回vnode即可
+    // 如果是更新的话，需要克隆一份新的vnode
+    return child.el === null ? child : cloneVNode(child);
+  }
+  return child;
+}
+
+/**
+ * @description: 克隆vnode
+ * @param  vnode 虚拟节点
+ * @param  extraProps 额外的属性
+ */
+export function cloneVNode(vnode, extraProps?) {
+  // vnode克隆处理
+  const { props } = vnode;
+  const mergedProps = extraProps ? mergeProps(props || {}, extraProps) : props;
+  // 简单处理一下
+  vnode = extend(vnode, { props: mergedProps });
+  return vnode;
+}
+
+/**
+ * @description: 合并props属性
+ * @param  args 需要合并的props对象数组
+ */
+export function mergeProps(...args) {
+  let result: Record<string, any> = {};
+  const argLength = args.length;
+  for (let i = 0; i < argLength; i++) {
+    const arg = args[i];
+    for (const key in arg) {
+      const value = arg[key];
+      if (key === "class") {
+        // 标准化class
+        result.class = normalizeClass(value);
+      } else if (isOn(key)) {
+        // 处理事件相关属性
+        const exist = result[key];
+        if (
+          value &&
+          value !== exist &&
+          !(isArray(exist) && exist.includes(value))
+        ) {
+          // 如果新的事件存在且和旧的事件不相同，并且旧的事件集合里面没有新的事件，则合并新旧事件
+          result[key] = exist ? [].concat(exist, value) : value;
+        }
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+  return result;
 }

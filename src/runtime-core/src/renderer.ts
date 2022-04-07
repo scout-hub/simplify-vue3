@@ -2,14 +2,17 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 18:05:59
+ * @LastEditTime: 2022-04-07 11:52:14
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
 import { EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
-import { shouldUpdateComponent } from "./componentRenderUtils";
+import {
+  renderComponentRoot,
+  shouldUpdateComponent,
+} from "./componentRenderUtils";
 import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
 
 export const queuePostRenderEffect = queuePostFlushCb;
@@ -168,7 +171,8 @@ function baseCreateRenderer(options) {
         if (bm) {
           invokeArrayFns(bm);
         }
-        const subTree = (instance.subTree = instance.render());
+        const subTree: Record<string, any> = (instance.subTree =
+          renderComponentRoot(instance));
         patch(null, subTree, container, anchor, instance);
 
         // 到这一步说明元素都已经渲染完成了，也就能够获取到根节点，这里的subTree就是根组件
@@ -493,7 +497,6 @@ function baseCreateRenderer(options) {
         // 1 (2 3 4 6) 5 ====> 1 (3 4 2 7) 5 索引数组为 [2,3,1,-1]  最长递增子序列为 [2, 3] 子序列索引为 [0, 1]
         // 意思是新子节点数组中下标为0和1的节点不需要移动，其它的可能要移动，因为索引数组和新子节点数组（去除前后置节点）位置是一一对应的
         const increasingNewIndexSequence = getSequence(newIndexToOldIndexMap);
-        console.log(increasingNewIndexSequence);
         // 创建两个变量用来遍历increasingNewIndexSequence和新子节点数组（去除前后置节点）
         let seq = increasingNewIndexSequence.length - 1;
         const j = toBePatched - 1;
@@ -572,8 +575,9 @@ function baseCreateRenderer(options) {
     // 处理children
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // 孩子是一个字符串表示文本类型
-      el.textContent = children;
+      hostSetElementText(el, children);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      // 处理数组类型的孩子节点
       mountChildren(children, el, anchor, parentComponent);
     }
 
@@ -655,7 +659,7 @@ function baseCreateRenderer(options) {
       invokeArrayFns(bum);
     }
     unmount(subTree);
-    
+
     // unmounted hook
     if (um) {
       queuePostRenderEffect(um);
