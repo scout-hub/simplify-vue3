@@ -1,9 +1,9 @@
 {
-  "name": "my-mini-vue",
+  "name": "simplify-vue",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "lib/my-mini-vue.cjs.js",
-  "module": "lib/my-mini-vue.esm.js",
+  "main": "lib/simplify-vue.cjs.js",
+  "module": "lib/simplify-vue.esm.js",
   "scripts": {
     "test": "jest",
     "build": "rollup -c"

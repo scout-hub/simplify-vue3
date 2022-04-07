@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:52:14
+ * @LastEditTime: 2022-04-07 20:10:22
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -14,6 +14,7 @@ import {
   shouldUpdateComponent,
 } from "./componentRenderUtils";
 import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
+import { updateProps } from "./componentProps";
 
 export const queuePostRenderEffect = queuePostFlushCb;
 
@@ -199,7 +200,7 @@ function baseCreateRenderer(options) {
           invokeArrayFns(bu);
         }
         // 更新
-        const nextTree = instance.render();
+        const nextTree = renderComponentRoot(instance);
         const prevTree = instance.subTree;
         instance.subTree = nextTree;
         patch(prevTree, nextTree, container, anchor, instance);
@@ -227,10 +228,12 @@ function baseCreateRenderer(options) {
    */
   const updateComponentPreRender = (instance, nextVnode) => {
     nextVnode.component = instance;
+    const prevProps = instance.vnode.props;
     instance.vnode = nextVnode;
     instance.next = null;
     // updateProps
-    instance.props = nextVnode.props;
+    updateProps(instance, nextVnode.props, prevProps);
+    // instance.props = nextVnode.props;
   };
 
   /**

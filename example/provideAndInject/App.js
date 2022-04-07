@@ -9,7 +9,7 @@ import {
     provide,
     inject,
     createTextVnode
-} from "../../lib/my-mini-vue.esm.js";
+} from "../../lib/simplify-vue.esm.js";
 
 const Child = {
     name: "Child",

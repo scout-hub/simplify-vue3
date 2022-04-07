@@ -7,7 +7,7 @@
 import {
     h,
     ref
-} from "../../lib/my-mini-vue.esm.js";
+} from "../../lib/simplify-vue.esm.js";
 
 export default {
     name: "App",

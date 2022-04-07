@@ -7,7 +7,7 @@
 import App from "./App.js";
 import {
     createRenderer
-} from "../../lib/my-mini-vue.esm.js";
+} from "../../lib/simplify-vue.esm.js";
 
 const {
     createApp

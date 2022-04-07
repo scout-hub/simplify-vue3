@@ -7,6 +7,6 @@
 import App from "./App.js";
 import {
     createApp
-} from "../../lib/my-mini-vue.esm.js";
+} from "../../lib/simplify-vue.esm.js";
 
 createApp(App).mount('#app')

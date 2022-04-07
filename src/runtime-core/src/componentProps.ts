@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:50:14
+ * @LastEditTime: 2022-04-07 20:59:00
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -35,6 +35,17 @@ export function initProps(instance, rawProps, isStateful) {
   const props = {};
 
   setFullProps(instance, rawProps, props, attrs);
+
+  for (const key in instance.propsOptions[0]) {
+    // 没有传入的props值默认置为undefined
+    if (!(key in props)) {
+      props[key] = undefined;
+    }
+  }
+
+  // 校验数据是否合法
+  validateProps(rawProps, props, instance);
+
   // 有状态组件
   if (isStateful) {
     instance.props = shallowReactive(props);
@@ -42,6 +53,93 @@ export function initProps(instance, rawProps, isStateful) {
     // 函数式组件
   }
   instance.attrs = attrs;
+}
+
+/**
+ * @description: 检验props合法性
+ * @param rawProps 原始数据
+ * @param props 经过setFullProps处理过的props
+ * @param instance 组件实例
+ */
+function validateProps(rawProps, props, instance) {
+  const [options] = instance.propsOptions;
+  for (const key in options) {
+    const opt = options[key];
+    if (!opt) continue;
+    validateProp(props[key], opt, !hasOwn(rawProps, key));
+  }
+}
+
+/**
+ * @description: 校验单个prop的值
+ * @param value 属性值
+ * @param propOption 校验选项
+ * @param isAbsent 传入的prop中没有指定的prop key（没传属性key）
+ */
+function validateProp(value, propOption, isAbsent) {
+  const { type, required, validator } = propOption;
+  // 如果是必填的但是没有传值，就警告
+  if (required && isAbsent) {
+    return;
+  }
+  if (type) {
+    const types = isArray(type) ? type : [type];
+    let isValid = false;
+    for (let i = 0; i < types.length && !isValid; i++) {
+      const { valid } = assertType(value, types[i]);
+      isValid = valid;
+    }
+    if (!isValid) {
+      console.warn("校验不通过");
+      return;
+    }
+  }
+  // 自定义校验器
+  if (validator && !validator(value)) {
+    console.warn("校验不通过");
+  }
+}
+
+// 基础类型
+const simpleType = [
+  "String",
+  "Number",
+  "Boolean",
+  "Function",
+  "Symbol",
+  "BigInt",
+];
+
+/**
+ * @description: 校验值是指定的类型
+ * @param value 值
+ * @param type 类型
+ */
+function assertType(value, type) {
+  let valid;
+  const expectedType = getType(type);
+  if (simpleType.includes(expectedType)) {
+    // 校验基础类型
+    const valueType = typeof value;
+    valid = valueType === expectedType.toLowerCase();
+    // 如果校验不通过但是值是obj，则需要去查找原型链
+    if (!valid && valueType === "object") {
+      valid = value instanceof type;
+    }
+  }
+  // 校验引用（特殊）类型
+  else if (expectedType === "Object") {
+    valid = isObject(value);
+  } else if (expectedType === "Array") {
+    valid = isArray(value);
+  } else if (expectedType === "null") {
+    valid = value === null;
+  } else {
+    valid = value instanceof type;
+  }
+  return {
+    valid,
+  };
 }
 
 /**
@@ -115,8 +213,8 @@ function resolvePropValue(options, props, key, value, instance, isAbsent) {
     }
     // 对于boolean类型数据的处理
     if (opt[BooleanFlags.shouldCast]) {
-      //  如果校验类型里面有属性并且传入的props里面有对应的属性但是没有默认值的情况下value默认置为false
-      if (!isAbsent && !hasDefaultKey) {
+      //  如果校验类型里面有属性但是传入的props里面没有对应的属性且没有默认值的情况下value默认置为false
+      if (isAbsent && !hasDefaultKey) {
         value = false;
       } else if (opt[BooleanFlags.shouldCastTrue] && value === "") {
         // 针对html特定boolean属性值的兼容处理
@@ -191,6 +289,18 @@ export function normalizePropsOptions(comp) {
     }
   }
   return [normalized, needCastKeys];
+}
+
+/**
+ * @description: 更新组件props
+ * @param instance 组件实例
+ * @param rawProps 新的props
+ * @param rawPrevProps 旧的props
+ */
+export function updateProps(instance, rawProps, rawPrevProps) {
+  const { props, attrs } = instance;
+  // 简单一点，全量更新
+  setFullProps(instance, rawProps, props, attrs);
 }
 
 /**

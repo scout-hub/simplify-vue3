@@ -8,7 +8,7 @@ import {
     h,
     renderSlot,
     createTextVnode
-} from "../../lib/my-mini-vue.esm.js";
+} from "../../lib/simplify-vue.esm.js";
 
 const Child = {
     name: "Child",
