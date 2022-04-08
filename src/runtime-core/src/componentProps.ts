@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 21:10:51
+ * @LastEditTime: 2022-04-08 19:39:27
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -21,6 +21,7 @@ const enum BooleanFlags {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 初始化props
  * @param instance 组件实例
  * @param rawProps 初始状态下的props
@@ -56,6 +57,7 @@ export function initProps(instance, rawProps, isStateful) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 检验props合法性
  * @param rawProps 原始数据
  * @param props 经过setFullProps处理过的props
@@ -71,6 +73,7 @@ function validateProps(rawProps, props, instance) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 校验单个prop的值
  * @param value 属性值
  * @param propOption 校验选项
@@ -111,6 +114,7 @@ const simpleType = [
 ];
 
 /**
+ * @author: Zhouqi
  * @description: 校验值是指定的类型
  * @param value 值
  * @param type 类型
@@ -143,6 +147,7 @@ function assertType(value, type) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 处理props和attrs
  * @param instance 组件实例
  * @param rawProps props对象
@@ -195,6 +200,7 @@ function setFullProps(instance, rawProps, props, attrs) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 解析props值，做一定的特殊处理
  * @param options props规则
  * @param props 处理后最终的props
@@ -226,6 +232,7 @@ function resolvePropValue(options, props, key, value, instance, isAbsent) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 校验props选项的名称是否有效
  * @param {string} key 属性名
  */
@@ -238,6 +245,7 @@ function validatePropName(key: string) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 解析组件上的propsOptions
  * @param comp 组件数据对象
  */
@@ -292,6 +300,7 @@ export function normalizePropsOptions(comp) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 更新组件props
  * @param instance 组件实例
  * @param rawProps 新的props
@@ -310,6 +319,7 @@ export function updateProps(instance, rawProps, rawPrevProps) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 查找给定构造函数在传入的构造函数中的位置
  * @param  type
  * @param  expectedTypes
@@ -324,6 +334,7 @@ function getTypeIndex(type, expectedTypes) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 检测两个构造函数是否相同
  * @param t1 类型
  * @param t2 类型
@@ -333,6 +344,7 @@ function isSameType(t1, t2) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 获取构造函数名称，function Xxx (){}中的Xxx
  * @param ctor 类型
  */

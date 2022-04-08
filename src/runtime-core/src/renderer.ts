@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 20:10:22
+ * @LastEditTime: 2022-04-08 19:41:57
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -19,6 +19,7 @@ import { updateProps } from "./componentProps";
 export const queuePostRenderEffect = queuePostFlushCb;
 
 /**
+ * @author: Zhouqi
  * @description: 自定义渲染器
  * @param options 传入的平台渲染方法集合
  */
@@ -27,6 +28,7 @@ export function createRenderer(options) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 创建基础渲染器函数
  * @param options 传入的平台渲染方法集合
  */
@@ -40,6 +42,7 @@ function baseCreateRenderer(options) {
   } = options;
 
   /**
+   * @author: Zhouqi
    * @description: 更新函数
    * @param n1 老的虚拟节点
    * @param n2 新的虚拟节点
@@ -73,6 +76,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 处理Fragment节点
    * @param n1 老的虚拟节点
    * @param n2 新的虚拟节点
@@ -89,6 +93,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 处理节点为Text类型的虚拟节点
    * @param  n1 老的虚拟节点
    * @param  n2 新的虚拟节点
@@ -105,6 +110,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 处理组件
    * @param n1 旧的虚拟节点
    * @param n2 新的虚拟节点
@@ -123,6 +129,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 更新组件
    * @param  n1 老的虚拟节点
    * @return  n2 新的虚拟节点
@@ -139,6 +146,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 创建元素
    * @param  initialVNode 初始虚拟节点
    * @param  container 容器
@@ -157,6 +165,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 执行渲染和更新
    * @param  instance 组件实例
    * @param  initialVNode 初始虚拟节点
@@ -222,6 +231,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 更新组件上面预渲染的数据
    * @param instance 组件实例
    * @param nextVnode 新的虚拟节点
@@ -237,6 +247,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 处理普通元素
    * @param n1 老的虚拟节点
    * @param n2 新的虚拟节点
@@ -255,6 +266,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 更新元素
    * @param n1 旧的虚拟节点
    * @param n2 新的虚拟节点
@@ -278,6 +290,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 更新孩子节点
    * @param n1 旧的虚拟节点
    * @param n2 新的虚拟节点
@@ -325,6 +338,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 快速diff算法
    * @param c1 旧的子节点
    * @param c2 新的子节点
@@ -528,6 +542,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 删除数组类型的子节点
    * @param children 孩子节点vnode
    */
@@ -539,6 +554,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 更新props属性
    * @param el 容器
    * @param n2 新的虚拟节点
@@ -566,6 +582,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 生成普通元素
    * @param  vnode 虚拟dom
    * @param  container 父容器
@@ -594,6 +611,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 递归处理子节点
    * @param children 子节点
    * @param container 父容器
@@ -607,6 +625,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 渲染函数
    * @param vnode 虚拟节点
    * @param container 容器
@@ -625,6 +644,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 组件卸载
    * @param vnode 老的虚拟节点
    */
@@ -642,6 +662,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 删除元素节点
    * @param vnode 虚拟节点
    */
@@ -651,6 +672,7 @@ function baseCreateRenderer(options) {
   };
 
   /**
+   * @author: Zhouqi
    * @description: 卸载组件
    * @param component 组件实例
    */
@@ -676,6 +698,7 @@ function baseCreateRenderer(options) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 最长递增子序列（vue3中的源码）
  * @param 需要计算的数组
  * @return 最长递增序列的递增索引

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-06 10:04:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 17:33:54
+ * @LastEditTime: 2022-04-08 19:38:42
  */
 import {
   currentInstance,
@@ -12,6 +12,7 @@ import {
 } from "./component";
 
 /**
+ * @author: Zhouqi
  * @description: 注入钩子函数
  * @param  lifecycleHook 生命周期钩子名称
  * @param  hook 要触发的生命周期函数
@@ -40,6 +41,7 @@ function injectHooks(
 }
 
 /**
+ * @author: Zhouqi
  * @description: 注册生命周期钩子函数
  * @param LifecycleHook 生命周期钩子名称
  */

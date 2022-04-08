@@ -2,12 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 09:49:57
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 14:59:23
+ * @LastEditTime: 2022-04-08 19:39:16
  */
 
 import { camelize, toHandlerKey } from "../../shared/src/index";
 
 /**
+ * @author: Zhouqi
  * @description: 事件触发函数
  * @param instance 组件实例
  * @param event 事件名

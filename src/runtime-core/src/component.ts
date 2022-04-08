@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 21:17:39
+ * @LastEditTime: 2022-04-08 19:38:40
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -23,6 +23,7 @@ export const enum LifecycleHooks {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 创建组件实例
  * @param vnode 虚拟节点
  * @param parent 父组件实例
@@ -64,6 +65,7 @@ export function createComponentInstance(vnode, parent) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 是否是有状态组件
  * @param  instance 组件实例
  */
@@ -72,6 +74,7 @@ export function isStatefulComponent(instance) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 初始化组件
  * @param instance 组件实例
  */
@@ -89,6 +92,7 @@ export function setupComponent(instance) {
 export let currentInstance = null;
 
 /**
+ * @author: Zhouqi
  * @description: 获取当前的组件实例
  */
 export function getCurrentInstance() {
@@ -96,6 +100,7 @@ export function getCurrentInstance() {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 有状态组件
  * @param instance
  */
@@ -120,6 +125,7 @@ function setupStatefulComponent(instance) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 处理setup返回值
  * @param instance 组件实例
  * @param setupResult setup返回值
@@ -134,6 +140,7 @@ function handleSetupResult(instance, setupResult) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 完成组件初始化
  * @param instance 组件实例
  */
@@ -145,6 +152,7 @@ function finishComponentSetup(instance) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 修改当前组件实例
  * @param instance 当前组件实例
  */
@@ -153,6 +161,7 @@ export const setCurrentInstance = (instance) => {
 };
 
 /**
+ * @author: Zhouqi
  * @description: 重置当前组件实例
  */
 export const unsetCurrentInstance = () => {

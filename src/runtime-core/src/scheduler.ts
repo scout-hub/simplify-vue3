@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 21:16:28
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 16:43:28
+ * @LastEditTime: 2022-04-08 19:42:43
  */
 
 import { isArray } from "../../shared/src";
@@ -22,6 +22,7 @@ const pendingPostFlushCbs: Function[] = [];
 let activePostFlushCbs: Function[] | null = null;
 
 /**
+ * @author: Zhouqi
  * @description: 将回调推迟到下一个 DOM 更新周期之后执行。在更改了一些数据以等待 DOM 更新后立即使用它
  * @param fn 回调任务
  */
@@ -31,6 +32,7 @@ export function nextTick(fn) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 调度任务队列
  * @param job 任务
  */
@@ -42,6 +44,7 @@ export function queueJob(job) {
 }
 
 /**
+ * @author: Zhouqi
  * @description:
  * @param  cb postFlush类型的回调任务
  * @param  activeQueue 正在执行的postFlush队列
@@ -56,6 +59,7 @@ function queueCb(cb, activeQueue: Function[] | null, pendingQueue: Function[]) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 往pendingPostFlushCbs中添加postFlush类型的任务
  * @param cb 回调任务
  */
@@ -64,6 +68,7 @@ export function queuePostFlushCb(cb) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 执行postFlush任务
  */
 export function flushPostFlushCbs() {
@@ -85,6 +90,7 @@ export function flushPostFlushCbs() {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 执行微任务
  */
 function queueFlush() {
@@ -95,6 +101,7 @@ function queueFlush() {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 执行微任务队列中的任务
  */
 function flushJobs() {

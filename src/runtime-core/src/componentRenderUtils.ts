@@ -2,13 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:51:30
+ * @LastEditTime: 2022-04-08 19:39:55
  */
 
 import { ShapeFlags } from "../../shared/src";
 import { cloneVNode, normalizeVNode } from "./vnode";
 
 /**
+ * @author: Zhouqi
  * @description: 生成组件的vnode
  * @param instance 组件实例
  */
@@ -38,6 +39,7 @@ export function renderComponentRoot(instance) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 是否需要更新组件
  * @param n1 旧的虚拟节点
  * @param n2 新的虚拟节点

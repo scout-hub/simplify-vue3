@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:39:31
+ * @LastEditTime: 2022-04-08 19:42:57
  */
 
 import {
@@ -19,6 +19,7 @@ export const Fragment = Symbol("Fragment");
 export const Text = Symbol("Text");
 
 /**
+ * @author: Zhouqi
  * @description: 是否是同一类型的vnode
  * @param n1 旧的虚拟节点
  * @param n2 新的虚拟节点
@@ -112,6 +113,7 @@ export function normalizeChildren(vnode, children) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 解析vnode（这里暂时只处理有状态组件的情况）
  * @param child 虚拟节点
  */
@@ -126,6 +128,7 @@ export function normalizeVNode(child) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 克隆vnode
  * @param  vnode 虚拟节点
  * @param  extraProps 额外的属性
@@ -140,6 +143,7 @@ export function cloneVNode(vnode, extraProps?) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 合并props属性
  * @param  args 需要合并的props对象数组
  */

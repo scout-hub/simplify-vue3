@@ -2,9 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-04 14:03:59
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 14:10:00
+ * @LastEditTime: 2022-04-08 19:44:56
  */
 /**
+ * @author: Zhouqi
  * @description: 更新dom属性
  * @param el dom元素
  * @param key 属性

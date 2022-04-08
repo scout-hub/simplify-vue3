@@ -2,11 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 16:57:13
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-03 17:08:47
+ * @LastEditTime: 2022-04-08 19:45:09
  */
 import { isArray, isObject, isString } from "./index";
 
 /**
+ * @author: Zhouqi
  * @description: 规范化class的值
  * @param value class的值
  */

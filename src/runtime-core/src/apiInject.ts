@@ -2,12 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-02 14:43:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-02 17:20:23
+ * @LastEditTime: 2022-04-08 19:38:43
  */
 import { isFunction } from "../../shared/src/index";
 import { currentInstance } from "./component";
 
 /**
+ * @author: Zhouqi
  * @description: 依赖提供
  * @param key 键
  * @param value 值
@@ -33,6 +34,7 @@ export function provide(key: string, value: unknown) {
 }
 
 /**
+ * @author: Zhouqi
  * @description: 依赖注入
  * @param key 键
  * @param defaultValue 默认值

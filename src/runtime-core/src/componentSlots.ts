@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 21:16:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 21:22:43
+ * @LastEditTime: 2022-04-08 19:41:12
  */
 
 import { isArray, ShapeFlags } from "../../shared/src/index";
@@ -11,7 +11,12 @@ import { isArray, ShapeFlags } from "../../shared/src/index";
  * 插槽的vnode结构
  */
 
-// 初始化插槽
+/**
+ * @author: Zhouqi
+ * @description: 初始化插槽
+ * @param instance 组件实例
+ * @param children 插槽节点
+ */
 export function initSlots(instance, children) {
   // 判断是不是插槽节点
   if (ShapeFlags.SLOTS_CHILDREN & instance.vnode.shapeFlag) {
@@ -19,7 +24,12 @@ export function initSlots(instance, children) {
   }
 }
 
-// 将children中的插槽节点赋值到组件实例的slots对象上
+/**
+ * @author: Zhouqi
+ * @description: 将children中的插槽节点赋值到组件实例的slots对象上
+ * @param children 插槽节点
+ * @param slots 插槽数据存储目标
+ */
 function normalizeObjectSlots(children, slots) {
   // slots是一个对象，用于实现具名插槽
   for (const key in children) {
@@ -29,7 +39,11 @@ function normalizeObjectSlots(children, slots) {
   }
 }
 
-// 对插槽值对处理，转换成数组类型的子节点
+/**
+ * @author: Zhouqi
+ * @description: 对插槽值对处理，转换成数组类型的子节点
+ * @param slot 插槽数据
+ */
 function normalizeSlotValue(slot) {
   return isArray(slot) ? slot : [slot];
 }

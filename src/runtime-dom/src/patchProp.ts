@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 15:44:22
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-04 14:04:53
+ * @LastEditTime: 2022-04-08 19:44:36
  */
 import { isOn } from "../../shared/src/index";
 import { patchAttr } from "./modules/attrs";
@@ -10,6 +10,7 @@ import { patchEvent } from "./modules/events";
 import { patchDOMProp } from "./modules/props";
 
 /**
+ * @author: Zhouqi
  * @description: 处理props属性
  * 处理props时需要理解HTML Attribute 和 DOM property的关系
  *
