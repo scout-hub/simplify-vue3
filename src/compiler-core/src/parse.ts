@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 16:06:51
+ * @LastEditTime: 2022-04-09 16:45:34
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -21,7 +21,7 @@ export const defaultParserOptions = {
 export function baseParse(template: string) {
   const context = createParserContext(template);
 
-  return createRoot(parseChildren(context, ""));
+  return createRoot(parseChildren(context, []));
 }
 
 /**
@@ -54,13 +54,13 @@ function createRoot(nodes) {
  * @author: Zhouqi
  * @description: 解析模板子节点
  * @param context 模板解析上下文对象
- * @param parentTag 父节点标记
+ * @param ancestors 存储节点层级关系栈
  * @return 模板子节点
  */
-function parseChildren(context, parentTag) {
+function parseChildren(context, ancestors) {
   const { options } = context;
   const nodes: any = [];
-  while (!isEnd(context, parentTag)) {
+  while (!isEnd(context, ancestors)) {
     let node;
     const template = context.source;
     if (template.startsWith(options.delimiters[0])) {
@@ -69,7 +69,7 @@ function parseChildren(context, parentTag) {
     } else if (template[0] === "<") {
       if (/[a-z]/i.test(template[1])) {
         // 解析标签
-        node = parseElement(context);
+        node = parseElement(context, ancestors);
       }
     }
 
@@ -130,13 +130,22 @@ function parseTextData(context, length) {
  * @author: Zhouqi
  * @description: 解析标签
  * @param context 模板解析上下文
+ * @param ancestors 存储节点层级关系栈
  * @return 解析后的节点对象
  */
-function parseElement(context) {
+function parseElement(context, ancestors) {
   const element: any = parseTag(context, TagType.Start);
+  ancestors.push(element);
   // 递归处理子节点
-  element.children = parseChildren(context, element.tag);
-  parseTag(context, TagType.End);
+  element.children = parseChildren(context, ancestors);
+  ancestors.pop();
+
+  // 判断模板是否合法，比如只有起始标签，没有结束标签，则直接抛出错误
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.End);
+  } else {
+    throw "缺少结束标签" + element.tag;
+  }
   return element;
 }
 
@@ -228,16 +237,41 @@ const enum TagType {
  * @author: Zhouqi
  * @description: 模板解析结束的标志
  * @param context 模板解析上下文
- * @param rootTag 根节点标记
+ * @param ancestors 根节点标记
+ * @param ancestors 存储节点层级关系栈
  * @return 模板是否继续解析的标记
  */
-function isEnd(context, rootTag) {
+function isEnd(context, ancestors) {
   const template = context.source;
-
   // 1. 模板字符串开头为结束标签
-  if (template.startsWith(`</${rootTag}>`)) {
-    return true;
+  if (template.startsWith("</")) {
+    // 当遇到结束标签时去配置之前记录的起始标签，如果匹配到了则结束模板的遍历，避免死循环，例如：<div><span></div>
+    for (let i = ancestors.length - 1; i >= 0; i--) {
+      const tag = ancestors[i].tag;
+      if (startsWithEndTagOpen(template, tag)) {
+        return true;
+      }
+    }
   }
+
   // 2. 模板字符串为空
   return !template;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 判断模板是否匹配到某一个结束标签
+ * @param source 模板字符串
+ * @param tag 标签
+ * @return 是否匹配到
+ */
+function startsWithEndTagOpen(source: string, tag: string): boolean {
+  return (
+    startsWith(source, "</") &&
+    source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
+  );
+}
+
+function startsWith(source, target) {
+  return source.startsWith(target);
 }

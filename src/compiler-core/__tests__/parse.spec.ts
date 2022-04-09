@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 16:10:31
+ * @LastEditTime: 2022-04-09 16:46:30
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -134,19 +134,9 @@ describe("parser", () => {
     });
 
     test("no end tag", () => {
-      const ast = baseParse("<div><span></div>");
-      const element = ast.children[0];
-      // expect(element).toStrictEqual({
-      //   type: NodeTypes.ELEMENT,
-      //   tag: "div",
-      //   tagType: ElementTypes.ELEMENT,
-      //   children: [
-      //     {
-      //       type: NodeTypes.TEXT,
-      //       content: "hello",
-      //     },
-      //   ],
-      // });
+      expect(() => {
+        baseParse("<div><span></div>");
+      }).toThrow("缺少结束标签span");
     });
 
     test("element with interpolation", () => {
