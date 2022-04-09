@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 21:40:17
+ * @LastEditTime: 2022-04-09 22:42:30
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
+import { TO_DISPLAY_STRING } from "./runtimeHelpers";
 
 /**
  * @author: Zhouqi
@@ -18,6 +19,7 @@ export function transform(root, options = {}) {
   const context = createTransformContext(root, options);
   traverseNode(root, context);
   createRootCodegen(root);
+  root.helpers = [...context.helpers.keys()];
 }
 
 /**
@@ -40,6 +42,10 @@ function createTransformContext(root, { nodeTransforms = [] }) {
   const context = {
     root,
     nodeTransforms,
+    helpers: new Map(),
+    helper(name) {
+      context.helpers.set(name, 1);
+    },
   };
 
   return context;
@@ -65,6 +71,9 @@ function traverseNode(node, context) {
   }
 
   const nodeTypeHandlers = {
+    [(type === NodeTypes.INTERPOLATION) as any]() {
+      context.helper(TO_DISPLAY_STRING);
+    },
     [traverseChildrenType.includes(type) as any]() {
       traverseChildren(node.children, context);
     },
