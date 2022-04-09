@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 14:26:50
+ * @LastEditTime: 2022-04-09 14:41:36
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -72,20 +72,52 @@ function parseChildren(context) {
       node = parseElement(context);
     }
   }
+
+  // node不存在的话默认就是文本节点
+  if (!node) {
+    node = parseText(context);
+  }
   nodes.push(node);
+  
   return nodes;
 }
 
 /**
  * @author: Zhouqi
+ * @description: 解析文本节点
+ * @param context 模板解析上下文
+ * @return 解析后的节点对象
+ */
+function parseText(context) {
+  const content = parseTextData(context, context.source.length);
+
+  return {
+    type: NodeTypes.TEXT,
+    content,
+  };
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 获取文本内容和模板推进
+ * @param context 模板解析上下文
+ * @return {*}
+ */
+function parseTextData(context, length) {
+  const content = context.source.slice(0, length);
+  advanceBy(context, length);
+  return content;
+}
+
+/**
+ * @author: Zhouqi
  * @description: 解析标签
- * @param context  模板解析上下文
+ * @param context 模板解析上下文
  * @return 解析后的节点对象
  */
 function parseElement(context) {
   const tag = parseTag(context, TagType.Start);
   parseTag(context, TagType.End);
-  console.log(context);
   return tag;
 }
 
@@ -138,10 +170,10 @@ function parseInterpolation(context) {
   const contentLength = closeDelimitersIndex - openDelimitersLength;
   // 截掉起始插值标签
   advanceBy(context, openDelimitersLength);
-  const rawContent = context.source.slice(0, contentLength);
+  const rawContent = parseTextData(context, contentLength);
   const content = rawContent.trim();
   // 截掉已经解析过的部分
-  advanceBy(context, contentLength + closeDelimiters.length);
+  advanceBy(context, closeDelimiters.length);
 
   return {
     // 类型是插值节点
@@ -159,7 +191,7 @@ function parseInterpolation(context) {
 
 /**
  * @author: Zhouqi
- * @description: 辅助模板截取
+ * @description: 辅助模板截取（模板推进）
  * @param context 模板解析上下文
  * @param sliceStart 开始截取的位置
  */

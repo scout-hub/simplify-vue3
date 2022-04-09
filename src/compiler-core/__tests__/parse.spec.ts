@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 14:09:40
+ * @LastEditTime: 2022-04-09 14:41:00
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -42,21 +42,21 @@ describe("parser", () => {
     // });
   });
 
-  // describe("Interpolation", () => {
-  //   test("simple interpolation", () => {
-  //     const ast = baseParse("{{ message }}");
-  //     const interpolation = ast.children[0];
+  describe("Interpolation", () => {
+    test("simple interpolation", () => {
+      const ast = baseParse("{{ message }}");
+      const interpolation = ast.children[0];
 
-  //     expect(interpolation).toStrictEqual({
-  //       type: NodeTypes.INTERPOLATION,
-  //       content: {
-  //         isStatic: false,
-  //         type: NodeTypes.SIMPLE_EXPRESSION,
-  //         content: `message`,
-  //       },
-  //     });
-  //   });
-  // });
+      expect(interpolation).toStrictEqual({
+        type: NodeTypes.INTERPOLATION,
+        content: {
+          isStatic: false,
+          type: NodeTypes.SIMPLE_EXPRESSION,
+          content: `message`,
+        },
+      });
+    });
+  });
 
   // describe("Element", () => {
   // test("simple div", () => {
