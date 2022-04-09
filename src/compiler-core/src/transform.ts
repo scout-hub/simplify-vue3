@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 21:29:14
+ * @LastEditTime: 2022-04-09 21:40:17
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -14,9 +14,19 @@ import { NodeTypes } from "./ast";
  * @param options 配置
  * @return
  */
-export function transform(root, options) {
+export function transform(root, options = {}) {
   const context = createTransformContext(root, options);
   traverseNode(root, context);
+  createRootCodegen(root);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 创建codegen所需要的ast
+ * @param root ast
+ */
+function createRootCodegen(root) {
+  root.codegenNode = root.children[0];
 }
 
 /**
