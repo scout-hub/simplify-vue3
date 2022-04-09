@@ -2,9 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 22:03:15
+ * @LastEditTime: 2022-04-09 13:39:32
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
+import { NodeTypes } from "../src/ast";
 import { baseParse } from "../src/parse";
 
 describe("parser", () => {
@@ -43,16 +44,17 @@ describe("parser", () => {
 
   describe("Interpolation", () => {
     test("simple interpolation", () => {
-      // const ast = baseParse("{{message}}");
-      // const interpolation = ast.children[0];
+      const ast = baseParse("{{ message }}");
+      const interpolation = ast.children[0];
 
-      // expect(interpolation).toStrictEqual({
-      //   type: NodeTypes.INTERPOLATION,
-      //   content: {
-      //     type: NodeTypes.SIMPLE_EXPRESSION,
-      //     content: `message`,
-      //   },
-      // });
+      expect(interpolation).toStrictEqual({
+        type: NodeTypes.INTERPOLATION,
+        content: {
+          isStatic: false,
+          type: NodeTypes.SIMPLE_EXPRESSION,
+          content: `message`,
+        },
+      });
     });
   });
 
