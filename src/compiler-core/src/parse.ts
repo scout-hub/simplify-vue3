@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 13:38:42
+ * @LastEditTime: 2022-04-09 14:26:50
  */
 import { extend } from "../../shared/src";
-import { NodeTypes } from "./ast";
+import { ElementTypes, NodeTypes } from "./ast";
 
 // 默认的解析配置
 export const defaultParserOptions = {
@@ -57,12 +57,20 @@ function createRoot(nodes) {
  * @return 模板子节点
  */
 function parseChildren(context) {
-  const { options, source: template } = context;
+  const { options } = context;
   const nodes: any = [];
   let node;
+
+  const template = context.source;
   if (template.startsWith(options.delimiters[0])) {
     // 说明是插值节点
     node = parseInterpolation(context);
+  } else if (template[0] === "<") {
+    if (/[a-z]/i.test(template[1])) {
+      // <div></div>;
+      // 解析标签
+      node = parseElement(context);
+    }
   }
   nodes.push(node);
   return nodes;
@@ -70,9 +78,46 @@ function parseChildren(context) {
 
 /**
  * @author: Zhouqi
+ * @description: 解析标签
+ * @param context  模板解析上下文
+ * @return 解析后的节点对象
+ */
+function parseElement(context) {
+  const tag = parseTag(context, TagType.Start);
+  parseTag(context, TagType.End);
+  console.log(context);
+  return tag;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 解析标签
+ * @param context 模板解析上下文
+ * @param type 标签类型：起始标签/结束标签
+ * @return 解析后的标签数据
+ */
+function parseTag(context, type: TagType) {
+  const match: any = /^<\/?([a-z]*)/i.exec(context.source);
+  const tag = match[1];
+  advanceBy(context, match[0].length);
+  advanceBy(context, 1);
+
+  // 如果是结束标签，直接结束
+  if (type === TagType.End) return;
+
+  return {
+    // 类型是节点类型
+    type: NodeTypes.ELEMENT,
+    tag,
+    tagType: ElementTypes.ELEMENT,
+  };
+}
+
+/**
+ * @author: Zhouqi
  * @description: 解析插值语法
- * @param context 插值模板
- * @return 解析后的节点
+ * @param context 模板解析上下文
+ * @return 解析后的节点对象
  */
 function parseInterpolation(context) {
   // template {{ message }}.
@@ -112,6 +157,17 @@ function parseInterpolation(context) {
   };
 }
 
-function advanceBy(context, openDelimitersLength) {
-  context.source = context.source.slice(openDelimitersLength);
+/**
+ * @author: Zhouqi
+ * @description: 辅助模板截取
+ * @param context 模板解析上下文
+ * @param sliceStart 开始截取的位置
+ */
+function advanceBy(context, sliceStart) {
+  context.source = context.source.slice(sliceStart);
+}
+
+const enum TagType {
+  Start,
+  End,
 }
