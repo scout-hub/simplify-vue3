@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 14:41:36
+ * @LastEditTime: 2022-04-09 16:06:51
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -21,7 +21,7 @@ export const defaultParserOptions = {
 export function baseParse(template: string) {
   const context = createParserContext(template);
 
-  return createRoot(parseChildren(context));
+  return createRoot(parseChildren(context, ""));
 }
 
 /**
@@ -54,31 +54,32 @@ function createRoot(nodes) {
  * @author: Zhouqi
  * @description: 解析模板子节点
  * @param context 模板解析上下文对象
+ * @param parentTag 父节点标记
  * @return 模板子节点
  */
-function parseChildren(context) {
+function parseChildren(context, parentTag) {
   const { options } = context;
   const nodes: any = [];
-  let node;
-
-  const template = context.source;
-  if (template.startsWith(options.delimiters[0])) {
-    // 说明是插值节点
-    node = parseInterpolation(context);
-  } else if (template[0] === "<") {
-    if (/[a-z]/i.test(template[1])) {
-      // <div></div>;
-      // 解析标签
-      node = parseElement(context);
+  while (!isEnd(context, parentTag)) {
+    let node;
+    const template = context.source;
+    if (template.startsWith(options.delimiters[0])) {
+      // 说明是插值节点
+      node = parseInterpolation(context);
+    } else if (template[0] === "<") {
+      if (/[a-z]/i.test(template[1])) {
+        // 解析标签
+        node = parseElement(context);
+      }
     }
+
+    // node不存在的话默认就是文本节点
+    if (!node) {
+      node = parseText(context);
+    }
+    nodes.push(node);
   }
 
-  // node不存在的话默认就是文本节点
-  if (!node) {
-    node = parseText(context);
-  }
-  nodes.push(node);
-  
   return nodes;
 }
 
@@ -89,7 +90,23 @@ function parseChildren(context) {
  * @return 解析后的节点对象
  */
 function parseText(context) {
-  const content = parseTextData(context, context.source.length);
+  // 遇到结束截取的标记：
+  // 1、结束标签
+  // 2、插值模板结束标记
+  const endTokens = ["<", context.options.delimiters[0]];
+  // 默认截取长度为模板长度
+  let endIndex = context.source.length;
+
+  // 遍历模板中的结束标记，找到位置最靠前的结束标记的索引，这个索引就是需要截取的结束位置
+  for (let i = 0; i < endTokens.length; i++) {
+    const endToken = endTokens[i];
+    const index = context.source.indexOf(endToken);
+    if (index !== -1 && endIndex > index) {
+      endIndex = index;
+    }
+  }
+
+  const content = parseTextData(context, endIndex);
 
   return {
     type: NodeTypes.TEXT,
@@ -116,9 +133,11 @@ function parseTextData(context, length) {
  * @return 解析后的节点对象
  */
 function parseElement(context) {
-  const tag = parseTag(context, TagType.Start);
+  const element: any = parseTag(context, TagType.Start);
+  // 递归处理子节点
+  element.children = parseChildren(context, element.tag);
   parseTag(context, TagType.End);
-  return tag;
+  return element;
 }
 
 /**
@@ -130,6 +149,7 @@ function parseElement(context) {
  */
 function parseTag(context, type: TagType) {
   const match: any = /^<\/?([a-z]*)/i.exec(context.source);
+
   const tag = match[1];
   advanceBy(context, match[0].length);
   advanceBy(context, 1);
@@ -202,4 +222,22 @@ function advanceBy(context, sliceStart) {
 const enum TagType {
   Start,
   End,
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 模板解析结束的标志
+ * @param context 模板解析上下文
+ * @param rootTag 根节点标记
+ * @return 模板是否继续解析的标记
+ */
+function isEnd(context, rootTag) {
+  const template = context.source;
+
+  // 1. 模板字符串开头为结束标签
+  if (template.startsWith(`</${rootTag}>`)) {
+    return true;
+  }
+  // 2. 模板字符串为空
+  return !template;
 }

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 14:41:00
+ * @LastEditTime: 2022-04-09 16:10:31
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -18,7 +18,7 @@ describe("parser", () => {
         content: "some text",
       });
     });
-    // test("simple text with invalid end tag", () => {
+    // test.only("simple text with invalid end tag", () => {
     //   const ast = baseParse("some text</div>");
     //   const text = ast.children[0];
     //   expect(text).toStrictEqual({
@@ -58,42 +58,116 @@ describe("parser", () => {
     });
   });
 
-  // describe("Element", () => {
-  // test("simple div", () => {
-  //   const ast = baseParse("<div>hello</div>");
-  //   const element = ast.children[0];
+  describe("Element", () => {
+    test("three", () => {
+      const ast = baseParse("<div>hello, {{message}}</div>");
+      const element = ast.children[0];
 
-  //   expect(element).toStrictEqual({
-  //     type: NodeTypes.ELEMENT,
-  //     tag: "div",
-  //     tagType: ElementTypes.ELEMENT,
-  //     children: [
-  //       {
-  //         type: NodeTypes.TEXT,
-  //         content: "hello",
-  //       },
-  //     ],
-  //   });
-  // });
+      expect(element).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
+        tagType: ElementTypes.ELEMENT,
+        children: [
+          {
+            type: NodeTypes.TEXT,
+            content: "hello, ",
+          },
+          {
+            type: NodeTypes.INTERPOLATION,
+            content: {
+              isStatic: false,
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: `message`,
+            },
+          },
+        ],
+      });
+    });
 
-  //   test("element with interpolation", () => {
-  //     const ast = baseParse("<div>{{ msg }}</div>");
-  //     const element = ast.children[0];
+    test("three1", () => {
+      const ast = baseParse("<div><p>hello</p>{{message}}</div>");
+      const element = ast.children[0];
 
-  //     expect(element).toStrictEqual({
-  //       type: NodeTypes.ELEMENT,
-  //       tag: "div",
-  //       tagType: ElementTypes.ELEMENT,
-  //       children: [
-  //         {
-  //           type: NodeTypes.INTERPOLATION,
-  //           content: {
-  //             type: NodeTypes.SIMPLE_EXPRESSION,
-  //             content: `msg`,
-  //           },
-  //         },
-  //       ],
-  //     });
-  //   });
-  // });
+      expect(element).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
+        tagType: ElementTypes.ELEMENT,
+        children: [
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "p",
+            tagType: ElementTypes.ELEMENT,
+            children: [
+              {
+                type: NodeTypes.TEXT,
+                content: "hello",
+              },
+            ],
+          },
+          {
+            type: NodeTypes.INTERPOLATION,
+            content: {
+              isStatic: false,
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: `message`,
+            },
+          },
+        ],
+      });
+    });
+
+    test("simple div", () => {
+      const ast = baseParse("<div>hello</div>");
+      const element = ast.children[0];
+
+      expect(element).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
+        tagType: ElementTypes.ELEMENT,
+        children: [
+          {
+            type: NodeTypes.TEXT,
+            content: "hello",
+          },
+        ],
+      });
+    });
+
+    test("no end tag", () => {
+      const ast = baseParse("<div><span></div>");
+      const element = ast.children[0];
+      // expect(element).toStrictEqual({
+      //   type: NodeTypes.ELEMENT,
+      //   tag: "div",
+      //   tagType: ElementTypes.ELEMENT,
+      //   children: [
+      //     {
+      //       type: NodeTypes.TEXT,
+      //       content: "hello",
+      //     },
+      //   ],
+      // });
+    });
+
+    test("element with interpolation", () => {
+      const ast = baseParse("<div>{{ msg }}</div>");
+      const element = ast.children[0];
+
+      expect(element).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
+        tagType: ElementTypes.ELEMENT,
+        children: [
+          {
+            type: NodeTypes.INTERPOLATION,
+            content: {
+              isStatic: false,
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: `msg`,
+            },
+          },
+        ],
+      });
+    });
+  });
 });
