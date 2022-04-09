@@ -8,7 +8,8 @@ export const enum NodeTypes {
   ELEMENT,
   SIMPLE_EXPRESSION,
   INTERPOLATION,
-  TEXT
+  TEXT,
+  ROOT
 }
 
 export const enum ElementTypes {

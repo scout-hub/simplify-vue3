@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 16:45:34
+ * @LastEditTime: 2022-04-09 20:47:29
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -41,11 +41,12 @@ function createParserContext(template: string) {
 /**
  * @author: Zhouqi
  * @description:
- * @param {*} nodes
- * @return {*}
+ * @param nodes 模板节点
+ * @return ast
  */
 function createRoot(nodes) {
   return {
+    type: NodeTypes.ROOT,
     children: nodes,
   };
 }
