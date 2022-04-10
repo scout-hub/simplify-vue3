@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 17:40:59
+ * @LastEditTime: 2022-04-10 21:50:43
  */
 import { extend } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -47,6 +47,7 @@ export class ReactiveEffect {
   stop() {
     // active用于防止重复调用stop
     if (this.active) {
+      // 移除依赖
       cleanup(this);
       this.onStop && this.onStop();
       this.active = false;

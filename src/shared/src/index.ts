@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:55:01
+ * @LastEditTime: 2022-04-10 20:24:34
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -20,6 +20,11 @@ export const isString = (val) => typeof val === "string";
 
 // 判断值是不是函数
 export const isFunction = (val) => typeof val === "function";
+
+export const toTypeString = (value) => Object.prototype.toString.call(value);
+
+// 判断是不是一个纯对象
+export const isPlainObject = (val) => toTypeString(val) === "[object Object]";
 
 // 新旧值是否有变化，以及对NaN的判断处理 NaN === NaN为false
 export const hasChanged = (value: any, oldValue: any): boolean =>

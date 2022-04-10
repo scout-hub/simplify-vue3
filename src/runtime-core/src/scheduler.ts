@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 21:16:28
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:42:43
+ * @LastEditTime: 2022-04-10 20:57:16
  */
 
 import { isArray } from "../../shared/src";
@@ -54,6 +54,9 @@ function queueCb(cb, activeQueue: Function[] | null, pendingQueue: Function[]) {
   // cb是array说明是组件的生命周期回调函数
   if (isArray(cb)) {
     pendingQueue.push(...cb);
+  } else {
+    // 单独的任务 比如watch的scheduler调度器
+    pendingQueue.push(cb);
   }
   queueFlush();
 }
