@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:39:55
+ * @LastEditTime: 2022-04-10 14:53:16
  */
 
 import { ShapeFlags } from "../../shared/src";
@@ -20,7 +20,7 @@ export function renderComponentRoot(instance) {
 
   if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     // 处理有状态组件
-    result = normalizeVNode(render.call(proxy));
+    result = normalizeVNode(render.call(proxy, proxy));
     fallthroughAttrs = attrs;
   }
 

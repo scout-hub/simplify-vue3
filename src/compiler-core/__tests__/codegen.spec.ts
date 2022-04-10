@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:17:56
+ * @LastEditTime: 2022-04-10 14:43:06
  */
 import { generate } from "../src/codegen";
 import { baseParse } from "../src/parse";
@@ -15,7 +15,7 @@ describe("Compiler: transform", () => {
     const ast = baseParse(`hello`);
 
     transform(ast);
-    const code = generate(ast);
+    const { code } = generate(ast);
 
     expect(code).toMatchSnapshot();
   });
@@ -26,7 +26,7 @@ describe("Compiler: transform", () => {
     transform(ast, {
       nodeTransforms: [transformExpression],
     });
-    const code = generate(ast);
+    const { code } = generate(ast);
 
     expect(code).toMatchSnapshot();
   });
@@ -37,7 +37,7 @@ describe("Compiler: transform", () => {
     transform(ast, {
       nodeTransforms: [transformElement],
     });
-    const code = generate(ast);
+    const { code } = generate(ast);
 
     expect(code).toMatchSnapshot();
   });
@@ -49,7 +49,7 @@ describe("Compiler: transform", () => {
       nodeTransforms: [transformElement, transformExpression, transformText],
     });
 
-    const code = generate(ast);
+    const { code } = generate(ast);
 
     expect(code).toMatchSnapshot();
   });

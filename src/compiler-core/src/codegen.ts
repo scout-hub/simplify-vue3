@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:12:54
+ * @LastEditTime: 2022-04-10 14:51:48
  */
 /**
  * 1. text
@@ -52,7 +52,7 @@ export function generate(ast, options = {}) {
   genNode(ast.codegenNode, context);
   push(" }");
 
-  return context.code;
+  return { code: context.code };
 }
 
 /**
@@ -153,7 +153,6 @@ function genNullableArgs(args) {
 
 function genNodeList(nodes, context) {
   const { push } = context;
-  console.log(nodes);
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {

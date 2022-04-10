@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:38:40
+ * @LastEditTime: 2022-04-10 14:50:37
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
@@ -146,7 +146,14 @@ function handleSetupResult(instance, setupResult) {
  */
 function finishComponentSetup(instance) {
   const { type: component } = instance;
-  if (component.render) {
+
+  if (!instance.render) {
+    if (!component.render) {
+      const { template } = component;
+      if (template) {
+        component.render = compile(template);
+      }
+    }
     instance.render = component.render;
   }
 }
@@ -167,3 +174,15 @@ export const setCurrentInstance = (instance) => {
 export const unsetCurrentInstance = () => {
   currentInstance = null;
 };
+
+let compile;
+
+/**
+ * @author: Zhouqi
+ * @description: 注册一个运行时编译函数，传入compile函数来编译template
+ * @param {any} _compile
+ * @return {*}
+ */
+export function registerRuntimeCompiler(_compile) {
+  compile = _compile;
+}
