@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 22:42:30
+ * @LastEditTime: 2022-04-10 13:53:28
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -28,7 +28,12 @@ export function transform(root, options = {}) {
  * @param root ast
  */
 function createRootCodegen(root) {
-  root.codegenNode = root.children[0];
+  const child = root.children[0];
+  if (child.type === NodeTypes.ELEMENT) {
+    root.codegenNode = child.codegenNode;
+  } else {
+    root.codegenNode = root.children[0];
+  }
 }
 
 /**
@@ -65,9 +70,12 @@ function traverseNode(node, context) {
   //   if (type === NodeTypes.TEXT) {
   //     node.content = node.content + "123";
   //   }
-  // 上面这段逻辑可以由外部来添加，形成一种插件式的模式，扩展性更高
+  const exitFns: any = [];
   for (let i = 0; i < nodeTransforms.length; i++) {
-    nodeTransforms[i](node);
+    const onExit = nodeTransforms[i](node, context);
+    if (onExit) {
+      exitFns.push(onExit);
+    }
   }
 
   const nodeTypeHandlers = {
@@ -82,6 +90,10 @@ function traverseNode(node, context) {
   const nodeHandler = nodeTypeHandlers[true as any];
   if (isFunction(nodeHandler)) {
     nodeHandler();
+  }
+  let i = exitFns.length;
+  while (i--) {
+    exitFns[i]();
   }
 }
 
