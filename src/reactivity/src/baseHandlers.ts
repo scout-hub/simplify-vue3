@@ -1,8 +1,9 @@
+import { isArray } from "./../../shared/src/index";
 /*
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 20:15:07
+ * @LastEditTime: 2022-04-11 20:53:12
  */
 import { ITERATE_KEY, track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
@@ -61,9 +62,17 @@ const createSetter = function () {
 
     /**
      * 判断是新增还是修改属性
-     * 对于新增属性需要触发ITERATE_KEY相关的依赖，因为这会影响for in循环
+     *
+     * const arr = [1];
+     * arr[2] = 2;  // arr.length = 3
+     * 当target是数组时，如果通过下标的形式设置数组值，当下标大于数组长度时，表示新增，此时会改变数组的length，这个
+     * 时候需要触发key 为 length相关的依赖；反之为修改值，可直接被set拦截
+     *
+     * 当target是对象时，对于新增属性需要触发ITERATE_KEY相关的依赖，因为这会影响for in循环
      */
-    const hasKey = hasOwn(target, key);
+    const hasKey = isArray(target)
+      ? Number(key) < target.length
+      : hasOwn(target, key);
 
     const result = Reflect.set(target, key, newValue, receiver);
 
@@ -88,7 +97,7 @@ const createSetter = function () {
     if (target === toRaw(receiver)) {
       if (!hasKey) {
         // 新增属性
-        trigger(target, TriggerOpTypes.ADD, key);
+        trigger(target, TriggerOpTypes.ADD, key, newValue);
       } else if (hasChanged(newValue, oldValue)) {
         // 修改属性值，触发依赖
         trigger(target, TriggerOpTypes.SET, key);
@@ -99,14 +108,14 @@ const createSetter = function () {
 };
 
 // 拦截 in 操作
-function has(target: object, key: string | symbol): boolean {
+function has(target: Target, key: string | symbol): boolean {
   const result = Reflect.has(target, key);
   track(target, key);
   return result;
 }
 
 // 拦截 delete 操作
-function deleteProperty(target: object, key: string | symbol): boolean {
+function deleteProperty(target: Target, key: string | symbol): boolean {
   // 判断对象上是否有相关属性
   const hasKey = hasOwn(target, key);
   const result = Reflect.deleteProperty(target, key);
@@ -154,6 +163,10 @@ export const shallowReactiveHandler: ProxyHandler<object> = {
 export const readonlyHandler: ProxyHandler<object> = {
   get: readonlyGetter,
   set(target: Target, key: string, newValue: unknown, receiver: object) {
+    console.warn(`${key} is readonly`);
+    return true;
+  },
+  deleteProperty(target: Target, key: unknown) {
     console.warn(`${key} is readonly`);
     return true;
   },

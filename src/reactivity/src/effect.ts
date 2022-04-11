@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 19:49:50
+ * @LastEditTime: 2022-04-11 21:02:18
  */
 import { extend, isArray } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -140,30 +140,56 @@ export function trackEffects(deps: Dep) {
 }
 
 // 触发依赖函数
-export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
+export function trigger(
+  target: object,
+  type: TriggerOpTypes,
+  key?: unknown,
+  newValue?: unknown
+) {
   const depsMap = targetMap.get(target);
   if (!depsMap) return;
   let deps: (Dep | undefined)[] = [];
 
-  // 如果key不是undefined，则获取对应key上的deps依赖集合
-  if (key !== void 0) {
-    deps.push(depsMap.get(key));
-  }
+  if (key === "length" && isArray(target)) {
+    /**
+     * 如果操作了数组的length，比如 arr = [1], arr.length = 0;
+     * 此时会删除arr[0]这个元素，需要触发key为0相关的依赖；当时假如
+     * arr.length = 1，此时arr[0]依旧存在，不受影响，不需要触发依赖。
+     * 因此我们得出一个结论，当修改数组的长度属性时，需要触发原数组中下标大于
+     * 新length值的依赖。
+     */
+    depsMap.forEach((dep, key) => {
+      // 不要遗漏了key为length的依赖，因为操作了length
+      if (key === "length" || key >= (newValue as number)) {
+        deps.push(dep);
+      }
+    });
+  } else {
+    // 如果key不是undefined，则获取对应key上的deps依赖集合
+    if (key !== void 0) {
+      deps.push(depsMap.get(key));
+    }
 
-  // 针对不同的type还需要做特殊处理
-  switch (type) {
-    case TriggerOpTypes.SET:
-      break;
-    case TriggerOpTypes.ADD:
-      // 新增属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
-      deps.push(depsMap.get(ITERATE_KEY));
-      break;
-    case TriggerOpTypes.DELETE:
-      // 删除属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
-      deps.push(depsMap.get(ITERATE_KEY));
-      break;
-    default:
-      break;
+    // 针对不同的type还需要做特殊处理
+    switch (type) {
+      case TriggerOpTypes.SET:
+        break;
+      case TriggerOpTypes.ADD:
+        if (!isArray(target)) {
+          // 对象新增属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+          deps.push(depsMap.get(ITERATE_KEY));
+        } else {
+          // 数组新增元素操作，会影响length属性，需要获取length相关的依赖
+          deps.push(depsMap.get("length"));
+        }
+        break;
+      case TriggerOpTypes.DELETE:
+        // 删除属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+        deps.push(depsMap.get(ITERATE_KEY));
+        break;
+      default:
+        break;
+    }
   }
 
   // 构建一个新的effect集合，防止无限循环，比如：删除effect的同时又添加effect
