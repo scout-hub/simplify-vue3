@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 19:50:50
+ * @LastEditTime: 2022-04-11 20:01:33
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -78,8 +78,25 @@ describe("reactive", () => {
 
     obj.num1 = 1;
     expect(i).toBe(1);
-    
+
     delete obj.num;
+    expect(i).toBe(2);
+  });
+
+  it("test prototype chain", () => {
+    const obj = { name: "zs" };
+    const obj1 = { name1: "ls" };
+    const child: any = reactive(obj);
+    const parent = reactive(obj1);
+    Object.setPrototypeOf(child, parent);
+    let i = 0;
+    effect(() => {
+      i++;
+      // 
+      child.name1;
+    });
+
+    child.name1 = "ww";
     expect(i).toBe(2);
   });
 });

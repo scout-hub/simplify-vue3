@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 19:40:28
+ * @LastEditTime: 2022-04-11 20:15:07
  */
 import { ITERATE_KEY, track, trigger } from "./effect";
-import { reactive, ReactiveFlags, readonly, Target } from "./reactive";
+import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
 import { isObject, extend, hasChanged, hasOwn } from "../../shared/src/index";
 import { TrackOpTypes, TriggerOpTypes } from "./operations";
 
@@ -66,12 +66,33 @@ const createSetter = function () {
     const hasKey = hasOwn(target, key);
 
     const result = Reflect.set(target, key, newValue, receiver);
-    if (!hasKey) {
-      // 新增属性
-      trigger(target, TriggerOpTypes.ADD, key);
-    } else if (hasChanged(newValue, oldValue)) {
-      // 修改属性值，触发依赖
-      trigger(target, TriggerOpTypes.SET, key);
+
+    /**
+     * 解决prototype chain造成问题
+     * const obj = { name: "zs" };
+     * const obj1 = { name1: "ls" };
+     * const child: any = reactive(obj);
+     * const parent = reactive(obj1);
+     * Object.setPrototypeOf(child, parent);
+     *
+     * 上面这种情况，当child去访问name1属性时首先会去查找自身有没有name1属性，没有顺着原型链
+     * 找到parent上的name1属性，在这个过程中，child和parent都收集了关于name1这个key的依赖，这是没问题的。
+     * 问题在于当child设置name1的时候，首先会触发自身的set操作，但是自身没有name1属性，于是会通过原型链去触发
+     * parent上的set操作，这一个过程触发了child和parent关于name1的依赖，这是多余的。因此需要屏蔽parent那一次
+     * set操作触发的依赖。
+     *
+     * 这里判断的依据就是target是否跟receiver代理对象的原始对象相同
+     * 当触发child的set操作时，target是child的原始对象obj，receiver是child
+     * 当触发parent的set操作时，target是parent的原始对象obj1，但是receiver依旧是child
+     */
+    if (target === toRaw(receiver)) {
+      if (!hasKey) {
+        // 新增属性
+        trigger(target, TriggerOpTypes.ADD, key);
+      } else if (hasChanged(newValue, oldValue)) {
+        // 修改属性值，触发依赖
+        trigger(target, TriggerOpTypes.SET, key);
+      }
     }
     return result;
   };
