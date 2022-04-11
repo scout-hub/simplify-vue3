@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-26 21:47:55
+ * @LastEditTime: 2022-04-11 17:41:23
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -129,7 +129,7 @@ describe("ref", () => {
   });
 
   it("toRef", () => {
-    const obj = reactive({
+    const obj: any = reactive({
       a: 1,
       b: 2,
     });
@@ -147,7 +147,7 @@ describe("ref", () => {
   });
 
   it("toRefs", () => {
-    const obj = reactive({
+    const obj: any = reactive({
       a: 1,
       b: 2,
     });

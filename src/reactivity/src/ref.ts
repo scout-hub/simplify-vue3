@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 20:19:16
+ * @LastEditTime: 2022-04-11 17:36:56
  */
 
 import { hasChanged, isArray, isObject } from "../../shared/src/index";
+import { createDep } from "./dep";
 import { canTrack, trackEffects, triggerEffects } from "./effect";
 import { isReactive, reactive, toRaw } from "./reactive";
 
@@ -36,7 +37,7 @@ class RefImpl {
       this._rawValue = newValue;
       // 如果不是shallow的情况且新的值时普通对象的话需要去响应式处理
       this._value = this.__v_isShallow ? newValue : toReactive(newValue);
-      triggerEffects(this.deps);
+      triggerRefValue(this);
     }
   }
 }
@@ -96,7 +97,14 @@ export function unRef(ref) {
 // 收集ref的依赖函数
 export function trackRefValue(ref) {
   if (canTrack()) {
-    trackEffects(ref.deps);
+    trackEffects(ref.deps || (ref.deps = createDep()));
+  }
+}
+
+// 触发ref依赖函数
+export function triggerRefValue(ref) {
+  if (ref.deps) {
+    triggerEffects(ref.deps);
   }
 }
 

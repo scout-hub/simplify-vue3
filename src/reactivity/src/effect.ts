@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 21:50:43
+ * @LastEditTime: 2022-04-11 17:49:37
  */
-import { extend } from "../../shared/src/index";
+import { extend, isArray } from "../../shared/src/index";
 import { Dep } from "./dep";
+import { TriggerOpTypes } from "./operations";
 
 interface RectiveEffectOptions {
   onStop?: Function;
@@ -114,7 +115,7 @@ export function effect(effectFn: Function, options: RectiveEffectOptions = {}) {
 const targetMap = new WeakMap();
 
 // 依赖收集函数
-export function track(target: object, key: string) {
+export function track(target: object, key: unknown) {
   // if (!activeEffect) return;
   if (!canTrack()) return;
   let depsMap = targetMap.get(target);
@@ -137,21 +138,44 @@ export function trackEffects(deps: Dep) {
 }
 
 // 触发依赖函数
-export function trigger(target: object, key: string) {
+export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
   const depsMap = targetMap.get(target);
   if (!depsMap) return;
-  const deps = depsMap.get(key);
-  if (!deps) return;
-  triggerEffects(deps);
+  let deps: (Dep | undefined)[] = [];
+
+  // 如果key不是undefined，则获取对应key上的deps依赖集合
+  if (key !== void 0) {
+    deps.push(depsMap.get(key));
+  }
+
+  // 针对不同的type还需要做特殊处理
+  switch (type) {
+    case TriggerOpTypes.SET:
+      break;
+    case TriggerOpTypes.ADD:
+      break;
+    case TriggerOpTypes.DELETE:
+      break;
+    default:
+      break;
+  }
+
+  // 构建一个新的effect集合，防止无限循环，比如：删除effect的同时又添加effect
+  const effects: ReactiveEffect[] = [];
+
+  for (const dep of deps) {
+    if (dep) {
+      effects.push(...dep);
+    }
+  }
+  triggerEffects(effects);
 }
 
 // 抽离公共的触发依赖逻辑
-export function triggerEffects(deps: Dep) {
-  /**
-   * 构建一个新的set，避免在另一个set的forEach中形成set.delete(1)，set.add(1)死循环现象
-   */
-  const depsToRun = new Set();
-  deps.forEach((dep) => {
+export function triggerEffects(deps: (Dep | ReactiveEffect)[]) {
+  // dep不是数组的话转化成数组，比如ref触发依赖传入的是一个set集合
+  const depsToRun = isArray(deps) ? deps : [...deps];
+  depsToRun.forEach((dep: any) => {
     /**
        * 这里的dep !== activeEffect是为了防止obj++这种形成：收集--》更新--》收集的循环现象
        * effect(() => {
@@ -159,12 +183,11 @@ export function triggerEffects(deps: Dep) {
         user.num++;
        });
        */
-    dep !== activeEffect && depsToRun.add(dep);
-  });
-  depsToRun.forEach((dep: any) => {
-    const scheduler = dep.scheduler;
-    // 触发依赖的时候，如果存在用户自定义调度器，则执行调度器函数，否则执行依赖函数
-    scheduler ? scheduler(dep.effectFn) : dep.run();
+    if (dep !== activeEffect) {
+      const scheduler = dep.scheduler;
+      // 触发依赖的时候，如果存在用户自定义调度器，则执行调度器函数，否则执行依赖函数
+      scheduler ? scheduler(dep.effectFn) : dep.run();
+    }
   });
 }
 

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 14:52:24
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-26 21:47:25
+ * @LastEditTime: 2022-04-11 13:40:06
  */
 import { computed } from "../src/computed";
 import { effect } from "../src/effect";
@@ -10,7 +10,7 @@ import { reactive } from "../src/reactive";
 
 describe("computed", () => {
   it("happy path", () => {
-    const value = reactive({
+    const value: any = reactive({
       foo: 1,
     });
 
@@ -23,7 +23,7 @@ describe("computed", () => {
   });
 
   it("should compute lazily", () => {
-    const value = reactive({
+    const value: any = reactive({
       foo: 1,
     });
     const getter = jest.fn(() => {
@@ -55,7 +55,7 @@ describe("computed", () => {
   });
 
   it("计算属性中的嵌套effect", () => {
-    const value = reactive({
+    const value: any = reactive({
       foo: 1,
     });
     let i = 0;

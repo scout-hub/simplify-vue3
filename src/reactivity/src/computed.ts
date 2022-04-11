@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 14:52:42
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 17:23:39
+ * @LastEditTime: 2022-04-11 17:50:17
  */
 
-import { ReactiveEffect, track, trigger } from "./effect";
+import { ReactiveEffect } from "./effect";
+import { trackRefValue, triggerRefValue } from "./ref";
 
 export type ComputedGetter<T> = (...args: any[]) => T;
 
@@ -20,7 +21,7 @@ class ComputedRefImpl<T> {
       if (!this._dirty) {
         this._dirty = true;
         // 触发value属性相关的effect函数
-        trigger(this, "value");
+        triggerRefValue(this);
       }
     });
   }
@@ -32,7 +33,7 @@ class ComputedRefImpl<T> {
      * 则返回旧的值，否则重新计算新的值。
      * 这里就需要借助effect去帮助我们实现 当依赖的响应式对象发生变化时 重新计算的逻辑
      */
-    track(this, "value");
+    trackRefValue(this);
     if (this._dirty) {
       this._dirty = false;
       this._oldValue = this._lazyEffect.run();
