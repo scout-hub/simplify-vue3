@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:38:26
+ * @LastEditTime: 2022-04-11 22:31:52
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -154,7 +154,6 @@ describe("reactive", () => {
       // for (const key of arr) {
       // }
       for (const key of arr.values()) {
-        
       }
     });
     arr.length = 10;
@@ -163,5 +162,19 @@ describe("reactive", () => {
     expect(i).toBe(3);
     arr[10] = 2;
     expect(i).toBe(4);
+  });
+
+  it("test array includes", () => {
+    const obj = {};
+    const arr: any = reactive([obj]);
+    expect(arr.includes(arr[0])).toBe(true);
+  });
+
+  it("test array includes last/indexOf ", () => {
+    const obj = {};
+    const arr: any = reactive([obj]);
+    expect(arr.includes(obj)).toBe(true);
+    expect(arr.indexOf(obj)).toBe(0);
+    expect(arr.lastIndexOf(obj)).toBe(0);
   });
 });

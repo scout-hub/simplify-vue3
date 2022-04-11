@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 17:16:50
+ * @LastEditTime: 2022-04-11 21:58:10
  */
 import {
   reactiveHandler,
@@ -25,28 +25,31 @@ export interface Target {
   [ReactiveFlags.RAW]?: any;
 }
 
+// 缓存target->proxy的映射关系
+export const reactiveMap = new WeakMap<Target, any>();
+
 // 创建响应式对象
 export function reactive(raw: object) {
   // 如果对象是一个只读的proxy，则直接返回
   if (isReadonly(raw)) {
     return raw;
   }
-  return createReactive(raw, reactiveHandler);
+  return createReactiveObject(raw, reactiveHandler, reactiveMap);
 }
 
 // 创建浅响应对象
 export function shallowReactive(raw: object) {
-  return createReactive(raw, shallowReactiveHandler);
+  return createReactiveObject(raw, shallowReactiveHandler, reactiveMap);
 }
 
 // 创建只读对象
 export function readonly(raw: object) {
-  return createReactive(raw, readonlyHandler);
+  return createReactiveObject(raw, readonlyHandler, reactiveMap);
 }
 
 // 创建浅只读对象
 export function shallowReadonly(raw: object) {
-  return createReactive(raw, shallowReadonlyHandler);
+  return createReactiveObject(raw, shallowReadonlyHandler, reactiveMap);
 }
 
 // 对象是不是响应式的
@@ -71,6 +74,24 @@ export function toRaw<T>(observed: T): T {
   return raw ? toRaw(raw) : observed;
 }
 
-function createReactive(raw: Target, handler: ProxyHandler<object>) {
-  return new Proxy(raw, handler);
+function createReactiveObject(
+  raw: Target,
+  handler: ProxyHandler<object>,
+  proxyMap: WeakMap<Target, any>
+) {
+  /**
+   * 如果映射表里有原始对象对应的代理对象，则直接返回，避免因同一个原始对象而创建出的代理对象不同导致比较失败
+   * 例如：
+   * const obj = {};
+   * const arr: any = reactive([obj]);
+   * arr.includes(arr[0])应该是true，但是返回了false
+   * 因为arr[0]是obj的响应式对象，arr.includes通过下标找到arr[0]时也是obj的响应式对象
+   * 如果不缓存同一个target对应的代理对象，会导致因重复创建而比较失败的情况
+   */
+  if (proxyMap.has(raw)) {
+    return proxyMap.get(raw);
+  }
+  const proxy = new Proxy(raw, handler);
+  proxyMap.set(raw, proxy);
+  return proxy;
 }

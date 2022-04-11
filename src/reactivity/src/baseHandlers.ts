@@ -3,7 +3,7 @@ import { isArray, isSymbol } from "./../../shared/src/index";
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:33:37
+ * @LastEditTime: 2022-04-11 22:31:25
  */
 import { ITERATE_KEY, track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
@@ -16,6 +16,30 @@ const builtInSymbols = new Set(
     .map((key) => Symbol[key])
     .filter((value) => isSymbol(value))
 );
+
+const arrayInstrumentations = createArrayInstrumentations();
+
+// 覆写部分数组实例身上的方法
+function createArrayInstrumentations() {
+  const instrumentations: Record<string, Function> = {};
+  ["includes", "indexOf", "lastIndexOf"].forEach((key) => {
+    const originMethod = Array.prototype[key];
+    instrumentations[key] = function (this: unknown[], ...args: unknown[]) {
+      // 获取代理对象的原始对象
+      const raw = toRaw(this);
+      // 先在代理对象中找
+      const result = originMethod.apply(this, args);
+
+      // 如果没有在代理对象中找到，就去原始对象中找
+      if (result === false || result === -1) {
+        return originMethod.apply(raw, args);
+      }
+      // 找到则返回
+      return result;
+    };
+  });
+  return instrumentations;
+}
 
 // 封装proxy get函数
 const createGetter = function (isReadOnly = false, isShallow = false) {
@@ -31,6 +55,12 @@ const createGetter = function (isReadOnly = false, isShallow = false) {
     // 如果访问的是__v_raw属性，就返回原始对象
     if (key === ReactiveFlags.RAW) {
       return target;
+    }
+
+    const targetIsArray = isArray(target);
+
+    if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
+      return Reflect.get(arrayInstrumentations, key, receiver);
     }
 
     const result = Reflect.get(target, key, receiver);
