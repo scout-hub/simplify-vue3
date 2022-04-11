@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 14:13:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 21:48:14
+ * @LastEditTime: 2022-04-11 09:57:55
  */
 import { reactive, ref } from "../../reactivity/src";
-import { watch } from "../src";
+import { watch, watchEffect, watchPostEffect } from "../src";
 
 describe("first", () => {
   test("watch array", () => {
@@ -175,5 +175,65 @@ describe("first", () => {
     setTimeout(() => {
       expect(result).toBe("B");
     }, 3000);
+  });
+
+  test("watchEffect", () => {
+    const refs: any = ref(1);
+    let i = 1;
+
+    watchEffect(() => {
+      i++;
+      refs.value;
+    });
+    refs.value++;
+    expect(i).toBe(3);
+  });
+
+  test("watchEffect flush post", () => {
+    const refs: any = ref(1);
+    let i = 1;
+
+    watchEffect(
+      () => {
+        i++;
+        refs.value;
+      },
+      {
+        flush: "post",
+      }
+    );
+    expect(i).toBe(1);
+
+    Promise.resolve().then(() => {
+      expect(i).toBe(2);
+    });
+  });
+
+  test("watchEffect flush post", () => {
+    const refs: any = ref(1);
+    let i = 1;
+
+    watchPostEffect(() => {
+      i++;
+      refs.value;
+    });
+    expect(i).toBe(1);
+
+    Promise.resolve().then(() => {
+      expect(i).toBe(2);
+    });
+  });
+
+  test("unwatch", () => {
+    const refs: any = ref(1);
+    let i = 1;
+
+    const unwatch = watchEffect(() => {
+      i++;
+      refs.value;
+    });
+    unwatch();
+    refs.value++;
+    expect(i).toBe(2);
   });
 });

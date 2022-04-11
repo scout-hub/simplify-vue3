@@ -2,11 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 19:35:50
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 21:50:13
+ * @LastEditTime: 2022-04-11 09:53:04
  */
 import { isReactive, isRef, ReactiveEffect } from "./../../reactivity/src";
 import {
   EMPTY_OBJ,
+  extend,
   isArray,
   isFunction,
   isObject,
@@ -24,6 +25,40 @@ import { queuePostRenderEffect } from "./renderer";
  */
 export function watch(source, cb, options?) {
   return doWatch(source, cb, options);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 立即执行传入的一个函数，同时响应式追踪其依赖，并在其依赖变更时重新运行该函数。
+ * @param effectFn
+ * @param options
+ * @return unwatch 取消观测的函数
+ */
+export function watchEffect(effectFn, options?) {
+  // watchEffect 第二个参数为null
+  return doWatch(effectFn, null, options);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: watchEffect 的别名，带有 flush: 'post' 选项
+ * @param effectFn
+ * @param options
+ * @return unwatch 取消观测的函数
+ */
+export function watchPostEffect(effectFn, options?) {
+  return doWatch(effectFn, null, extend(options || {}, { flush: "post" }));
+}
+
+/**
+ * @author: Zhouqi
+ * @description: watchEffect 的别名，带有 flush: 'sync' 选项
+ * @param effectFn
+ * @param options
+ * @return unwatch 取消观测的函数
+ */
+export function watchSyncEffect(effectFn, options?) {
+  return doWatch(effectFn, null, extend(options || {}, { flush: "sync" }));
 }
 
 function doWatch(
@@ -86,6 +121,9 @@ function doWatch(
       cb(newValue, oldValue, onCleanup);
       // 重新赋值给旧的
       oldValue = newValue;
+    } else {
+      // 没有cb说明是watchEffect，直接执行副作用函数
+      effect.run();
     }
   };
 
@@ -98,14 +136,16 @@ function doWatch(
   // watch的原理就是监听值的变化，通过自定义调度器来执行回调。当监听到的依赖的值变化时会触发effect上的schedular函数，从而触发回调函数
   let scheduler;
   if (flush === "sync") {
-    // 同步执行
+    // 立即执行，没有加入到回调缓冲队列中
     scheduler = job;
   } else if (flush === "post") {
-    // 放进微任务队列中执行
+    // 放进微任务队列中执行（组件更新后）
     scheduler = () => queuePostRenderEffect(job);
   } else {
     // pre
     scheduler = () => {
+      // 组件更新前调用
+      // TODO 加入回调缓冲队列中
       job();
     };
   }
@@ -117,9 +157,16 @@ function doWatch(
       // 立即执行一次回调
       job();
     } else {
-      // 默认执行一次，获取旧的值并收集
+      // 默认执行一次，获取旧的值
       oldValue = effect.run();
     }
+  }
+  // 没有传入回调函数说明是watchEffect
+  else if (flush === "post") {
+    // 如果flush是post，则放入微任务队列中执行
+    queuePostRenderEffect(effect.run.bind(effect));
+  } else {
+    effect.run();
   }
 
   return () => {
