@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:04:48
+ * @LastEditTime: 2022-04-11 21:38:26
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -127,5 +127,41 @@ describe("reactive", () => {
     expect(i).toBe(10);
     arr.length = 0;
     expect(i).toBe(1);
+  });
+
+  it("test array for in", () => {
+    const arr: any = reactive([1]);
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const key in arr) {
+      }
+    });
+
+    arr.length = 10;
+    expect(i).toBe(2);
+    arr[10] = 1;
+    expect(i).toBe(3);
+    arr[10] = 2;
+    expect(i).toBe(3);
+  });
+
+  it("test array for of", () => {
+    const arr: any = reactive([1]);
+    let i = 0;
+    effect(() => {
+      i++;
+      // for (const key of arr) {
+      // }
+      for (const key of arr.values()) {
+        
+      }
+    });
+    arr.length = 10;
+    expect(i).toBe(2);
+    arr[10] = 1;
+    expect(i).toBe(3);
+    arr[10] = 2;
+    expect(i).toBe(4);
   });
 });

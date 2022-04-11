@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 20:24:34
+ * @LastEditTime: 2022-04-11 21:25:11
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -13,18 +13,24 @@ export const extend = Object.assign;
 export const isArray = Array.isArray;
 
 // 判断值是不是对象
-export const isObject = (val) => val !== null && typeof val === "object";
+export const isObject = (val: unknown) =>
+  val !== null && typeof val === "object";
 
 // 判断值是不是字符串
-export const isString = (val) => typeof val === "string";
+export const isString = (val: unknown) => typeof val === "string";
+
+export const isSymbol = (val: unknown): val is symbol =>
+  typeof val === "symbol";
 
 // 判断值是不是函数
-export const isFunction = (val) => typeof val === "function";
+export const isFunction = (val: unknown) => typeof val === "function";
 
-export const toTypeString = (value) => Object.prototype.toString.call(value);
+export const toTypeString = (value: unknown) =>
+  Object.prototype.toString.call(value);
 
 // 判断是不是一个纯对象
-export const isPlainObject = (val) => toTypeString(val) === "[object Object]";
+export const isPlainObject = (val: unknown) =>
+  toTypeString(val) === "[object Object]";
 
 // 新旧值是否有变化，以及对NaN的判断处理 NaN === NaN为false
 export const hasChanged = (value: any, oldValue: any): boolean =>
@@ -56,6 +62,6 @@ export const invokeArrayFns = (fns: Function[]) => {
 };
 
 // 判断某个对象中是否有指定属性
-export const hasOwn = (target, key) => {
+export const hasOwn = (target: object, key: string | symbol) => {
   return Object.prototype.hasOwnProperty.call(target, key);
 };

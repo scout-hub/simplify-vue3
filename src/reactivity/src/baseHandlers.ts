@@ -1,14 +1,21 @@
-import { isArray } from "./../../shared/src/index";
+import { isArray, isSymbol } from "./../../shared/src/index";
 /*
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 20:53:12
+ * @LastEditTime: 2022-04-11 21:33:37
  */
 import { ITERATE_KEY, track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
 import { isObject, extend, hasChanged, hasOwn } from "../../shared/src/index";
-import { TrackOpTypes, TriggerOpTypes } from "./operations";
+import { TriggerOpTypes } from "./operations";
+
+// 内建的symbol属性
+const builtInSymbols = new Set(
+  Object.getOwnPropertyNames(Symbol)
+    .map((key) => Symbol[key])
+    .filter((value) => isSymbol(value))
+);
 
 // 封装proxy get函数
 const createGetter = function (isReadOnly = false, isShallow = false) {
@@ -17,23 +24,26 @@ const createGetter = function (isReadOnly = false, isShallow = false) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadOnly;
     }
-
     // 如果访问的是__v_isReadonly，则返回isReadOnly值
     if (key === ReactiveFlags.IS_READONLY) {
       return isReadOnly;
     }
-
     // 如果访问的是__v_raw属性，就返回原始对象
     if (key === ReactiveFlags.RAW) {
       return target;
+    }
+
+    const result = Reflect.get(target, key, receiver);
+
+    if (isSymbol(key) && builtInSymbols.has(key)) {
+      // 如果key是内建的symbol对象，则不需要建立依赖
+      return result;
     }
 
     // 只读属性不不能设置值，所以无需建立依赖关系
     if (!isReadOnly) {
       track(target, key);
     }
-
-    const result = Reflect.get(target, key, receiver);
 
     // 浅响应
     if (isShallow) {
@@ -132,8 +142,9 @@ function deleteProperty(target: Target, key: string | symbol): boolean {
  * 因此在触发依赖的时候如果是新增或者删除键需要将ITERATE_KEY关联的依赖拿出来执行
  */
 function ownKeys(target) {
-  // for in 操作没有明显的key可以追踪，因此创建一个ITERATE_KEY作为依赖追踪的key
-  track(target, ITERATE_KEY);
+  // for in 操作对象时没有明显的key可以追踪，因此创建一个ITERATE_KEY作为依赖追踪的key
+  // for in 操作数组时，影响条件只有length的变化（不管新增还是删除），length变化会导致for in 次数的变化，因此这里只需要建立length的依赖
+  track(target, isArray(target) ? "length" : ITERATE_KEY);
   return Reflect.ownKeys(target);
 }
 
