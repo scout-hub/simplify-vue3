@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 13:22:04
+ * @LastEditTime: 2022-04-11 19:50:50
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -46,19 +46,40 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  // it("test proxy deleteProperty ", () => {
-  //   let i = 0;
-  //   const obj: any = reactive({
-  //     num: 1,
-  //     num1: 0,
-  //   });
-  //   effect(() => {
-  //     i++;
-  //     delete obj.num1;
-  //   });
+  it("test proxy ownkeys ", () => {
+    let i = 0;
+    const obj: any = reactive({
+      num: 1,
+    });
+    effect(() => {
+      i++;
+      for (const key in obj) {
+      }
+    });
 
-  //   obj.num++;
+    obj.num1 = 0;
 
-  //   expect(i).toBe(2);
-  // });
+    expect(i).toBe(2);
+    obj.num = 2;
+    expect(i).toBe(2);
+  });
+
+  it("test proxy deleteProperty ", () => {
+    let i = 0;
+    const obj: any = reactive({
+      num: 1,
+      num1: 0,
+    });
+    effect(() => {
+      i++;
+      for (const key in obj) {
+      }
+    });
+
+    obj.num1 = 1;
+    expect(i).toBe(1);
+    
+    delete obj.num;
+    expect(i).toBe(2);
+  });
 });

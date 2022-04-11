@@ -2,12 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 13:30:32
+ * @LastEditTime: 2022-04-11 19:40:28
  */
-import { track, trigger } from "./effect";
+import { ITERATE_KEY, track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly, Target } from "./reactive";
 import { isObject, extend, hasChanged, hasOwn } from "../../shared/src/index";
-import { TriggerOpTypes } from "./operations";
+import { TrackOpTypes, TriggerOpTypes } from "./operations";
 
 // 封装proxy get函数
 const createGetter = function (isReadOnly = false, isShallow = false) {
@@ -58,10 +58,19 @@ const createSetter = function () {
   ) {
     // 先获取旧的值，再去更新值，避免影响触发依赖的判断 oldValue !== newValue
     const oldValue = target[key];
+
+    /**
+     * 判断是新增还是修改属性
+     * 对于新增属性需要触发ITERATE_KEY相关的依赖，因为这会影响for in循环
+     */
+    const hasKey = hasOwn(target, key);
+
     const result = Reflect.set(target, key, newValue, receiver);
-    // 特殊情况：NaN !== NaN 为true
-    if (hasChanged(newValue, oldValue)) {
-      // 触发依赖
+    if (!hasKey) {
+      // 新增属性
+      trigger(target, TriggerOpTypes.ADD, key);
+    } else if (hasChanged(newValue, oldValue)) {
+      // 修改属性值，触发依赖
       trigger(target, TriggerOpTypes.SET, key);
     }
     return result;
@@ -87,6 +96,17 @@ function deleteProperty(target: object, key: string | symbol): boolean {
   return result;
 }
 
+/**
+ * 拦截for in 操作
+ * 影响for in 的操作有添加和删除属性，因为这个导致for in 遍历的次数改变
+ * 因此在触发依赖的时候如果是新增或者删除键需要将ITERATE_KEY关联的依赖拿出来执行
+ */
+function ownKeys(target) {
+  // for in 操作没有明显的key可以追踪，因此创建一个ITERATE_KEY作为依赖追踪的key
+  track(target, ITERATE_KEY);
+  return Reflect.ownKeys(target);
+}
+
 // 初始化的时候创建
 const reactiveGetter = createGetter();
 const shallowReactiveGetter = createGetter(false, true);
@@ -100,6 +120,7 @@ export const reactiveHandler: ProxyHandler<object> = {
   set: reactiveSetter,
   has,
   deleteProperty,
+  ownKeys,
 };
 
 // 浅响应处理器

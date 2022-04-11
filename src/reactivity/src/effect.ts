@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 17:49:37
+ * @LastEditTime: 2022-04-11 19:49:50
  */
 import { extend, isArray } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -17,6 +17,8 @@ interface RectiveEffectOptions {
 interface ReactiveEffectRunner {
   _effect: ReactiveEffect;
 }
+
+export const ITERATE_KEY = Symbol("iterate");
 
 export class ReactiveEffect {
   deps: Dep[] = [];
@@ -153,8 +155,12 @@ export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
     case TriggerOpTypes.SET:
       break;
     case TriggerOpTypes.ADD:
+      // 新增属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+      deps.push(depsMap.get(ITERATE_KEY));
       break;
     case TriggerOpTypes.DELETE:
+      // 删除属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+      deps.push(depsMap.get(ITERATE_KEY));
       break;
     default:
       break;
