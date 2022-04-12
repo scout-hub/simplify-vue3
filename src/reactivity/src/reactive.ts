@@ -2,14 +2,22 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:58:10
+ * @LastEditTime: 2022-04-12 11:25:42
  */
+import { toRawType } from "../../shared/src";
 import {
   reactiveHandler,
   readonlyHandler,
   shallowReadonlyHandler,
   shallowReactiveHandler,
 } from "./baseHandlers";
+
+import {
+  mutableCollectionHandlers,
+  readonlyCollectionHandlers,
+  shallowCollectionHandlers,
+  shallowReadonlyCollectionHandlers,
+} from "./collectionHandlers";
 
 export const enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
@@ -25,8 +33,37 @@ export interface Target {
   [ReactiveFlags.RAW]?: any;
 }
 
+const enum TargetType {
+  INVALID,
+  COMMON,
+  COLLECTION,
+}
+
+function targetTypeMap(type: string) {
+  switch (type) {
+    case "Object":
+    case "Array":
+      return TargetType.COMMON;
+    case "Map":
+    case "Set":
+    case "WeakMap":
+    case "WeakSet":
+      return TargetType.COLLECTION;
+    default:
+      return TargetType.INVALID;
+  }
+}
+
+// 获取当前数据的类型
+function getTargetType(value: Target) {
+  return targetTypeMap(toRawType(value));
+}
+
 // 缓存target->proxy的映射关系
 export const reactiveMap = new WeakMap<Target, any>();
+export const shallowReactiveMap = new WeakMap<Target, any>();
+export const readonlyMap = new WeakMap<Target, any>();
+export const shallowReadonlyMap = new WeakMap<Target, any>();
 
 // 创建响应式对象
 export function reactive(raw: object) {
@@ -34,22 +71,42 @@ export function reactive(raw: object) {
   if (isReadonly(raw)) {
     return raw;
   }
-  return createReactiveObject(raw, reactiveHandler, reactiveMap);
+  return createReactiveObject(
+    raw,
+    reactiveHandler,
+    mutableCollectionHandlers,
+    reactiveMap
+  );
 }
 
 // 创建浅响应对象
 export function shallowReactive(raw: object) {
-  return createReactiveObject(raw, shallowReactiveHandler, reactiveMap);
+  return createReactiveObject(
+    raw,
+    shallowReactiveHandler,
+    shallowCollectionHandlers,
+    shallowReactiveMap
+  );
 }
 
 // 创建只读对象
 export function readonly(raw: object) {
-  return createReactiveObject(raw, readonlyHandler, reactiveMap);
+  return createReactiveObject(
+    raw,
+    readonlyHandler,
+    readonlyCollectionHandlers,
+    readonlyMap
+  );
 }
 
 // 创建浅只读对象
 export function shallowReadonly(raw: object) {
-  return createReactiveObject(raw, shallowReadonlyHandler, reactiveMap);
+  return createReactiveObject(
+    raw,
+    shallowReadonlyHandler,
+    shallowReadonlyCollectionHandlers,
+    shallowReadonlyMap
+  );
 }
 
 // 对象是不是响应式的
@@ -76,7 +133,8 @@ export function toRaw<T>(observed: T): T {
 
 function createReactiveObject(
   raw: Target,
-  handler: ProxyHandler<object>,
+  baseHandler: ProxyHandler<object>,
+  collectionHandlers: ProxyHandler<any>,
   proxyMap: WeakMap<Target, any>
 ) {
   /**
@@ -88,10 +146,16 @@ function createReactiveObject(
    * 因为arr[0]是obj的响应式对象，arr.includes通过下标找到arr[0]时也是obj的响应式对象
    * 如果不缓存同一个target对应的代理对象，会导致因重复创建而比较失败的情况
    */
-  if (proxyMap.has(raw)) {
-    return proxyMap.get(raw);
-  }
-  const proxy = new Proxy(raw, handler);
+  const existingProxy = proxyMap.get(raw);
+  if (existingProxy) return existingProxy;
+
+  const targetType = getTargetType(raw);
+
+  // 集合类型例如Set、WeakSet、Map、WeakMap需要另外的handler处理
+  const proxy = new Proxy(
+    raw,
+    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandler
+  );
   proxyMap.set(raw, proxy);
   return proxy;
 }

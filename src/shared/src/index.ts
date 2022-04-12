@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:25:11
+ * @LastEditTime: 2022-04-12 11:11:21
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -64,4 +64,10 @@ export const invokeArrayFns = (fns: Function[]) => {
 // 判断某个对象中是否有指定属性
 export const hasOwn = (target: object, key: string | symbol) => {
   return Object.prototype.hasOwnProperty.call(target, key);
+};
+
+// 获取数据的原始类型字符串
+export const toRawType = (value: unknown): string => {
+  // {} ===> [object Object] ==> Object
+  return toTypeString(value).slice(8, -1);
 };
