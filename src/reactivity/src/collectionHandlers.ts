@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 20:39:58
+ * @LastEditTime: 2022-04-12 21:34:49
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, track, trigger } from "./effect";
@@ -108,6 +108,21 @@ function set(this, key, value) {
   return this;
 }
 
+// 覆写forEach
+function createForEach(isReadonly = false, isShallow = false) {
+  return function (this: IterableCollections, callback: Function, args) {
+    const that = this;
+    const rawTarget = toRaw(that);
+    // forEach循环跟键值对的数量有关，因此需要和ITERATE_KEY建立关系
+    !isReadonly && track(rawTarget, ITERATE_KEY);
+    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    return rawTarget.forEach((v, k) => {
+      // 对forEach中的key和value做响应式处理
+      callback.call(args, wrap(v), wrap(k), that);
+    });
+  };
+}
+
 /**
  * 创建不同的处理器对象
  *
@@ -127,6 +142,7 @@ function createInstrumentations() {
     delete: deleteEntry,
     add,
     set,
+    forEach: createForEach(false, false),
   };
   const readonlyInstrumentations: Record<string, Function> = {};
   const shallowInstrumentations: Record<string, Function> = {};

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 20:34:27
+ * @LastEditTime: 2022-04-12 21:47:17
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -33,7 +33,7 @@ describe("Map and Set", () => {
     let i = 0;
     effect(() => {
       i++;
-      console.log(r.get("name"));
+      r.get("name");
     });
     r.set("name", "1");
     expect(i).toBe(2);
@@ -51,5 +51,23 @@ describe("Map and Set", () => {
     });
     (map.get("r1") as any).set("age", 1);
     expect(i).toBe(1);
+  });
+
+  test("forEach", () => {
+    const set = new Set([1, 2]);
+    const map = new Map([["name", set]]);
+    const r = reactive(map);
+    let i = 0;
+    effect(() => {
+      i++;
+      r.forEach((value, key) => {
+        value.size;
+      });
+    });
+
+    r.get("name").add(6);
+    expect(i).toBe(2);
+    r.set("name", 2);
+    expect(i).toBe(3);
   });
 });

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 11:11:21
+ * @LastEditTime: 2022-04-12 21:38:35
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -19,8 +19,13 @@ export const isObject = (val: unknown) =>
 // 判断值是不是字符串
 export const isString = (val: unknown) => typeof val === "string";
 
+// 判断是不是Symbol
 export const isSymbol = (val: unknown): val is symbol =>
   typeof val === "symbol";
+
+// 判断是不是Map
+export const isMap = (val: unknown): val is Map<any, any> =>
+  toTypeString(val) === "[object Map]";
 
 // 判断值是不是函数
 export const isFunction = (val: unknown) => typeof val === "function";

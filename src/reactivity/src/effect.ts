@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 10:49:50
+ * @LastEditTime: 2022-04-12 21:46:52
  */
-import { extend, isArray } from "../../shared/src/index";
+import { extend, isArray, isMap } from "../../shared/src/index";
 import { Dep } from "./dep";
 import { TriggerOpTypes } from "./operations";
 
@@ -19,6 +19,7 @@ interface ReactiveEffectRunner {
 }
 
 export const ITERATE_KEY = Symbol("iterate");
+export const MAP_KEY_ITERATE_KEY = Symbol("Map key iterate");
 
 export class ReactiveEffect {
   deps: Dep[] = [];
@@ -71,14 +72,14 @@ let activeEffect: ReactiveEffect | undefined;
  * 收集当前正在使用的ReactiveEffect，在嵌套effect的情况下，每一个effect执行
  * 时内部的ReactiveEffect是不同的。建立activeEffectStack是为了能够在对应的
  * effect函数执行时收集到正确的activeEffect。
- * 
+ *
  * effect(() => {
  *     effect(() => {
  *       执行逻辑
  *     });
  *     执行逻辑
  *   });
- * 
+ *
  * 执行过程：
  * 外层effect执行 ---> activeEffect=当前effect内部创建的ReactiveEffect
  * 并且被收集到activeEffectStack中 ---> 内部effect执行 ---> activeEffect=当前effect
@@ -190,11 +191,18 @@ export function trigger(
     // 针对不同的type还需要做特殊处理
     switch (type) {
       case TriggerOpTypes.SET:
+        // Map的forEach既关心键，也关心值，因此修改的时候也要获取ITERATE_KEY相关的依赖
+        if (isMap(target)) {
+          deps.push(depsMap.get(ITERATE_KEY));
+        }
         break;
       case TriggerOpTypes.ADD:
         if (!isArray(target)) {
-          // 对象新增属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+          // 对象新增属性操作，影响for in操作，需要获取ITERATE_KEY相关的依赖
           deps.push(depsMap.get(ITERATE_KEY));
+          // if (isMap(target)) {
+          //   deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
+          // }
         } else {
           // 数组新增元素操作，会影响length属性，需要获取length相关的依赖
           deps.push(depsMap.get("length"));
