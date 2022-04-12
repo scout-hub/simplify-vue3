@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 21:47:17
+ * @LastEditTime: 2022-04-12 22:43:02
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -68,6 +68,60 @@ describe("Map and Set", () => {
     r.get("name").add(6);
     expect(i).toBe(2);
     r.set("name", 2);
+    expect(i).toBe(3);
+  });
+
+  test("iterator for of", () => {
+    const map = reactive(new Map([["name", 1]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const [value, key] of map) {
+      }
+    });
+    map.set("age", 2);
+    expect(i).toBe(2);
+  });
+
+  test("iterator entries", () => {
+    const map = reactive(new Map([["name", 1]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const [value, key] of map.entries()) {
+      }
+    });
+    map.set("age", 2);
+    expect(i).toBe(2);
+  });
+
+  test("iterator values", () => {
+    const map = reactive(new Map([["name", 1]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const value of map.values()) {
+        console.log(value);
+      }
+    });
+    map.set("age", 1);
+    expect(i).toBe(2);
+  });
+
+  test("iterator keys", () => {
+    const map = reactive(new Map([["name", 1]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const key of map.keys()) {
+        console.log(key);
+      }
+    });
+    map.set("name", 2);
+    expect(i).toBe(1);
+    map.set("age", 2);
+    expect(i).toBe(2);
+    map.delete("age");
     expect(i).toBe(3);
   });
 });

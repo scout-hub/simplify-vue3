@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 21:46:52
+ * @LastEditTime: 2022-04-12 22:42:49
  */
 import { extend, isArray, isMap } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -200,9 +200,10 @@ export function trigger(
         if (!isArray(target)) {
           // 对象新增属性操作，影响for in操作，需要获取ITERATE_KEY相关的依赖
           deps.push(depsMap.get(ITERATE_KEY));
-          // if (isMap(target)) {
-          //   deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
-          // }
+          if (isMap(target)) {
+            // Map新增属性操作，影响keys操作，需要获取MAP_KEY_ITERATE_KEY相关的依赖
+            deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
+          }
         } else {
           // 数组新增元素操作，会影响length属性，需要获取length相关的依赖
           deps.push(depsMap.get("length"));
@@ -211,6 +212,10 @@ export function trigger(
       case TriggerOpTypes.DELETE:
         // 删除属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
         deps.push(depsMap.get(ITERATE_KEY));
+        if (isMap(target)) {
+          // Map删除属性操作，影响keys操作，需要获取MAP_KEY_ITERATE_KEY相关的依赖
+          deps.push(depsMap.get(MAP_KEY_ITERATE_KEY));
+        }
         break;
       default:
         break;

@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 21:34:49
+ * @LastEditTime: 2022-04-12 22:40:58
  */
 import { hasChanged } from "../../shared/src";
-import { ITERATE_KEY, track, trigger } from "./effect";
+import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
 import { TriggerOpTypes } from "./operations";
 import { ReactiveFlags, toRaw, toReactive, toReadonly } from "./reactive";
 export type CollectionTypes = IterableCollections | WeakCollections;
@@ -123,6 +123,50 @@ function createForEach(isReadonly = false, isShallow = false) {
   };
 }
 
+// 创建迭代器函数
+function createIterableMethod(
+  method: string | symbol,
+  isReadonly: boolean,
+  isShallow: boolean
+) {
+  return function (this: IterableCollections, ...args: []) {
+    const rawTarget = toRaw(this);
+    const it = rawTarget[method](...args);
+    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    // entries方法和Symbol.iterator都可以遍历到key和value，keys和values方法只能遍历键/值，因此需要区分
+    const isPair = method === "entries" || method === Symbol.iterator;
+    // keys方法只关心键，只有在add和delete的时候才需要触发依赖，因此需要单独区分出一个关联key出来
+    const isKeyOnly = method === "keys";
+    !isReadonly &&
+      track(rawTarget, isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY);
+
+    return {
+      // 迭代器协议
+      next() {
+        const { value, done } = it.next();
+        return done
+          ? {
+              done,
+              value,
+            }
+          : {
+              done,
+              value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
+            };
+      },
+      //
+      /**
+       * 实现可迭代协议
+       * 对象必须要部署Symbol.iterator才能被for of遍历，这样的对象叫可迭代对象
+       * 在处理entries，values，keys方法的时候需要部署Symbol.iterator才能被for of遍历
+       */
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  };
+}
+
 /**
  * 创建不同的处理器对象
  *
@@ -147,6 +191,17 @@ function createInstrumentations() {
   const readonlyInstrumentations: Record<string, Function> = {};
   const shallowInstrumentations: Record<string, Function> = {};
   const shallowReadonlyInstrumentations: Record<string, Function> = {};
+
+  const iteratorMethods = ["keys", "values", "entries", Symbol.iterator];
+
+  // 定义迭代器方法
+  iteratorMethods.forEach((method) => {
+    mutableInstrumentations[method as string] = createIterableMethod(
+      method,
+      false,
+      false
+    );
+  });
 
   return [
     mutableInstrumentations,
