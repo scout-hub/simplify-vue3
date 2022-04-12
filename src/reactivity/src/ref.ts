@@ -2,13 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 17:36:56
+ * @LastEditTime: 2022-04-12 20:09:06
  */
 
-import { hasChanged, isArray, isObject } from "../../shared/src/index";
+import { hasChanged, isArray } from "../../shared/src/index";
 import { createDep } from "./dep";
 import { canTrack, trackEffects, triggerEffects } from "./effect";
-import { isReactive, reactive, toRaw } from "./reactive";
+import { isReactive, toRaw, toReactive } from "./reactive";
 
 class RefImpl {
   private _value;
@@ -127,6 +127,3 @@ export function toRefs(object) {
 function createRef(value, shallow) {
   return new RefImpl(value, shallow);
 }
-
-// 对ref传入的值做处理，如果是对象，则进行reactive处理
-const toReactive = (value) => (isObject(value) ? reactive(value) : value);

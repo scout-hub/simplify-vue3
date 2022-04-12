@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 11:25:42
+ * @LastEditTime: 2022-04-12 20:10:57
  */
-import { toRawType } from "../../shared/src";
+import { isObject, toRawType } from "../../shared/src";
 import {
   reactiveHandler,
   readonlyHandler,
@@ -130,6 +130,14 @@ export function toRaw<T>(observed: T): T {
   // toRaw返回的对象依旧是代理对象，则递归去找原始对象
   return raw ? toRaw(raw) : observed;
 }
+
+// 对传入的值做处理，如果是对象，则进行reactive处理
+export const toReactive = (value) =>
+  isObject(value) ? reactive(value) : value;
+
+// 对传入的值做处理，如果是对象，则进行readonly处理
+export const toReadonly = <T extends unknown>(value: T): T =>
+  isObject(value) ? readonly(value as Record<any, any>) : value;
 
 function createReactiveObject(
   raw: Target,
