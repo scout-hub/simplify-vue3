@@ -1,11 +1,17 @@
-import { isArray, isSymbol } from "./../../shared/src/index";
 /*
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 22:31:25
+ * @LastEditTime: 2022-04-12 10:16:46
  */
-import { ITERATE_KEY, track, trigger } from "./effect";
+import { isArray, isSymbol } from "./../../shared/src/index";
+import {
+  ITERATE_KEY,
+  pauseTracking,
+  resetTracking,
+  track,
+  trigger,
+} from "./effect";
 import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
 import { isObject, extend, hasChanged, hasOwn } from "../../shared/src/index";
 import { TriggerOpTypes } from "./operations";
@@ -22,6 +28,17 @@ const arrayInstrumentations = createArrayInstrumentations();
 // 覆写部分数组实例身上的方法
 function createArrayInstrumentations() {
   const instrumentations: Record<string, Function> = {};
+  /**
+   * 对于数组的一些查找方法，由于查找的时候this指向的是代理对象，可能会有一些问题
+   * 例如：
+   * const obj = {};
+   * const arr: any = reactive([obj]);
+   * arr.includes(obj);
+   * arr.indexOf(obj);
+   * arr.lastIndexOf(obj);
+   * 上面三个方法查找时由于this指向代理对象，在代理对象中查原始数据对象是找不到的，因此需要覆写这些方法
+   * 在查找的时候先在代理对象上找，如果没找到就去原始对象中找。
+   */
   ["includes", "indexOf", "lastIndexOf"].forEach((key) => {
     const originMethod = Array.prototype[key];
     instrumentations[key] = function (this: unknown[], ...args: unknown[]) {
@@ -35,6 +52,36 @@ function createArrayInstrumentations() {
         return originMethod.apply(raw, args);
       }
       // 找到则返回
+      return result;
+    };
+  });
+  /**
+   * 下面这些数组方法会隐式访问数组的length属性，导致在某些情况下会出现问题，而这些方法本质上是修改操作，其实
+   * 不必和length建立联系
+   * 例如：
+   * const arr = reactive([1]);
+   * effect(() => {
+   *   arr.push(1);
+   * });
+   *
+   * effect(() => {
+   *   arr.push(2);
+   * });
+   * 上面会造成 Maximum call stack size exceeded
+   * 因为在第一个effect函数中的push会读取length属性，建立和length相关的依赖
+   * 第二个effect函数中的push也会建立和length相关的依赖，并且会修改length，触发length相关的依赖
+   * 即又触发了第一个effect中的函数，同理第一个执行也会触发第二个effect中的函数，如此循环导致栈溢出
+   *
+   * 解决方法就是在这方法执行的时候，关闭依赖追踪的开关，执行完成后再开启依赖追踪的开关
+   */
+  ["push", "pop", "splice", "shift", "unshift"].forEach((key) => {
+    const originMethod = Array.prototype[key];
+    instrumentations[key] = function (this: unknown[], ...args: unknown[]) {
+      // 暂停依赖的追踪
+      pauseTracking();
+      const result = originMethod.apply(this, args);
+      // 恢复依赖追踪
+      resetTracking();
       return result;
     };
   });

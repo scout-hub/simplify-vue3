@@ -2,20 +2,20 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 22:31:52
+ * @LastEditTime: 2022-04-12 10:34:56
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
 
 describe("reactive", () => {
-  it("happy path", () => {
+  test("happy path", () => {
     const org = { foo: 1 };
     const obOrg: any = reactive(org);
     expect(obOrg).not.toBe(org);
     expect(obOrg.foo).toBe(1);
   });
 
-  it("test rawValue", () => {
+  test("test rawValue", () => {
     let i = 0;
     const pObj: any = reactive({
       num: 1,
@@ -33,7 +33,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test proxy has ", () => {
+  test("test proxy has ", () => {
     let i = 0;
     const obj: any = reactive({
       num: 1,
@@ -46,7 +46,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test proxy ownkeys ", () => {
+  test("test proxy ownkeys ", () => {
     let i = 0;
     const obj: any = reactive({
       num: 1,
@@ -64,7 +64,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test proxy deleteProperty ", () => {
+  test("test proxy deleteProperty ", () => {
     let i = 0;
     const obj: any = reactive({
       num: 1,
@@ -83,7 +83,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test prototype chain", () => {
+  test("test prototype chain", () => {
     const obj = { name: "zs" };
     const obj1 = { name1: "ls" };
     const child: any = reactive(obj);
@@ -100,7 +100,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test array index", () => {
+  test("test array index", () => {
     const arr = reactive([1]);
     let i;
     effect(() => {
@@ -110,7 +110,7 @@ describe("reactive", () => {
     expect(i).toBe(2);
   });
 
-  it("test array length", () => {
+  test("test array length", () => {
     const arr: any = reactive([1]);
     let i;
     effect(() => {
@@ -129,7 +129,7 @@ describe("reactive", () => {
     expect(i).toBe(1);
   });
 
-  it("test array for in", () => {
+  test("test array for in", () => {
     const arr: any = reactive([1]);
     let i = 0;
     effect(() => {
@@ -146,7 +146,7 @@ describe("reactive", () => {
     expect(i).toBe(3);
   });
 
-  it("test array for of", () => {
+  test("test array for of", () => {
     const arr: any = reactive([1]);
     let i = 0;
     effect(() => {
@@ -164,17 +164,54 @@ describe("reactive", () => {
     expect(i).toBe(4);
   });
 
-  it("test array includes", () => {
+  test("test array includes", () => {
     const obj = {};
     const arr: any = reactive([obj]);
     expect(arr.includes(arr[0])).toBe(true);
   });
 
-  it("test array includes last/indexOf ", () => {
+  test("test array includes last/indexOf ", () => {
     const obj = {};
     const arr: any = reactive([obj]);
     expect(arr.includes(obj)).toBe(true);
     expect(arr.indexOf(obj)).toBe(0);
     expect(arr.lastIndexOf(obj)).toBe(0);
+  });
+
+  test("test array push ", () => {
+    const arr: any = reactive([1]);
+    let i = 0;
+    effect(() => {
+      i++;
+      arr.push(1);
+    });
+
+    effect(() => {
+      i++;
+      arr.push(2);
+    });
+
+    expect(arr.length).toBe(3);
+    expect(i).toBe(2);
+
+    arr.push(3);
+    expect(arr.length).toBe(4);
+    expect(i).toBe(2);
+  });
+
+  test("test array push ", () => {
+    const arr: any = reactive([1]);
+    let i = 0;
+    effect(() => {
+      arr.push(2);
+
+      effect(() => {
+        i++;
+        arr[0];
+      });
+    });
+
+    arr[0] = 2;
+    expect(i).toBe(2);
   });
 });

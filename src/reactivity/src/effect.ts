@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 21:02:18
+ * @LastEditTime: 2022-04-12 10:49:50
  */
 import { extend, isArray } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -67,18 +67,17 @@ function cleanup(effect: ReactiveEffect) {
 }
 
 let activeEffect: ReactiveEffect | undefined;
-let shouldTrack = true;
 /**
  * 收集当前正在使用的ReactiveEffect，在嵌套effect的情况下，每一个effect执行
  * 时内部的ReactiveEffect是不同的。建立activeEffectStack是为了能够在对应的
  * effect函数执行时收集到正确的activeEffect。
  * 
  * effect(() => {
-      effect(() => {
-        执行逻辑
-      });
-      执行逻辑
-    });
+ *     effect(() => {
+ *       执行逻辑
+ *     });
+ *     执行逻辑
+ *   });
  * 
  * 执行过程：
  * 外层effect执行 ---> activeEffect=当前effect内部创建的ReactiveEffect
@@ -88,6 +87,24 @@ let shouldTrack = true;
  * 取出后赋值给当前的activeEffect
  */
 const activeEffectStack: Array<any> = [];
+
+let shouldTrack = true;
+
+// 能否能进行依赖收集
+export function canTrack(): boolean {
+  return !!(shouldTrack && activeEffect);
+}
+
+// 暂停依赖追踪
+export function pauseTracking() {
+  shouldTrack = false;
+}
+
+// 恢复依赖追踪
+export function resetTracking() {
+  shouldTrack = true;
+}
+
 /**
  * options:{
  *    scheduler: 用户自定义的调度器函数
@@ -226,9 +243,4 @@ export function triggerEffects(deps: (Dep | ReactiveEffect)[]) {
 // 停止副作用函数执行
 export function stop(runner: ReactiveEffectRunner) {
   runner._effect.stop();
-}
-
-// 能否能进行依赖收集
-export function canTrack(): boolean {
-  return !!(shouldTrack && activeEffect);
 }
