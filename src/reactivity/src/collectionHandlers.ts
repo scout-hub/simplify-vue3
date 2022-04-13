@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 16:47:29
+ * @LastEditTime: 2022-04-13 17:01:40
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
@@ -219,6 +219,23 @@ function createInstrumentations() {
     has,
     forEach: createForEach(),
   };
+
+  // 浅响应处理器
+  const shallowInstrumentations: Record<string, Function> = {
+    get(this: MapTypes, key: unknown) {
+      return get(this, key, false, true);
+    },
+    get size() {
+      return size(this as unknown as IterableCollections);
+    },
+    has,
+    add,
+    set,
+    delete: deleteEntry,
+    clear,
+    forEach: createForEach(false, true),
+  };
+
   // 只读处理器
   const readonlyInstrumentations: Record<string, Function> = {
     get(this: MapTypes, key: unknown) {
@@ -236,8 +253,7 @@ function createInstrumentations() {
     clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
     forEach: createForEach(true),
   };
-  // 浅响应处理器
-  const shallowInstrumentations: Record<string, Function> = {};
+
   // 浅只读处理器
   const shallowReadonlyInstrumentations: Record<string, Function> = {};
 
@@ -307,7 +323,9 @@ export const mutableCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: createInstrumentationGetter(false, false),
 };
 
-export const shallowCollectionHandlers: ProxyHandler<CollectionTypes> = {};
+export const shallowCollectionHandlers: ProxyHandler<CollectionTypes> = {
+  get: createInstrumentationGetter(false, true),
+};
 
 export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: createInstrumentationGetter(true, false),

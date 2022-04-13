@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 16:57:48
+ * @LastEditTime: 2022-04-13 17:04:09
  */
 import { effect } from "../src/effect";
-import { reactive, readonly } from "../src/reactive";
+import { reactive, readonly, shallowReactive } from "../src/reactive";
 
 describe("Map and Set", () => {
   test("Set", () => {
@@ -167,5 +167,19 @@ describe("Map and Set", () => {
     expect(map.get("name")).toStrictEqual(obj);
     map.get("name").age = 2;
     expect(console.warn).toHaveBeenCalled();
+  });
+
+  test("shallowReactive", () => {
+    const obj = { name: 1 };
+    const map = shallowReactive(new Map([["name", obj]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      map.get("name");
+    });
+    map.set("name", { name: 1 });
+    expect(i).toBe(2);
+    map.get("name").age = 2;
+    expect(i).toBe(2);
   });
 });
