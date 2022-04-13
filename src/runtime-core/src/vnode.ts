@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:42:57
+ * @LastEditTime: 2022-04-13 20:44:14
  */
 
 import {
@@ -15,8 +15,12 @@ import {
   ShapeFlags,
 } from "./../../shared/src/index";
 
+// 片段type
 export const Fragment = Symbol("Fragment");
+// 文本节点type
 export const Text = Symbol("Text");
+// 注释节点type
+export const Comment = Symbol("Comment");
 
 /**
  * @author: Zhouqi
@@ -29,7 +33,7 @@ export function isSameVNodeType(n1, n2) {
 }
 
 // 创建虚拟节点函数
-export function createVnode(type, props: any = null, children = null) {
+export function createVnode(type, props: any = null, children: unknown = null) {
   if (props) {
     /**
      * 规范化class的值
@@ -88,8 +92,13 @@ function createBaseVNode(
 }
 
 // 创建文本节点的vnode
-export function createTextVnode(text) {
+export function createTextVnode(text: string) {
   return createVnode(Text, null, text);
+}
+
+// 创建注释节点的vnode
+export function createCommentVnode(text: string) {
+  return createVnode(Comment, null, text);
 }
 
 // 规范化子节点，子节点的类型有多种，比如string、function、object等等

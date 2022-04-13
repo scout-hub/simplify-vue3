@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 15:36:54
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:23:12
+ * @LastEditTime: 2022-04-13 20:36:19
  */
 // 平台渲染操作
 export const nodeOps = {
@@ -57,8 +57,15 @@ export const nodeOps = {
    * @description: 设置文本节点的文本内容
    * @param node 文本节点
    * @param text 文本内容
-   */  
+   */
   setText(node, text) {
     node.nodeValue = text;
   },
+  /**
+   * @author: Zhouqi
+   * @description: 创建注释节点
+   * @param text 注释内容
+   * @return 注释节点
+   */
+  createComment: (text) => document.createComment(text),
 };

@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:25:04
+ * @LastEditTime: 2022-04-13 20:52:53
  */
 import { createComponentInstance, setupComponent } from "./component";
-import { Fragment, isSameVNodeType, Text } from "./vnode";
+import { Fragment, isSameVNodeType, Text, Comment } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
 import { EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
@@ -41,6 +41,7 @@ function baseCreateRenderer(options) {
     setElementText: hostSetElementText,
     setText: hostSetText,
     createText: hostCreateText,
+    createComment: hostCreateComment,
   } = options;
 
   /**
@@ -63,7 +64,12 @@ function baseCreateRenderer(options) {
         // 处理type为Fragment的节点（插槽）
         processFragment(n1, n2, container, anchor, parentComponent);
         break;
+      case Comment:
+        // 处理注释节点
+        processCommentNode(n1, n2, container, anchor);
+        break;
       case Text:
+        // 处理文本节点
         processText(n1, n2, container, anchor);
         break;
       default:
@@ -79,6 +85,24 @@ function baseCreateRenderer(options) {
 
   /**
    * @author: Zhouqi
+   * @description: 处理注释节点
+   * @param n1 老的虚拟节点
+   * @param n2 新的虚拟节点
+   * @param container 容器
+   * @param anchor 锚点元素
+   */
+  const processCommentNode = (n1, n2, container, anchor) => {
+    if (n1 === null) {
+      const el = (n2.el = hostCreateComment(n2.children));
+      hostInsert(el, container, anchor);
+    } else {
+      // 不支持动态更新注释节点
+      n1.el = n2.el;
+    }
+  };
+
+  /**
+   * @author: Zhouqi
    * @description: 处理Fragment节点
    * @param n1 老的虚拟节点
    * @param n2 新的虚拟节点
@@ -87,10 +111,13 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const processFragment = (n1, n2, container, anchor, parentComponent) => {
-    // 老的虚拟节点不存，则表示创建节点
     if (n1 === null) {
+      // 表示创建节点
       const { children } = n2;
       mountChildren(children, container, anchor, parentComponent);
+    } else {
+      // 更新节点
+      patchChildren(n1, n2, container, anchor, parentComponent);
     }
   };
 
