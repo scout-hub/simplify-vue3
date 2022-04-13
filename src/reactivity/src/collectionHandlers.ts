@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 16:44:28
+ * @LastEditTime: 2022-04-13 16:47:29
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
@@ -178,9 +178,7 @@ function createIterableMethod(
     };
   };
 }
-/**
- * 覆写has方法
- */
+// 覆写has方法
 function has(this: CollectionTypes, key: unknown, isReadonly = false) {
   const rawTarget = toRaw(this);
   const result = rawTarget.has(key);
@@ -311,7 +309,9 @@ export const mutableCollectionHandlers: ProxyHandler<CollectionTypes> = {
 
 export const shallowCollectionHandlers: ProxyHandler<CollectionTypes> = {};
 
-export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {};
+export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
+  get: createInstrumentationGetter(true, false),
+};
 
 export const shallowReadonlyCollectionHandlers: ProxyHandler<CollectionTypes> =
   {};
