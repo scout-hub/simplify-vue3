@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 18:17:21
+ * @LastEditTime: 2022-04-13 20:07:02
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -39,6 +39,7 @@ function baseCreateRenderer(options) {
     insert: hostInsert,
     remove: hostRemove,
     setElementText: hostSetElementText,
+    createText: hostCreateText,
   } = options;
 
   /**
@@ -104,7 +105,7 @@ function baseCreateRenderer(options) {
     // 老的虚拟节点不存，则表示创建节点
     if (n1 === null) {
       const { children } = n2;
-      const el = (n2.el = document.createTextNode(children));
+      const el = (n2.el = hostCreateText(children));
       hostInsert(el, container, anchor);
     }
   };
