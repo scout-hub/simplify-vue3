@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:07:02
+ * @LastEditTime: 2022-04-13 20:25:04
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text } from "./vnode";
@@ -39,6 +39,7 @@ function baseCreateRenderer(options) {
     insert: hostInsert,
     remove: hostRemove,
     setElementText: hostSetElementText,
+    setText: hostSetText,
     createText: hostCreateText,
   } = options;
 
@@ -107,6 +108,12 @@ function baseCreateRenderer(options) {
       const { children } = n2;
       const el = (n2.el = hostCreateText(children));
       hostInsert(el, container, anchor);
+    } else {
+      // 更新文本节点
+      const el = (n2.el = n1.el);
+      if (n1.children !== n2.children) {
+        hostSetText(el, n2.children);
+      }
     }
   };
 
