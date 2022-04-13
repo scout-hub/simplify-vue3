@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 22:42:49
+ * @LastEditTime: 2022-04-13 14:12:34
  */
 import { extend, isArray, isMap } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -168,7 +168,10 @@ export function trigger(
   if (!depsMap) return;
   let deps: (Dep | undefined)[] = [];
 
-  if (key === "length" && isArray(target)) {
+  if (type === TriggerOpTypes.CLEAR) {
+    // 如果是clear操作，触发所有依赖
+    deps.push(...depsMap.values());
+  } else if (key === "length" && isArray(target)) {
     /**
      * 如果操作了数组的length，比如 arr = [1], arr.length = 0;
      * 此时会删除arr[0]这个元素，需要触发key为0相关的依赖；当时假如

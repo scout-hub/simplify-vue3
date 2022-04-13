@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 22:43:02
+ * @LastEditTime: 2022-04-13 14:34:35
  */
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
@@ -101,7 +101,6 @@ describe("Map and Set", () => {
     effect(() => {
       i++;
       for (const value of map.values()) {
-        console.log(value);
       }
     });
     map.set("age", 1);
@@ -114,7 +113,6 @@ describe("Map and Set", () => {
     effect(() => {
       i++;
       for (const key of map.keys()) {
-        console.log(key);
       }
     });
     map.set("name", 2);
@@ -123,5 +121,27 @@ describe("Map and Set", () => {
     expect(i).toBe(2);
     map.delete("age");
     expect(i).toBe(3);
+  });
+
+  test("clear", () => {
+    const map = reactive(new Map([["name", 1]]));
+    let i = 0;
+    effect(() => {
+      i++;
+      for (const key of map.keys()) {
+      }
+    });
+    effect(() => {
+      i++;
+      for (const key of map.entries()) {
+      }
+    });
+    effect(() => {
+      i++;
+      for (const key of map.values()) {
+      }
+    });
+    map.clear();
+    expect(i).toBe(6);
   });
 });

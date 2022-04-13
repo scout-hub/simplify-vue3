@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 22:40:58
+ * @LastEditTime: 2022-04-13 14:29:00
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
@@ -108,7 +108,19 @@ function set(this, key, value) {
   return this;
 }
 
-// 覆写forEach
+// 覆写clear方法
+function clear(this: IterableCollections) {
+  const rawTarget = toRaw(this);
+  // 判断是否存在数据项，存在的话才触发依赖
+  const hasItem = rawTarget.size !== 0;
+  const result = rawTarget.clear();
+  if (hasItem) {
+    trigger(rawTarget, TriggerOpTypes.CLEAR);
+  }
+  return result;
+}
+
+// 覆写forEach方法
 function createForEach(isReadonly = false, isShallow = false) {
   return function (this: IterableCollections, callback: Function, args) {
     const that = this;
@@ -186,6 +198,7 @@ function createInstrumentations() {
     delete: deleteEntry,
     add,
     set,
+    clear,
     forEach: createForEach(false, false),
   };
   const readonlyInstrumentations: Record<string, Function> = {};
