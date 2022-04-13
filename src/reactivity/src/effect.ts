@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 14:12:34
+ * @LastEditTime: 2022-04-13 15:39:40
  */
 import { extend, isArray, isMap } from "../../shared/src/index";
 import { Dep } from "./dep";
@@ -213,7 +213,7 @@ export function trigger(
         }
         break;
       case TriggerOpTypes.DELETE:
-        // 删除属性操作，影响for 新操作，需要获取ITERATE_KEY相关的依赖
+        // 删除属性操作，影响for in 操作，需要获取ITERATE_KEY相关的依赖
         deps.push(depsMap.get(ITERATE_KEY));
         if (isMap(target)) {
           // Map删除属性操作，影响keys操作，需要获取MAP_KEY_ITERATE_KEY相关的依赖

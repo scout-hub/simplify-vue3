@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 14:29:00
+ * @LastEditTime: 2022-04-13 16:44:28
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
@@ -18,9 +18,9 @@ type SetTypes = Set<any> | WeakSet<any>;
 const toShallow = <T extends unknown>(value: T): T => value;
 
 // 覆写size获取器的逻辑
-function size(target: IterableCollections) {
+function size(target: IterableCollections, isReadonly = false) {
   const rawTarget = toRaw(target);
-  track(rawTarget, ITERATE_KEY);
+  !isReadonly && track(rawTarget, ITERATE_KEY);
   return Reflect.get(rawTarget, "size", rawTarget);
 }
 
@@ -178,6 +178,24 @@ function createIterableMethod(
     };
   };
 }
+/**
+ * 覆写has方法
+ */
+function has(this: CollectionTypes, key: unknown, isReadonly = false) {
+  const rawTarget = toRaw(this);
+  const result = rawTarget.has(key);
+  !isReadonly && track(rawTarget, key);
+  return result;
+}
+
+// 统一处理只读情况下对响应式对象进行修改操作的拦截
+function createReadonlyMethod(type) {
+  return function (this: IterableCollections, key) {
+    console.warn(`${key} is readonly`);
+    // delete函数返回删除失败的布尔值，其它返回当前的集合对象
+    return type === TriggerOpTypes.DELETE ? false : this;
+  };
+}
 
 /**
  * 创建不同的处理器对象
@@ -188,6 +206,7 @@ function createIterableMethod(
  * 去覆写相关集合上的访问器属性和方法，让它们能够正常处理
  */
 function createInstrumentations() {
+  // 深响应处理器
   const mutableInstrumentations: Record<string, Function> = {
     get(this: MapTypes, key: unknown) {
       return get(this, key);
@@ -199,10 +218,29 @@ function createInstrumentations() {
     add,
     set,
     clear,
-    forEach: createForEach(false, false),
+    has,
+    forEach: createForEach(),
   };
-  const readonlyInstrumentations: Record<string, Function> = {};
+  // 只读处理器
+  const readonlyInstrumentations: Record<string, Function> = {
+    get(this: MapTypes, key: unknown) {
+      return get(this, key, true);
+    },
+    get size() {
+      return size(this as unknown as IterableCollections, true);
+    },
+    has(this: MapTypes, key: unknown) {
+      return has.call(this, key, true);
+    },
+    delete: createReadonlyMethod(TriggerOpTypes.DELETE),
+    add: createReadonlyMethod(TriggerOpTypes.ADD),
+    set: createReadonlyMethod(TriggerOpTypes.SET),
+    clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
+    forEach: createForEach(true),
+  };
+  // 浅响应处理器
   const shallowInstrumentations: Record<string, Function> = {};
+  // 浅只读处理器
   const shallowReadonlyInstrumentations: Record<string, Function> = {};
 
   const iteratorMethods = ["keys", "values", "entries", Symbol.iterator];
