@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-12 11:21:30
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 17:01:40
+ * @LastEditTime: 2022-04-13 17:08:02
  */
 import { hasChanged } from "../../shared/src";
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from "./effect";
@@ -255,7 +255,22 @@ function createInstrumentations() {
   };
 
   // 浅只读处理器
-  const shallowReadonlyInstrumentations: Record<string, Function> = {};
+  const shallowReadonlyInstrumentations: Record<string, Function> = {
+    get(this: MapTypes, key: unknown) {
+      return get(this, key, true, true);
+    },
+    get size() {
+      return size(this as unknown as IterableCollections, true);
+    },
+    has(this: MapTypes, key: unknown) {
+      return has.call(this, key, true);
+    },
+    delete: createReadonlyMethod(TriggerOpTypes.DELETE),
+    add: createReadonlyMethod(TriggerOpTypes.ADD),
+    set: createReadonlyMethod(TriggerOpTypes.SET),
+    clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
+    forEach: createForEach(true, true),
+  };
 
   const iteratorMethods = ["keys", "values", "entries", Symbol.iterator];
 
@@ -332,4 +347,6 @@ export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
 };
 
 export const shallowReadonlyCollectionHandlers: ProxyHandler<CollectionTypes> =
-  {};
+  {
+    get: createInstrumentationGetter(true, true),
+  };

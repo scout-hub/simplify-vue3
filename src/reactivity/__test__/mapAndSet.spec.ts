@@ -2,10 +2,15 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 17:04:09
+ * @LastEditTime: 2022-04-13 17:16:23
  */
 import { effect } from "../src/effect";
-import { reactive, readonly, shallowReactive } from "../src/reactive";
+import {
+  reactive,
+  readonly,
+  shallowReactive,
+  shallowReadonly,
+} from "../src/reactive";
 
 describe("Map and Set", () => {
   test("Set", () => {
@@ -181,5 +186,18 @@ describe("Map and Set", () => {
     expect(i).toBe(2);
     map.get("name").age = 2;
     expect(i).toBe(2);
+  });
+
+  test("shallowReadonly", () => {
+    console.log(1);
+    
+    const obj = { name: 1 };
+    const map = shallowReadonly(new Map([["name", obj]]));
+    console.warn = jest.fn();
+    map.set("name", 2);
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(map.get("name")).toStrictEqual(obj);
+    map.get("name").age = 2;
+    expect(console.warn).toHaveBeenCalledTimes(1);
   });
 });
