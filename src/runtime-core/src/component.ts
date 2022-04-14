@@ -2,11 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:50:37
+ * @LastEditTime: 2022-04-14 22:07:26
  */
 
-import { shallowReadonly, proxyRefs } from "../../reactivity/src/index";
-import { EMPTY_OBJ, isObject, ShapeFlags } from "../../shared/src/index";
+import { shallowReadonly, proxyRefs } from "../../reactivity/src";
+import { EMPTY_OBJ, isObject, ShapeFlags } from "../../shared/src";
 import { emit } from "./componentEmits";
 import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";

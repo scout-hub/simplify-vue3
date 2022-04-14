@@ -2,18 +2,18 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 18:18:44
+ * @LastEditTime: 2022-04-14 22:07:39
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
-import { ReactiveEffect } from "../../reactivity/src/index";
+import { ReactiveEffect } from "../../reactivity/src";
 import {
   EMPTY_ARR,
   EMPTY_OBJ,
   invokeArrayFns,
   ShapeFlags,
-} from "../../shared/src/index";
+} from "../../shared/src";
 import {
   renderComponentRoot,
   shouldUpdateComponent,

@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 15:44:22
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:44:36
+ * @LastEditTime: 2022-04-14 22:07:57
  */
-import { isOn } from "../../shared/src/index";
+import { isOn } from "../../shared/src";
 import { patchAttr } from "./modules/attrs";
 import { patchEvent } from "./modules/events";
 import { patchDOMProp } from "./modules/props";

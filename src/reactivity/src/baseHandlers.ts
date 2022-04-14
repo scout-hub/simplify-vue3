@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 10:16:46
+ * @LastEditTime: 2022-04-14 22:07:05
  */
-import { isArray, isSymbol } from "./../../shared/src/index";
+import { isArray, isSymbol } from "./../../shared/src";
 import {
   ITERATE_KEY,
   pauseTracking,
@@ -13,7 +13,7 @@ import {
   trigger,
 } from "./effect";
 import { reactive, ReactiveFlags, readonly, Target, toRaw } from "./reactive";
-import { isObject, extend, hasChanged, hasOwn } from "../../shared/src/index";
+import { isObject, extend, hasChanged, hasOwn } from "../../shared/src";
 import { TriggerOpTypes } from "./operations";
 
 // 内建的symbol属性

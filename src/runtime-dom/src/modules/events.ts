@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 20:16:47
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-07 11:52:21
+ * @LastEditTime: 2022-04-14 22:08:00
  */
 
-import { isArray } from "../../../shared/src/index";
+import { isArray } from "../../../shared/src";
 
 // 事件绑定
 export function addEventListener(el, event, handler) {

@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 20:59:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 20:30:12
+ * @LastEditTime: 2022-04-14 22:07:47
  */
-import { isFunction } from "../../../shared/src/index";
+import { isFunction } from "../../../shared/src";
 import { createVnode, Fragment } from "../vnode";
 
 /**

@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 15:39:40
+ * @LastEditTime: 2022-04-14 22:07:14
  */
-import { extend, isArray, isMap } from "../../shared/src/index";
+import { extend, isArray, isMap } from "../../shared/src";
 import { Dep } from "./dep";
 import { TriggerOpTypes } from "./operations";
 

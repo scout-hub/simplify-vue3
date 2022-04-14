@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 20:09:06
+ * @LastEditTime: 2022-04-14 22:07:19
  */
 
-import { hasChanged, isArray } from "../../shared/src/index";
+import { hasChanged, isArray } from "../../shared/src";
 import { createDep } from "./dep";
 import { canTrack, trackEffects, triggerEffects } from "./effect";
 import { isReactive, toRaw, toReactive } from "./reactive";

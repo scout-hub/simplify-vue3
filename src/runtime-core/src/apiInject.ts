@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-02 14:43:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:38:43
+ * @LastEditTime: 2022-04-14 22:07:23
  */
-import { isFunction } from "../../shared/src/index";
+import { isFunction } from "../../shared/src";
 import { currentInstance } from "./component";
 
 /**

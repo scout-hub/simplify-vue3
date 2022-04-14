@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:44:14
+ * @LastEditTime: 2022-04-14 22:07:44
  */
 
 import {
@@ -13,7 +13,7 @@ import {
   isString,
   normalizeClass,
   ShapeFlags,
-} from "./../../shared/src/index";
+} from "./../../shared/src";
 
 // 片段type
 export const Fragment = Symbol("Fragment");

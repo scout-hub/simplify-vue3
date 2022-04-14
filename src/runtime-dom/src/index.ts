@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:44
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:44:29
+ * @LastEditTime: 2022-04-14 22:07:51
  */
-import { createRenderer } from "../../runtime-core/src/index";
-import { extend } from "../../shared/src/index";
+import { createRenderer } from "../../runtime-core/src";
+import { extend } from "../../shared/src";
 import { nodeOps } from "./nodeOps";
 import { patchProp } from "./patchProp";
 
@@ -40,4 +40,4 @@ function normalizeContainer(container) {
   return container;
 }
 
-export * from "../../runtime-core/src/index";
+export * from "../../runtime-core/src";

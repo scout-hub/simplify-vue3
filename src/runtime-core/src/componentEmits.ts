@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 09:49:57
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:39:16
+ * @LastEditTime: 2022-04-14 22:07:32
  */
 
-import { camelize, toHandlerKey } from "../../shared/src/index";
+import { camelize, toHandlerKey } from "../../shared/src";
 
 /**
  * @author: Zhouqi
