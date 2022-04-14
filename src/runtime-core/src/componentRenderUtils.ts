@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:53:16
+ * @LastEditTime: 2022-04-13 22:16:17
  */
 
 import { ShapeFlags } from "../../shared/src";
@@ -45,8 +45,38 @@ export function renderComponentRoot(instance) {
  * @param n2 新的虚拟节点
  */
 export function shouldUpdateComponent(n1, n2) {
-  const { props: prevProps } = n1;
-  const { props: nextProps } = n2;
+  const { props: prevProps, children: prevChildren } = n1;
+  const { props: nextProps, children: nextChildren } = n2;
+
+  if (prevChildren || nextChildren) {
+    if (!nextChildren || !(nextChildren as any).$stable) {
+      return true;
+    }
+  }
+
+  if (prevProps === nextProps) {
+    return false;
+  }
+  if (!prevProps) {
+    return !!nextProps;
+  }
+  if (!nextProps) {
+    return true;
+  }
+
+  return hasPropsChanged(prevProps, nextProps);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 比较新旧props是否变化
+ * @param prevProps
+ * @param nextProps
+ */
+function hasPropsChanged(prevProps, nextProps) {
+  if (Object.keys(prevProps) !== Object.keys(prevProps)) {
+    return false;
+  }
   for (const key in nextProps) {
     if (nextProps[key] !== prevProps[key]) {
       return true;

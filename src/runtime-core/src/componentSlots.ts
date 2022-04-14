@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 21:16:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:41:12
+ * @LastEditTime: 2022-04-14 10:15:44
  */
 
 import { isArray, ShapeFlags } from "../../shared/src/index";
@@ -46,4 +46,17 @@ function normalizeObjectSlots(children, slots) {
  */
 function normalizeSlotValue(slot) {
   return isArray(slot) ? slot : [slot];
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 更新插槽节点
+ * @param instance 组件实例
+ * @param children 子节点
+ */
+export function updateSlots(instance, children) {
+  // 判断是不是插槽节点
+  if (ShapeFlags.SLOTS_CHILDREN & instance.vnode.shapeFlag) {
+    normalizeObjectSlots(children, instance.slots);
+  }
 }

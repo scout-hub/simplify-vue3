@@ -2,19 +2,20 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:52:53
+ * @LastEditTime: 2022-04-14 10:44:53
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
-import { EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
+import { EMPTY_ARR, EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
 import {
   renderComponentRoot,
   shouldUpdateComponent,
 } from "./componentRenderUtils";
 import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
 import { updateProps } from "./componentProps";
+import { updateSlots } from "./componentSlots";
 
 export const queuePostRenderEffect = queuePostFlushCb;
 
@@ -233,7 +234,7 @@ function baseCreateRenderer(options) {
         // 表示组件Dom已经创建完成
         instance.isMounted = true;
       } else {
-        console.log("组件更新了", instance);
+        // console.log("组件更新了", instance);
         let { next, vnode, bu, u } = instance;
         if (next) {
           // 更新组件的渲染数据
@@ -276,9 +277,10 @@ function baseCreateRenderer(options) {
     const prevProps = instance.vnode.props;
     instance.vnode = nextVnode;
     instance.next = null;
-    // updateProps
+    // 更新props
     updateProps(instance, nextVnode.props, prevProps);
-    // instance.props = nextVnode.props;
+    // 更新slots
+    updateSlots(instance, nextVnode.children);
   };
 
   /**
@@ -543,34 +545,34 @@ function baseCreateRenderer(options) {
         }
       }
 
-      // 需要进行DOM移动
-      if (moved) {
-        // 计算最长递增子序列，得到的结果是最长递增子序列的索引信息
-        // 1 (2 3 4 6) 5 ====> 1 (3 4 2 7) 5 索引数组为 [2,3,1,-1]  最长递增子序列为 [2, 3] 子序列索引为 [0, 1]
-        // 意思是新子节点数组中下标为0和1的节点不需要移动，其它的可能要移动，因为索引数组和新子节点数组（去除前后置节点）位置是一一对应的
-        const increasingNewIndexSequence = getSequence(newIndexToOldIndexMap);
-        // 创建两个变量用来遍历increasingNewIndexSequence和新子节点数组（去除前后置节点）
-        let seq = increasingNewIndexSequence.length - 1;
-        const j = toBePatched - 1;
-        for (let i = j; i >= 0; i--) {
-          // 1. 找到需要新增的节点
-          const pos = i + newStart;
-          const newVnode = c2[pos];
-          // 2. 找到锚点节点的索引
-          const anchor = pos + 1 < l2 ? c2[pos + 1].el : parentAnchor;
-          // 3. 挂载
-          if (newIndexToOldIndexMap[i] === -1) {
-            // 说明是新节点，需要挂载
-            patch(null, newVnode, container, anchor, parentComponent);
-          } else if (
-            newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]
-          ) {
-            // 需要移动节点
-            hostInsert(newVnode.el, container, anchor);
-          } else {
-            // 找到了对应不需要移动的节点，只需要更新seq
-            seq--;
-          }
+      // 需要进行DOM移动和DOM创建的情况
+      // 计算最长递增子序列，得到的结果是最长递增子序列的索引信息
+      // 1 (2 3 4 6) 5 ====> 1 (3 4 2 7) 5 索引数组为 [2,3,1,-1]  最长递增子序列为 [2, 3] 子序列索引为 [0, 1]
+      // 意思是新子节点数组中下标为0和1的节点不需要移动，其它的可能要移动，因为索引数组和新子节点数组（去除前后置节点）位置是一一对应的
+      const increasingNewIndexSequence = moved
+        ? getSequence(newIndexToOldIndexMap)
+        : EMPTY_ARR;
+      // 创建两个变量用来遍历increasingNewIndexSequence和新子节点数组（去除前后置节点）
+      let seq = increasingNewIndexSequence.length - 1;
+      const j = toBePatched - 1;
+      for (let i = j; i >= 0; i--) {
+        // 1. 找到需要新增的节点
+        const pos = i + newStart;
+        const newVnode = c2[pos];
+        // 2. 找到锚点节点的索引
+        const anchor = pos + 1 < l2 ? c2[pos + 1].el : parentAnchor;
+        // 3. 挂载
+        if (newIndexToOldIndexMap[i] === -1) {
+          // 说明是新节点，需要挂载
+          patch(null, newVnode, container, anchor, parentComponent);
+        } else if (
+          newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]
+        ) {
+          // 需要移动节点
+          hostInsert(newVnode.el, container, anchor);
+        } else {
+          // 找到了对应不需要移动的节点，只需要更新seq
+          seq--;
         }
       }
     }
