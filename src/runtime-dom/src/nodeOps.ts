@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 15:36:54
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-13 20:36:19
+ * @LastEditTime: 2022-04-14 14:28:28
  */
 // 平台渲染操作
 export const nodeOps = {
@@ -68,4 +68,11 @@ export const nodeOps = {
    * @return 注释节点
    */
   createComment: (text) => document.createComment(text),
+  /**
+   * @author: Zhouqi
+   * @description: 获取当前节点的下一个节点
+   * @param node 当前节点
+   * @return 当前节点的下一个节点
+   */
+  nextSibling: (node) => node.nextSibling,
 };

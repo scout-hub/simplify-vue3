@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 21:16:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 10:15:44
+ * @LastEditTime: 2022-04-14 20:35:42
  */
 
 import { isArray, ShapeFlags } from "../../shared/src/index";
@@ -55,8 +55,18 @@ function normalizeSlotValue(slot) {
  * @param children 子节点
  */
 export function updateSlots(instance, children) {
+  const { slots } = instance;
+  let needDeletionCheck = true;
   // 判断是不是插槽节点
   if (ShapeFlags.SLOTS_CHILDREN & instance.vnode.shapeFlag) {
-    normalizeObjectSlots(children, instance.slots);
+    normalizeObjectSlots(children, slots);
+  }
+  // 删除不存在slot key
+  if (needDeletionCheck) {
+    for (const key in slots) {
+      if (!(key in children)) {
+        delete slots[key];
+      }
+    }
   }
 }

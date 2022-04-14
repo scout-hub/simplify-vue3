@@ -2,13 +2,18 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 10:54:33
+ * @LastEditTime: 2022-04-14 18:18:44
  */
 import { createComponentInstance, setupComponent } from "./component";
-import { Fragment, isSameVNodeType, Text, Comment } from "./vnode";
+import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "../../reactivity/src/index";
-import { EMPTY_ARR, EMPTY_OBJ, invokeArrayFns, ShapeFlags } from "../../shared/src/index";
+import {
+  EMPTY_ARR,
+  EMPTY_OBJ,
+  invokeArrayFns,
+  ShapeFlags,
+} from "../../shared/src/index";
 import {
   renderComponentRoot,
   shouldUpdateComponent,
@@ -43,6 +48,7 @@ function baseCreateRenderer(options) {
     setText: hostSetText,
     createText: hostCreateText,
     createComment: hostCreateComment,
+    nextSibling: hostNextSibling,
   } = options;
 
   /**
@@ -54,8 +60,18 @@ function baseCreateRenderer(options) {
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
    */
-  const patch = (n1, n2, container, anchor, parentComponent) => {
+  const patch = (n1, n2, container, anchor = null, parentComponent) => {
     if (n1 === n2) return;
+
+    // 更新的时候可能vnode对应的key是一样的，但是type不一样，这种情况也是需要删除旧的节点
+    // #fix example slots demo
+    if (n1 && !isSameVNodeType(n1, n2)) {
+      // 更新锚点元素，因为旧的节点被删除，新的需要创建，创建的位置应该是当前被删除节点的下一个节点之前
+      // 因此需要找到当前节点的下一个节点作为锚点节点
+      anchor = getNextHostNode(n1);
+      unmount(n1);
+      n1 = null;
+    }
 
     const { shapeFlag, type } = n2;
 
@@ -112,13 +128,21 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const processFragment = (n1, n2, container, anchor, parentComponent) => {
+    // #fix: example slots demo when update slot, the new node insertion exception
+    // 由于插槽节点在渲染的时候不会创建根标签包裹去插槽节点，导致在更新的时候可能无法正确找到锚点元素
+    // 这时候需要我们手动去创建一个空的文本节点去包裹所有的插槽节点。
+    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(""));
+    const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(""));
     if (n1 === null) {
-      // 表示创建节点
+      // #fix: example slots demo when update slot, the new node insertion exception
+      hostInsert(fragmentStartAnchor, container, anchor);
+      hostInsert(fragmentEndAnchor, container, anchor);
+      // 创建节点
       const { children } = n2;
-      mountChildren(children, container, anchor, parentComponent);
+      mountChildren(children, container, fragmentEndAnchor, parentComponent);
     } else {
       // 更新节点
-      patchChildren(n1, n2, container, anchor, parentComponent);
+      patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
     }
   };
 
@@ -131,8 +155,8 @@ function baseCreateRenderer(options) {
    * @param  anchor 锚点元素
    */
   const processText = (n1, n2, container, anchor) => {
-    // 老的虚拟节点不存，则表示创建节点
     if (n1 === null) {
+      // 老的虚拟节点不存，则表示创建节点
       const { children } = n2;
       const el = (n2.el = hostCreateText(children));
       hostInsert(el, container, anchor);
@@ -477,7 +501,7 @@ function baseCreateRenderer(options) {
       const toBePatched = newEnd - i + 1;
       const newIndexToOldIndexMap = new Array(toBePatched).fill(-1);
 
-      // 2. 构建一个索引表，存储新数组节点中对应节点在旧数组节点中的位置，用以帮助填充 newIndexToOldIndexMap 数组
+      // 2. 构建一个索引表，构建新数组节点中对应key的索引位置，用以辅助填充 newIndexToOldIndexMap 数组
       const newStart = i;
       const oldStart = i;
       const keyToNewIndexMap = new Map();
@@ -510,7 +534,17 @@ function baseCreateRenderer(options) {
         let keyIndex;
         // key === undefined || null
         if (oldVnode.key != null) {
+          /**
+           * 注意：
+           * 这里其实只是去查找了对应key相同的节点，但是新旧节点的type可能是不一样的，因此还是需要经历删除再创建的过程，并不是直接更新节点
+           * 这一步删除再创建是在patch里面进行的（源码）
+           */
           keyIndex = keyToNewIndexMap.get(oldVnode.key);
+          // 为什么不在这里处理？
+          // if (c2[keyIndex].type !== oldVnode.type) {
+          //   keyIndex = undefined;
+          //   console.log(keyIndex);
+          // }
         } else {
           // 如果用户没有传入key，则需要再加一层循环去寻找节点（传入key的重要性，避免O(n²)的时间复杂度）
           for (let j = newStart; j <= newEnd; j++) {
@@ -563,16 +597,16 @@ function baseCreateRenderer(options) {
         const anchor = pos + 1 < l2 ? c2[pos + 1].el : parentAnchor;
         // 3. 挂载
         if (newIndexToOldIndexMap[i] === -1) {
-          // 说明是新节点，需要挂载
+          // 索引为-1说明没有在老的里面找到对应的节点，说明是新节点，需要挂载
           patch(null, newVnode, container, anchor, parentComponent);
-        } else if (
-          newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]
-        ) {
-          // 需要移动节点
-          hostInsert(newVnode.el, container, anchor);
-        } else {
-          // 找到了对应不需要移动的节点，只需要更新seq
-          seq--;
+        } else if (moved) {
+          if (newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]) {
+            // 需要移动节点
+            hostInsert(newVnode.el, container, anchor);
+          } else {
+            // 找到了对应不需要移动的节点，只需要更新seq
+            seq--;
+          }
         }
       }
     }
@@ -726,6 +760,16 @@ function baseCreateRenderer(options) {
     if (um) {
       queuePostRenderEffect(um);
     }
+  };
+
+  /**
+   * @author: Zhouqi
+   * @description: 找到当前真实节点的下一个节点
+   * @param vnode 虚拟节点
+   * @return 当前真实节点的下一个节点
+   */
+  const getNextHostNode = (vnode) => {
+    return hostNextSibling(vnode.el);
   };
 
   return {
