@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 21:16:28
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 20:57:16
+ * @LastEditTime: 2022-04-15 12:23:31
  */
 
 import { isArray } from "../../shared/src";
@@ -115,6 +115,7 @@ function flushJobs() {
       job();
     }
   } catch (error) {
+    console.log(error);
   } finally {
     isFlushing = false;
     // 任务执行完成，重置微任务队列

@@ -2,11 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:19:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:44:35
+ * @LastEditTime: 2022-04-15 12:28:25
  */
 import { ref } from "../../reactivity/src";
 import { defineComponent } from "./apiDefineComponent";
-import { createTextVnode } from "./vnode";
+import { createTextVnode, createVnode } from "./vnode";
 
 // 创建异步组件
 export function defineAsyncComponent(source) {
@@ -42,7 +42,19 @@ export function defineAsyncComponent(source) {
       };
     },
     render() {
-      return this.isLoadComp ? { type: resolvedComp } : createTextVnode("");
+      return this.isLoadComp
+        ? createInnerComp(resolvedComp)
+        : createTextVnode("");
     },
   });
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 生成异步组件的vnode
+ * @param  comp 组件配置
+ * @return vnode
+ */
+function createInnerComp(comp) {
+  return createVnode(comp);
 }
