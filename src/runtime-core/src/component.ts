@@ -2,11 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:07:26
+ * @LastEditTime: 2022-04-15 19:38:56
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src";
-import { EMPTY_OBJ, isObject, ShapeFlags } from "../../shared/src";
+import { EMPTY_OBJ, isFunction, isObject, ShapeFlags } from "../../shared/src";
 import { emit } from "./componentEmits";
 import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
@@ -120,6 +120,7 @@ function setupStatefulComponent(instance) {
     const setupResult =
       setup(shallowReadonly(props), { emit, attrs, slots }) || {};
     unsetCurrentInstance();
+    
     handleSetupResult(instance, setupResult);
   }
 }
@@ -132,10 +133,12 @@ function setupStatefulComponent(instance) {
  */
 function handleSetupResult(instance, setupResult) {
   if (isObject(setupResult)) {
+    // 如果结果是对象，说明返回的是数据
     instance.setupState = proxyRefs(setupResult);
+  } else if (isFunction(setupResult)) {
+    // 如果是函数，则表示渲染函数
+    instance.render = setupResult;
   }
-  // TODO
-  // setup返回函数时表示render函数
   finishComponentSetup(instance);
 }
 

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:37:53
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 12:27:08
+ * @LastEditTime: 2022-04-15 19:39:39
  */
 import {
     h
@@ -11,9 +11,6 @@ import {
 export default {
     name: "Child",
     setup() {
-
+        return () => h('div', null, 1);
     },
-    render() {
-        return h('div', null, 1);
-    }
 }

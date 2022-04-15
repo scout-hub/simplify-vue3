@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:19:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 12:28:25
+ * @LastEditTime: 2022-04-15 19:41:30
  */
 import { ref } from "../../reactivity/src";
 import { defineComponent } from "./apiDefineComponent";
@@ -35,16 +35,12 @@ export function defineAsyncComponent(source) {
     setup() {
       const isLoadComp = ref(false);
       load().then(() => {
+        // 组件加载成功，修改标记
         isLoadComp.value = true;
       });
-      return {
-        isLoadComp,
-      };
-    },
-    render() {
-      return this.isLoadComp
-        ? createInnerComp(resolvedComp)
-        : createTextVnode("");
+      return () =>
+        // 根据组件加载成功标记来渲染
+        isLoadComp.value ? createInnerComp(resolvedComp) : createTextVnode("");
     },
   });
 }
