@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:07:39
+ * @LastEditTime: 2022-04-15 22:23:02
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -668,8 +668,10 @@ function baseCreateRenderer(options) {
       // 孩子是一个字符串表示文本类型
       hostSetElementText(el, children);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      // 处理数组类型的孩子节点
-      mountChildren(children, el, anchor, parentComponent);
+      // 处理数组类型的孩子节点 
+      // #fix bug example defineAsyncComponent 新建子节点的时候不需要锚点元素
+      // mountChildren(children, el, anchor, parentComponent);
+      mountChildren(children, el, null, parentComponent);
     }
 
     if (props) {
@@ -769,7 +771,7 @@ function baseCreateRenderer(options) {
    * @return 当前真实节点的下一个节点
    */
   const getNextHostNode = (vnode) => {
-    return hostNextSibling(vnode.el);
+    return hostNextSibling(vnode.anchor || vnode.el);
   };
 
   return {
