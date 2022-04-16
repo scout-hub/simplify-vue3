@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 10:14:05
+ * @LastEditTime: 2022-04-16 14:30:09
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -94,7 +94,7 @@ function baseCreateRenderer(options) {
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(n1, n2, container, anchor, parentComponent);
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
-          // if is component
+          // 有状态、函数式组件
           processComponent(n1, n2, container, anchor, parentComponent);
         }
     }
@@ -183,7 +183,7 @@ function baseCreateRenderer(options) {
     if (n1 === null) {
       mountComponent(n2, container, anchor, parentComponent);
     } else {
-      // TODO 更新组件
+      // 更新组件
       updateComponent(n1, n2);
     }
   };

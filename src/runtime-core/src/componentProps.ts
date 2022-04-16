@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 09:18:50
+ * @LastEditTime: 2022-04-16 13:55:28
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -52,6 +52,13 @@ export function initProps(instance, rawProps, isStateful) {
     instance.props = shallowReactive(props);
   } else {
     // 函数式组件
+    if (instance.type.props) {
+      // 如果函数式组件定义了接收的propsOpitons，则props就是接收的只是propsOpiton上定义的属性
+      instance.props = props;
+    } else {
+      // 否则props就是attrs
+      instance.props = attrs;
+    }
   }
   instance.attrs = attrs;
 }
@@ -68,23 +75,31 @@ function validateProps(rawProps, props, instance) {
   for (const key in options) {
     const opt = options[key];
     if (!opt) continue;
-    validateProp(props[key], opt, !hasOwn(rawProps, key));
+    validateProp(key, props[key], opt, !hasOwn(rawProps, key));
   }
 }
 
 /**
  * @author: Zhouqi
  * @description: 校验单个prop的值
+ * @param key 属性名
  * @param value 属性值
  * @param propOption 校验选项
- * @param isAbsent 传入的prop中没有指定的prop key（没传属性key）
+ * @param isAbsent 传入的prop中是否缺少指定的prop key
  */
-function validateProp(value, propOption, isAbsent) {
+function validateProp(key, value, propOption, isAbsent) {
   const { type, required, validator } = propOption;
   // 如果是必填的但是没有传值，就警告
   if (required && isAbsent) {
+    console.warn(`${key} is Required`);
     return;
   }
+
+  // value是null或者undefined且不需要必填时，直接跳过
+  if (value == null && !required) {
+    return;
+  }
+
   if (type) {
     const types = isArray(type) ? type : [type];
     let isValid = false;

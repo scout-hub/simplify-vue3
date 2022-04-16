@@ -2,12 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:07:44
+ * @LastEditTime: 2022-04-16 14:25:44
  */
 
 import {
   extend,
   isArray,
+  isFunction,
   isObject,
   isOn,
   isString,
@@ -56,6 +57,8 @@ export function createVnode(type, props: any = null, children: unknown = null) {
     shapeFlag = ShapeFlags.ELEMENT;
   } else if (isObject(type)) {
     shapeFlag = ShapeFlags.STATEFUL_COMPONENT;
+  } else if (isFunction(type)) {
+    shapeFlag = ShapeFlags.FUNCTIONAL_COMPONENT;
   }
 
   return createBaseVNode(type, props, children, shapeFlag, true);
@@ -106,18 +109,24 @@ export function normalizeChildren(vnode, children) {
   let type = 0;
   const { shapeFlag } = vnode;
 
-  if (!children) {
+  if (children == null) {
+    children = null;
   } else if (isArray(children)) {
     type = ShapeFlags.ARRAY_CHILDREN;
   } else if (isObject(children)) {
-    if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+    if (shapeFlag & ShapeFlags.COMPONENT) {
       // 子节点是对象表示插槽节点
       type = ShapeFlags.SLOTS_CHILDREN;
     }
+  } else if (isFunction(children)) {
+    // 如果子节点是一个函数，则表示默认插槽
+    type = ShapeFlags.SLOTS_CHILDREN;
+    children = { default: children };
   } else {
     children = String(children);
     type = ShapeFlags.TEXT_CHILDREN;
   }
+  vnode.children = children;
   vnode.shapeFlag |= type;
 }
 
@@ -127,7 +136,10 @@ export function normalizeChildren(vnode, children) {
  * @param child 虚拟节点
  */
 export function normalizeVNode(child) {
-  if (isObject(child)) {
+  if (child == null) {
+    // 如果render函数没有返回对应的vnode，则默认创建一个注释节点
+    return createVnode(Comment);
+  } else if (isObject(child)) {
     // 显然已经是一个vnode类型的数据
     // 如果vnode上没有el，说明是初始化渲染，直接返回vnode即可
     // 如果是更新的话，需要克隆一份新的vnode

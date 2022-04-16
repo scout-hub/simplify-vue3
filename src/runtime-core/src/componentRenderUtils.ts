@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 10:39:43
+ * @LastEditTime: 2022-04-16 14:04:02
  */
 
 import { ShapeFlags } from "../../shared/src";
@@ -14,13 +14,32 @@ import { cloneVNode, normalizeVNode } from "./vnode";
  * @param instance 组件实例
  */
 export function renderComponentRoot(instance) {
-  const { attrs, render, proxy, vnode, inheritAttrs } = instance;
+  const {
+    attrs,
+    props,
+    render,
+    proxy,
+    vnode,
+    inheritAttrs,
+    type: Component,
+    emit,
+    slots,
+  } = instance;
+
   let fallthroughAttrs;
   let result;
 
   if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     // 处理有状态组件
     result = normalizeVNode(render.call(proxy, proxy));
+    fallthroughAttrs = attrs;
+  } else {
+    // 函数式组件就是一个render函数
+    const render = Component;
+    // 如果函数式组件定义了1一个以上的参数，则第二个参数为context对象，否则为null
+    result = normalizeVNode(
+      render(props, render.length > 1 ? { attrs, slots, emit } : null)
+    );
     fallthroughAttrs = attrs;
   }
 
@@ -35,7 +54,7 @@ export function renderComponentRoot(instance) {
       result = cloneVNode(result, fallthroughAttrs);
     }
   }
-  
+
   return result;
 }
 
