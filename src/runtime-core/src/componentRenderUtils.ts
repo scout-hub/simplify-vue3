@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 19:39:05
+ * @LastEditTime: 2022-04-16 10:39:43
  */
 
 import { ShapeFlags } from "../../shared/src";
@@ -24,7 +24,7 @@ export function renderComponentRoot(instance) {
     fallthroughAttrs = attrs;
   }
 
-  // fallthroughAttrs存在且可以继承attrs属性的情况下
+  // attrs存在且可以继承attrs属性的情况下
   if (fallthroughAttrs && inheritAttrs !== false) {
     const attrsKeys = Object.keys(fallthroughAttrs);
     const { shapeFlag } = result;
@@ -35,6 +35,7 @@ export function renderComponentRoot(instance) {
       result = cloneVNode(result, fallthroughAttrs);
     }
   }
+  
   return result;
 }
 

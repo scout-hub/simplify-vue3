@@ -2,14 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:19:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 23:04:57
+ * @LastEditTime: 2022-04-16 11:30:04
  */
-import { isFunction } from "src/shared/src";
+import { isFunction } from "../../shared/src";
 import { ref } from "../../reactivity/src";
 import { defineComponent } from "./apiDefineComponent";
 import { currentInstance } from "./component";
 import { createTextVnode, createVnode } from "./vnode";
-import { onUnmounted } from "./apiLifecycle";
+import { onBeforeUnmount } from "./apiLifecycle";
 
 // 创建异步组件
 export function defineAsyncComponent(source) {
@@ -28,17 +28,39 @@ export function defineAsyncComponent(source) {
     // 超时时间
     timeout,
     suspensible,
-    onError,
+    onError: userOnError,
   } = source;
 
   // 解析到的组件
   let resolvedComp;
+  // 错误重试次数
+  let retries = 0;
+
+  // 重试函数，返回异步加载组件的函数
+  const retry = () => {
+    retries++;
+    return load();
+  };
 
   const load = () => {
-    return loader().then((c) => {
-      resolvedComp = c.default;
-      return c.default;
-    });
+    return loader()
+      .then((c) => {
+        resolvedComp = c.default;
+        return c.default;
+      })
+      .catch((err) => {
+        err = new Error("组件加载失败");
+        // 如果用户定义了错误处理函数，则将控制权交给用户
+        if (userOnError) {
+          return new Promise((resolve, reject) => {
+            const userRetry = () => resolve(retry());
+            const userFail = () => reject(err);
+            userOnError(err, userRetry, userFail, retries + 1);
+          });
+        } else {
+          throw err;
+        }
+      });
   };
 
   return defineComponent({
@@ -50,13 +72,16 @@ export function defineAsyncComponent(source) {
       // 注意：0是立即加载，不传默认是200
       const delayed = ref(!!delay);
 
+      let timeoutTimer;
+      let delayTimer;
+
       // defineAsyncComponent是一层包装组件，当写模板的时候可能会写一些插槽节点，这些节点需要传递给
       // 真正异步加载的组件使用，而不是给这个包装组件使用，因此我们需要获取当前包装组件的实例，将其身上的
       // slots传递给异步加载的组件
       const instance = currentInstance;
 
       if (delay) {
-        const delayTimer = setTimeout(() => {
+        delayTimer = setTimeout(() => {
           /**
            * 指定时间后加载loading组件
            * 需要指定延迟时间是因为异步组件可能加载很快，如果不加延迟立马使用loading组件，可能会马上又把
@@ -70,39 +95,43 @@ export function defineAsyncComponent(source) {
 
       // 如果设置了超时时间，则开启一个定时器，定时回调任务触发时表示组件加载超时了
       if (timeout != null) {
-        const timeoutTimer = setTimeout(() => {
+        timeoutTimer = setTimeout(() => {
           // 组件没有加载成功且没有加载失败的情况下，如果加载超时了，则赋值超时错误信息
           if (!loaded.value && !errorLoaded.value) {
             const error = new Error("组件加载超时了");
             errorLoaded.value = error;
           }
         }, timeout);
-        // TODO 没触发，待研究
-        onUnmounted(() => {
-          clearTimeout(timeoutTimer);
-        });
       }
+
+      // 组件销毁前清除定时器
+      onBeforeUnmount(() => {
+        clearTimeout(timeoutTimer);
+        clearTimeout(delayTimer);
+        delayTimer = null;
+        timeoutTimer = null;
+      });
 
       load()
         .then(() => {
           // 组件加载成功，修改标记
           loaded.value = true;
         })
-        .catch((err) => (errorLoaded.value = err))
-        .finally(() => {
-
+        .catch((err) => {
+          // 如果用户定义了错误处理函数并且调了用fail才会进到这里
+          errorLoaded.value = err;
         });
+
       return () => {
         // 根据组件加载成功标记来渲染
         if (loaded.value && resolvedComp) {
           return createInnerComp(resolvedComp, instance);
         } else if (errorLoaded.value && errorComponent) {
-          // 将错误信息传递给error组件
+          // 将错误信息传递给error组件，便于用户进行更精细的操作
           return createVnode(errorComponent, {
             error: errorLoaded.value,
           });
-        } else if (!delay.value && loadingComponent) {
-          // bug
+        } else if (!delayed.value && loadingComponent) {
           return createVnode(loadingComponent);
         }
         return createTextVnode("");
@@ -119,7 +148,7 @@ export function defineAsyncComponent(source) {
  */
 function createInnerComp(comp, instance?) {
   // slots可以理解，不知为何要传props，包装组件没有通过props去接受，上次传递下来的都会放在包装组件的attrs上，
-  // 这个attrs还是能够传递到异步加载的组件上，并且能和props进行合并（莫非是inheritAttr为false，而且想要props的数据？有待研究）
+  // 这个attrs还是能够传递到异步加载的组件上，并且能和props进行合并
   const {
     vnode: { children, props },
   } = instance;

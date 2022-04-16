@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-08 19:39:27
+ * @LastEditTime: 2022-04-16 09:18:50
  */
 
 import { shallowReactive } from "../../reactivity/src";
@@ -45,7 +45,7 @@ export function initProps(instance, rawProps, isStateful) {
   }
 
   // 校验数据是否合法
-  validateProps(rawProps, props, instance);
+  validateProps(rawProps || {}, props, instance);
 
   // 有状态组件
   if (isStateful) {

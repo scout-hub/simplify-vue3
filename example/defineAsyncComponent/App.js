@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 23:04:39
+ * @LastEditTime: 2022-04-16 11:42:05
  */
 import {
     h,
@@ -29,11 +29,27 @@ const timeoutChild = defineAsyncComponent({
     timeout: 2000,
     errorComponent: Error
 })
-
-const errorChild = defineAsyncComponent({
-    loader: () => import('./Child1.js'),
+let times = 0
+const ErrorChild = defineAsyncComponent({
+    loader: () => {
+        return new Promise((resolve) => {
+            times++;
+            if (times === 4) {
+                resolve(import('./Child.js'));
+            } else {
+                resolve(import('./Child1.js'));
+            }
+        })
+    },
     timeout: 2000,
-    errorComponent: Error
+    errorComponent: Error,
+    onError(error, retry, fail, attempts) {
+        if (attempts <= 3) {
+            retry()
+        } else {
+            fail();
+        }
+    }
 })
 
 const LoadingChild = defineAsyncComponent({
@@ -44,30 +60,34 @@ const LoadingChild = defineAsyncComponent({
             }, 3000);
         })
     },
-    delay: 200,
+    delay: 1000,
     loadingComponent: Loading
 })
 
+
 export default {
     name: "App",
-    setup() {
-
-    },
+    setup() {},
     render() {
         return h("div", null, [
-            h(SlotChild, {
-                text: 1
-            }, {
-                body: () => h('div', null, 'xxxx')
+            // h(SlotChild, {
+            //     text: 'slotChild',
+            // }, {
+            //     body: () => h('div', null, 'xxxx')
+            // }),
+            // h(Child, {
+            //     text: 'Child',
+            //     name: 'xxx'
+            // }),
+            // h(timeoutChild, {
+            //     text: 'timeoutChild'
+            // }),
+            h(ErrorChild, {
+                text: 6
             }),
-            h(Child, {
-                text: 2
-            }),
-            h(timeoutChild, {
-                text: 3
-            }),
-            h(errorChild),
-            h(LoadingChild)
+            // h(LoadingChild, {
+            //     text: 'LoadingChild'
+            // })
         ]);
     }
 };

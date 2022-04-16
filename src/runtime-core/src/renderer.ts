@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 22:23:02
+ * @LastEditTime: 2022-04-16 10:14:05
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -479,7 +479,7 @@ function baseCreateRenderer(options) {
        * (a) b c (d) ====> (a) (d) ：b、c是需要删除的节点
        */
       while (i <= oldEnd) {
-        hostRemove(c1[i].el);
+        unmount(c1[i]);
         i++;
       }
     }
@@ -527,8 +527,9 @@ function baseCreateRenderer(options) {
       for (let i = oldStart; i <= oldEnd; i++) {
         const oldVnode = c1[i];
         // 当已经更新过的子节点数量大于需要遍历的新子节点数组时，表示旧节点数量大于新节点数量，需要删除
+
         if (patched >= toBePatched) {
-          hostRemove(oldVnode.el);
+          unmount(oldVnode);
           continue;
         }
         let keyIndex;
@@ -575,7 +576,7 @@ function baseCreateRenderer(options) {
           patched++;
         } else {
           // 没找到节点，删除
-          hostRemove(oldVnode.el);
+          unmount(oldVnode);
         }
       }
 
@@ -668,7 +669,7 @@ function baseCreateRenderer(options) {
       // 孩子是一个字符串表示文本类型
       hostSetElementText(el, children);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      // 处理数组类型的孩子节点 
+      // 处理数组类型的孩子节点
       // #fix bug example defineAsyncComponent 新建子节点的时候不需要锚点元素
       // mountChildren(children, el, anchor, parentComponent);
       mountChildren(children, el, null, parentComponent);

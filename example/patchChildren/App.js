@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-05 16:48:52
+ * @LastEditTime: 2022-04-16 09:35:36
  */
 import {
     h,
@@ -183,7 +183,9 @@ export default {
 
         // 6.6 相同的前置和后置节点，且需要删除元素
         // return this.update ?
-        //     h("div", null, [
+        //     h("div", {
+        //         key: 1
+        //     }, [
         //         h('div', {
         //             key: 1
         //         }, '1'),
@@ -195,6 +197,7 @@ export default {
         //         }, '4'),
         //     ]) :
         //     h("div", {
+        //         key: 1,
         //         onClick: this.change,
         //     }, [
         //         h('div', {
@@ -213,7 +216,9 @@ export default {
 
         // 6.7 复杂子节点数组更新，存在既有删除又有新增元素但是无需要移动节点的情况
         return this.update ?
-            h("div", null, [
+            h("div", {
+                key: 1
+            }, [
                 h('div', {
                     key: 1
                 }, '1'),
@@ -236,6 +241,7 @@ export default {
             ]) :
             h("div", {
                 onClick: this.change,
+                key: 1
             }, [
                 h('div', {
                     key: 1,
@@ -254,7 +260,8 @@ export default {
                 }, '6'),
                 h('div', {
                     key: 5
-                }, '5')
+                }, '5'),
+
             ]);
     }
 };

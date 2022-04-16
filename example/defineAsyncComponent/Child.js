@@ -2,14 +2,15 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:37:53
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 20:54:50
+ * @LastEditTime: 2022-04-16 10:39:04
  */
 import {
     h,
     renderSlot
 } from '../../lib/simplify-vue.esm.js'
 
-export default {  name: "Child",
+export default {
+    name: "Child",
     props: {
         text: [String, Number]
     },
@@ -18,5 +19,5 @@ export default {  name: "Child",
     }) {
         return () => h('div', null, [h('div', null, props.text), renderSlot(slots, 'body')]);
     },
-  
+
 }

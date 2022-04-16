@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-15 19:38:56
+ * @LastEditTime: 2022-04-16 10:05:37
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src";
@@ -48,6 +48,8 @@ export function createComponentInstance(vnode, parent) {
     slots: EMPTY_OBJ,
     ctx: EMPTY_OBJ,
     setupState: EMPTY_OBJ,
+
+    inheritAttrs: type.inheritAttrs,
 
     // lifecycle hooks
     bm: null,
@@ -120,7 +122,7 @@ function setupStatefulComponent(instance) {
     const setupResult =
       setup(shallowReadonly(props), { emit, attrs, slots }) || {};
     unsetCurrentInstance();
-    
+
     handleSetupResult(instance, setupResult);
   }
 }
