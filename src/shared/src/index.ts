@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 10:44:41
+ * @LastEditTime: 2022-04-16 17:41:42
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -66,6 +66,9 @@ export const invokeArrayFns = (fns: Function[]) => {
     fns[i]();
   }
 };
+
+// 空函数
+export const NOOP = () => {};
 
 // 判断某个对象中是否有指定属性
 export const hasOwn = (target: object, key: string | symbol) => {

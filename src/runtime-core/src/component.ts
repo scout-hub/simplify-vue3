@@ -2,11 +2,17 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 10:05:37
+ * @LastEditTime: 2022-04-16 17:42:09
  */
 
 import { shallowReadonly, proxyRefs } from "../../reactivity/src";
-import { EMPTY_OBJ, isFunction, isObject, ShapeFlags } from "../../shared/src";
+import {
+  EMPTY_OBJ,
+  isFunction,
+  isObject,
+  NOOP,
+  ShapeFlags,
+} from "../../shared/src";
 import { emit } from "./componentEmits";
 import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
@@ -159,7 +165,7 @@ function finishComponentSetup(instance) {
         component.render = compile(template);
       }
     }
-    instance.render = component.render;
+    instance.render = component.render || NOOP;
   }
 }
 

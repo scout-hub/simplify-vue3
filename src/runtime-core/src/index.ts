@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:35:42
+ * @LastEditTime: 2022-04-16 17:39:09
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
@@ -26,3 +26,4 @@ export {
 } from "./apiLifecycle";
 export { defineComponent } from "./apiDefineComponent";
 export { defineAsyncComponent } from "./apiAsyncComponent";
+export { KeepAlive } from "./component/KeepAlive";

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 14:30:09
+ * @LastEditTime: 2022-04-16 21:09:06
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -21,6 +21,7 @@ import {
 import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
 import { updateProps } from "./componentProps";
 import { updateSlots } from "./componentSlots";
+import { isKeepAlive } from "./component/KeepAlive";
 
 export const queuePostRenderEffect = queuePostFlushCb;
 
@@ -69,7 +70,7 @@ function baseCreateRenderer(options) {
       // 更新锚点元素，因为旧的节点被删除，新的需要创建，创建的位置应该是当前被删除节点的下一个节点之前
       // 因此需要找到当前节点的下一个节点作为锚点节点
       anchor = getNextHostNode(n1);
-      unmount(n1);
+      unmount(n1, parentComponent);
       n1 = null;
     }
 
@@ -181,7 +182,12 @@ function baseCreateRenderer(options) {
   const processComponent = (n1, n2, container, anchor, parentComponent) => {
     // n1为null表示初始化组件
     if (n1 === null) {
-      mountComponent(n2, container, anchor, parentComponent);
+      // 如果组件是keep-alive缓存过的组件，则不需要重新挂载，只需要从隐藏容器中取出缓存过的DOM即可
+      if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
+        parentComponent.ctx.activate(n2, container, anchor);
+      } else {
+        mountComponent(n2, container, anchor, parentComponent);
+      }
     } else {
       // 更新组件
       updateComponent(n1, n2);
@@ -219,6 +225,12 @@ function baseCreateRenderer(options) {
       initialVNode,
       parentComponent
     ));
+
+    // inject renderer internals for keepAlive
+    if (isKeepAlive(initialVNode)) {
+      (instance.ctx as any).renderer = internals;
+    }
+
     // 初始化组件
     setupComponent(instance);
     setupRenderEffect(instance, initialVNode, container, anchor);
@@ -368,7 +380,7 @@ function baseCreateRenderer(options) {
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // 1. 新的虚拟节点的子节点是一个文本节点，旧的虚拟节点的子节点是一个数组，则删除旧的节点元素，然后创建新的文本节点
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-        unmountChildren(c1);
+        unmountChildren(c1, parentComponent);
       }
       // 2. 旧的虚拟节点也是一个文本节点，但是文本内容不同，此时只需要更新文本内容
       if (c1 !== c2) {
@@ -382,7 +394,7 @@ function baseCreateRenderer(options) {
           patchKeyedChildren(c1, c2, container, anchor, parentComponent);
         } else {
           // 4. 新的节点不存在，则删除旧的子节点
-          unmountChildren(c1);
+          unmountChildren(c1, parentComponent);
         }
       } else {
         // 旧的孩子节点为文本节点。这种情况不管怎样，旧的文本节点都必须清空
@@ -479,7 +491,7 @@ function baseCreateRenderer(options) {
        * (a) b c (d) ====> (a) (d) ：b、c是需要删除的节点
        */
       while (i <= oldEnd) {
-        unmount(c1[i]);
+        unmount(c1[i], parentAnchor);
         i++;
       }
     }
@@ -529,7 +541,7 @@ function baseCreateRenderer(options) {
         // 当已经更新过的子节点数量大于需要遍历的新子节点数组时，表示旧节点数量大于新节点数量，需要删除
 
         if (patched >= toBePatched) {
-          unmount(oldVnode);
+          unmount(oldVnode, parentComponent);
           continue;
         }
         let keyIndex;
@@ -576,7 +588,7 @@ function baseCreateRenderer(options) {
           patched++;
         } else {
           // 没找到节点，删除
-          unmount(oldVnode);
+          unmount(oldVnode, parentComponent);
         }
       }
 
@@ -603,7 +615,7 @@ function baseCreateRenderer(options) {
         } else if (moved) {
           if (newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]) {
             // 需要移动节点
-            hostInsert(newVnode.el, container, anchor);
+            move(newVnode, container, anchor);
           } else {
             // 找到了对应不需要移动的节点，只需要更新seq
             seq--;
@@ -615,13 +627,31 @@ function baseCreateRenderer(options) {
 
   /**
    * @author: Zhouqi
+   * @description: 移动节点
+   * @param vnode 需要移动的vnode
+   * @param container 容器
+   * @param anchor 锚点节点
+   */
+  const move = (vnode, container, anchor) => {
+    const { type } = vnode;
+    // TODO Fragment类型的移动
+    if (type === Fragment) {
+      //
+      return;
+    }
+    hostInsert(vnode.el, container, anchor);
+  };
+
+  /**
+   * @author: Zhouqi
    * @description: 删除数组类型的子节点
    * @param children 孩子节点vnode
+   * @param parentComponent 父组件实例
    */
-  const unmountChildren = (children) => {
+  const unmountChildren = (children, parentComponent) => {
     const childrenLength = children.length;
     for (let i = 0; i < childrenLength; i++) {
-      unmount(children[i]);
+      unmount(children[i], parentComponent);
     }
   };
 
@@ -707,7 +737,7 @@ function baseCreateRenderer(options) {
   const render = (vnode, container) => {
     // 新的虚拟节点为null，说明是卸载操作
     if (vnode === null && container._vnode) {
-      unmount(container._vnode);
+      unmount(container._vnode, null);
     } else {
       patch(container._vnode || null, vnode, container, null, null);
     }
@@ -721,14 +751,22 @@ function baseCreateRenderer(options) {
    * @author: Zhouqi
    * @description: 组件卸载
    * @param vnode 老的虚拟节点
+   * @param parentComponent 父组件实例
    */
-  const unmount = (vnode) => {
+  const unmount = (vnode, parentComponent) => {
     const { shapeFlag, component, children } = vnode;
+
+    // 如果是需要缓存的组件，需要调用deactivate放入隐藏容器中缓存
+    if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
+      parentComponent.ctx.deactivate(vnode);
+      return;
+    }
+
     if (shapeFlag & ShapeFlags.COMPONENT) {
       // 销毁组件
       unmountComponent(component);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      unmountChildren(children);
+      unmountChildren(children, parentComponent);
     } else {
       // 销毁元素
       remove(vnode);
@@ -748,16 +786,18 @@ function baseCreateRenderer(options) {
   /**
    * @author: Zhouqi
    * @description: 卸载组件
-   * @param component 组件实例
+   * @param instance 组件实例
    */
-  const unmountComponent = (component) => {
-    const { um, bum, subTree } = component;
+  const unmountComponent = (instance) => {
+    const { um, bum, subTree } = instance;
 
     // beforeUnmount hook
     if (bum) {
       invokeArrayFns(bum);
     }
-    unmount(subTree);
+
+    // 递归卸载子节点
+    unmount(subTree, instance);
 
     // unmounted hook
     if (um) {
@@ -773,6 +813,13 @@ function baseCreateRenderer(options) {
    */
   const getNextHostNode = (vnode) => {
     return hostNextSibling(vnode.anchor || vnode.el);
+  };
+
+  const internals = {
+    p: patch,
+    um: unmount,
+    m: move,
+    o: options,
   };
 
   return {

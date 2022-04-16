@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 15:12:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-06 17:24:36
+ * @LastEditTime: 2022-04-16 19:48:10
  */
 /**
  * 用二进制表示组件类型，在判断组件类型和修改类型的时候通过位运算的方式去判断或者比较，性能更优，但是代码可读性相对更低
@@ -16,11 +16,13 @@
  * 在修改vnode类型的时候可以用 | 运算，在查找vnode类型的时候可以用 & 运算
  */
 export const enum ShapeFlags {
-  ELEMENT = 1, // 000001
-  FUNCTIONAL_COMPONENT = 1 << 1, // 000010
-  STATEFUL_COMPONENT = 1 << 2, // 000100
-  TEXT_CHILDREN = 1 << 3, // 001000
-  ARRAY_CHILDREN = 1 << 4, // 010000
-  SLOTS_CHILDREN = 1 << 5, // 100000
+  ELEMENT = 1, // 0000000001
+  FUNCTIONAL_COMPONENT = 1 << 1, // 0000000010
+  STATEFUL_COMPONENT = 1 << 2, // 0000000100
+  TEXT_CHILDREN = 1 << 3, // 0000001000
+  ARRAY_CHILDREN = 1 << 4, // 0000010000
+  SLOTS_CHILDREN = 1 << 5, // 0000100000
+  COMPONENT_SHOULD_KEEP_ALIVE = 1 << 8, // 0100000000
+  COMPONENT_KEPT_ALIVE = 1 << 9, // 1000000000
   COMPONENT = ShapeFlags.STATEFUL_COMPONENT | ShapeFlags.FUNCTIONAL_COMPONENT,
 }
