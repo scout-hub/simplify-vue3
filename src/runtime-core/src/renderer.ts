@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 21:09:06
+ * @LastEditTime: 2022-04-16 21:40:03
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -64,7 +64,8 @@ function baseCreateRenderer(options) {
   const patch = (n1, n2, container, anchor = null, parentComponent) => {
     if (n1 === n2) return;
 
-    // 更新的时候可能vnode对应的key是一样的，但是type不一样，这种情况也是需要删除旧的节点
+    // 1. 更新的时候可能vnode对应的key是一样的，但是type不一样，这种情况也是需要删除旧的节点
+    // 2. 更新组件的时候
     // #fix example slots demo
     if (n1 && !isSameVNodeType(n1, n2)) {
       // 更新锚点元素，因为旧的节点被删除，新的需要创建，创建的位置应该是当前被删除节点的下一个节点之前
@@ -181,7 +182,7 @@ function baseCreateRenderer(options) {
    */
   const processComponent = (n1, n2, container, anchor, parentComponent) => {
     // n1为null表示初始化组件
-    if (n1 === null) {
+    if (n1 == null) {
       // 如果组件是keep-alive缓存过的组件，则不需要重新挂载，只需要从隐藏容器中取出缓存过的DOM即可
       if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
         parentComponent.ctx.activate(n2, container, anchor);

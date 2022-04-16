@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 21:26:40
+ * @LastEditTime: 2022-04-16 22:14:58
  */
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
 import { onMounted, onUpdated } from "../apiLifecycle";
@@ -14,12 +14,21 @@ export const isKeepAlive = (vnode): boolean => vnode.type.__isKeepAlive;
 export const KeepAlive = {
   name: "KeepAlive",
   __isKeepAlive: true,
+
+  props: {
+    // 缓存的最大数量
+    max: [String, Number],
+  },
+
   setup(props, { slots }) {
     // 获取KeepAlive组件实例
     const instance: any = getCurrentInstance();
 
     // 获取上下文对象ctx
     const sharedContext = instance.ctx;
+
+    // 当前渲染的组件vnode
+    let current: any = null;
 
     // 从渲染器中获取DOM操作
     const {
@@ -56,6 +65,31 @@ export const KeepAlive = {
       move(vnode, storageContainer, null);
     };
 
+    // 缓存组件卸载操作
+    function unmount(vnode) {
+      // 需要重置vnode类型以便在后面unmount的时候可以正常卸载
+      resetShapeFlag(vnode);
+      _unmount(vnode, instance);
+    }
+
+    // 超出缓存最大数量，根据lru规则淘汰最近最少访问的组件
+    function pruneCacheEntry(key) {
+      // 获取最近最少访问的组件
+      const cached = cache.get(key);
+      if (!current || cached.type !== current.type) {
+        // 如果当前组件vnode不存在或者需要淘汰的组件不是当前组件，则直接卸载需要淘汰的组件
+        unmount(cached);
+      } else if (current) {
+        // 重置当前组件的vnode的类型，因为可能当前组件就是将要被淘汰的组件，比如max是1的情况下，这个时候不能
+        // 立即删除，所以需要重置它的类型以便在后面unmount的时候可以正常卸载
+        resetShapeFlag(current);
+      }
+
+      // 删除对应缓存的vnode和key
+      cache.delete(key);
+      keys.delete(key);
+    }
+
     // 组件vnode缓存时的key，由于缓存的时候需要缓存渲染器渲染时的vnode（keep-alive组件渲染后的subTree）
     // 因此不能直接缓存slots获取到的vnode，这里通过定义一个pendingCacheKey来记录当前组件的key，并和渲染时
     // 组件的vnode关联起来。
@@ -85,10 +119,15 @@ export const KeepAlive = {
 
       if (children.length > 1) {
         console.warn("KeepAlive组件内部只允许有一个子组件");
+        current = null;
+        return children;
       } else if (!(vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT)) {
+        current = null;
         // 如果vnode不是一个有状态组件的话，则直接返回vnode
         return vnode;
       }
+
+      const { include, exclude, max } = props;
 
       // 获取组件配置
       const comp = vnode.type;
@@ -113,10 +152,34 @@ export const KeepAlive = {
         pendingCacheKey = key;
         // 没有缓存过当前组件，则加入到缓存中，这里不缓存vnode
         keys.add(key);
+        // 如果超出缓存的最大数量，需要移除最近最少访问的组件缓存
+        if (max && keys.size > parseInt(max)) {
+          // 通过迭代器的next方法获取第一个key，这个key就是最近最少访问的组件key
+          const key = keys.values().next().value;
+          pruneCacheEntry(key);
+        }
       }
       // 标记组件的是一个需要被keep-alive的，避免直接unmount的时候被卸载
       vnode.shapeFlag |= ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE;
+
+      current = vnode;
       return vnode;
     };
   },
 };
+
+/**
+ * @author: Zhouqi
+ * @description: 重置vnode的类型
+ * @param  vnode 组件的虚拟节点
+ */
+function resetShapeFlag(vnode) {
+  let shapeFlag = vnode.shapeFlag;
+  if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
+    shapeFlag -= ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE;
+  }
+  if (shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
+    shapeFlag -= ShapeFlags.COMPONENT_KEPT_ALIVE;
+  }
+  vnode.shapeFlag = shapeFlag;
+}
