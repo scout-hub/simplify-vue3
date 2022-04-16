@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 22:01:37
+ * @LastEditTime: 2022-04-16 22:29:10
  */
 import {
     h,
@@ -43,7 +43,8 @@ export default {
         this.flag ? key++ : key--;
         i++;
         return h(KeepAlive, {
-            max: 1
+            // max: 1,
+            include: 'Child'
         }, {
             default: () => this.flag ?
                 h(Child, {

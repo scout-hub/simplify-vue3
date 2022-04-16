@@ -2,8 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 22:14:58
+ * @LastEditTime: 2022-04-16 22:29:55
  */
+import { isArray, isString } from "../../..//shared/src";
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
 import { onMounted, onUpdated } from "../apiLifecycle";
 import { getCurrentInstance } from "../component";
@@ -16,7 +17,8 @@ export const KeepAlive = {
   __isKeepAlive: true,
 
   props: {
-    // 缓存的最大数量
+    include: [String, RegExp, Array],
+    exclude: [String, RegExp, Array],
     max: [String, Number],
   },
 
@@ -104,6 +106,8 @@ export const KeepAlive = {
     onMounted(cacheSubTree);
     onUpdated(cacheSubTree);
 
+    // TODO onBeforeUnmount 清空并卸载缓存的所有组件
+
     return () => {
       pendingCacheKey = null;
 
@@ -132,6 +136,18 @@ export const KeepAlive = {
       // 获取组件配置
       const comp = vnode.type;
       const vnodeKey = vnode.key;
+
+      const name = vnode.type.name;
+
+      // 如果要缓存的组件不在用户定义之内，则不缓存，直接返回vnode
+      if (
+        (include && (!name || !matches(include, name))) ||
+        (exclude && name && matches(exclude, name))
+      ) {
+        current = vnode;
+        return vnode;
+      }
+
       // 获取key
       const key = vnodeKey == null ? comp : vnodeKey;
       // 拿到缓存的vnode
@@ -182,4 +198,30 @@ function resetShapeFlag(vnode) {
     shapeFlag -= ShapeFlags.COMPONENT_KEPT_ALIVE;
   }
   vnode.shapeFlag = shapeFlag;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 组件名是否匹配
+ * include="['a', 'b']"
+ * include="/a|b/"
+ * include="a,b"
+ *
+ * @param pattern 匹配表达式
+ * @param name 组件名
+ * @return 是否匹配
+ */
+function matches(pattern: any, name: string): boolean {
+  // 三种类型：正则、数组、字符串逗号拼接
+  if (isArray(pattern)) {
+    // 数组
+    return pattern.some((p) => matches(p, name));
+  } else if (isString(pattern)) {
+    // 字符串
+    return pattern.split(",").includes(name);
+  } else if (pattern.test) {
+    // 正则
+    return pattern.test(name);
+  }
+  return false;
 }
