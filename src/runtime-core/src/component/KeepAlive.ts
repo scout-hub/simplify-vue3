@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 21:14:40
+ * @LastEditTime: 2022-04-16 21:26:40
  */
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
 import { onMounted, onUpdated } from "../apiLifecycle";
@@ -43,15 +43,17 @@ export const KeepAlive = {
 
     // 在上下文对象中绑定activate方法，在patch的时候调用进行DOM搬运
     sharedContext.activate = (vnode, container, anchor) => {
+      const instance = vnode.component!;
       // 从隐藏容器走移走缓存的DOM，插入到页面中
       move(vnode, container, anchor);
+      // 可能props更新了，这里需要patch一下
+      patch(instance.vnode, vnode, container, anchor, instance);
     };
 
     // 在上下文对象中绑定deactivate方法，在unmount的时候调用进行DOM搬运
     sharedContext.deactivate = (vnode) => {
       // 获取unmount阶段vnode的组件实例，将对应的DOM移入到storageContainer中隐藏。
       move(vnode, storageContainer, null);
-      console.log(storageContainer);
     };
 
     // 组件vnode缓存时的key，由于缓存的时候需要缓存渲染器渲染时的vnode（keep-alive组件渲染后的subTree）

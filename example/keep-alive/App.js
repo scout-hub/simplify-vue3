@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 20:59:53
+ * @LastEditTime: 2022-04-16 21:26:33
  */
 import {
     h,
@@ -28,6 +28,7 @@ const Child = {
 }
 
 let key = 1;
+let i = 0
 
 export default {
     name: "App",
@@ -40,11 +41,12 @@ export default {
     },
     render() {
         this.flag ? key++ : key--;
+        i++;
         return h(KeepAlive, null, {
             default: () => this.flag ?
                 h(Child, {
                     key,
-                    text: 'old'
+                    text: 'old' + i
                 }) : h(Child, {
                     key,
                     text: 'new'

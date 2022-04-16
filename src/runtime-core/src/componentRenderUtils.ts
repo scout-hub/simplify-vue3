@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 14:04:02
+ * @LastEditTime: 2022-04-16 21:32:18
  */
 
 import { ShapeFlags } from "../../shared/src";
@@ -94,7 +94,7 @@ export function shouldUpdateComponent(n1, n2) {
  * @param nextProps
  */
 function hasPropsChanged(prevProps, nextProps) {
-  if (Object.keys(prevProps) !== Object.keys(prevProps)) {
+  if (Object.keys(prevProps).length !== Object.keys(prevProps).length) {
     return false;
   }
   for (const key in nextProps) {
