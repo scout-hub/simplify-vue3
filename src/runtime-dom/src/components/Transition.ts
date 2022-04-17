@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-17 15:01:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 19:24:16
+ * @LastEditTime: 2022-04-17 20:19:09
  */
 import { BaseTransition, h } from "../../../runtime-core/src";
 export const Transition = (props, { slots }) =>
@@ -19,7 +19,7 @@ Transition.props = {
 
 /**
  * @author: Zhouqi
- * @description: 解析transition上的睡醒
+ * @description: 解析transition上的属性
  * @param rawProps
  * @return 处理后的props
  */
@@ -99,7 +99,7 @@ function addTransitionClass(el, cls) {
  */
 function removeTransitionClass(el, cls) {
   const regExp = /\s+/;
-  // 通过空白符切分多个类名，循环添加到dom上
+  // 通过空白符切分多个类名，循环移除dom上类
   cls.split(regExp).forEach((c) => c && el.classList.remove(c));
 }
 
