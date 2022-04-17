@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 15:50:07
+ * @LastEditTime: 2022-04-17 19:42:53
  */
 import {
     h,
@@ -21,12 +21,17 @@ export default {
         }
     },
     render() {
-        return h(Transition, {
-            enterFromClass: 'enter-from',
-            enterToClass: 'enter-to',
-            enterActiveClass: 'enter-active'
-        }, {
-            default: () => h('div', null, 'transition 组件')
-        })
+        return this.flag ? h(Transition, {
+                enterFromClass: 'enter-from',
+                enterToClass: 'enter-to',
+                enterActiveClass: 'enter-active',
+                leaveFromClass: 'leave-from',
+                leaveToClass: 'leave-to',
+                leaveActiveClass: 'leave-active'
+            }, {
+                default: () =>
+                    h('div', null, 'transition 组件')
+            }) :
+            null
     }
 };

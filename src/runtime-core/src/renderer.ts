@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 15:52:54
+ * @LastEditTime: 2022-04-17 19:20:36
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -797,8 +797,13 @@ function baseCreateRenderer(options) {
    * @param vnode 虚拟节点
    */
   const remove = (vnode) => {
-    const { el } = vnode;
-    hostRemove(el);
+    const { el, transition } = vnode;
+    if (transition) {
+      const { leave } = transition;
+      leave(el, hostRemove);
+    } else {
+      hostRemove(el);
+    }
   };
 
   /**

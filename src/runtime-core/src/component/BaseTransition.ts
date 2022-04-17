@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-17 14:41:48
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 15:53:31
+ * @LastEditTime: 2022-04-17 19:22:02
  */
 export const BaseTransition = {
   name: "BaseTransition",
@@ -11,6 +11,7 @@ export const BaseTransition = {
     // enter
     onBeforeEnter: Function,
     onEnter: Function,
+    onLeave: Function,
   },
 
   setup(props, { slots }) {
@@ -30,19 +31,7 @@ export const BaseTransition = {
  * @return 钩子函数
  */
 function resolveTransitionHooks(props) {
-  const {
-    onBeforeEnter,
-    onEnter,
-    onAfterEnter,
-    onEnterCancelled,
-    onBeforeLeave,
-    onLeave,
-    onAfterLeave,
-    onLeaveCancelled,
-    onBeforeAppear,
-    onAfterAppear,
-    onAppearCancelled,
-  } = props;
+  const { onBeforeEnter, onEnter, onLeave } = props;
 
   const callhook = (hook, el) => {
     hook(el);
@@ -56,6 +45,12 @@ function resolveTransitionHooks(props) {
     enter(el) {
       let hook = onEnter;
       callhook(hook, el);
+    },
+    leave(el, remove) {
+      if (onLeave) {
+        // 动画结束后再执行DOM移除操作
+        onLeave(el, remove);
+      }
     },
   };
   return hooks;

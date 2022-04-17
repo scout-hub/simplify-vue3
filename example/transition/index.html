@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 15:54:21
+ * @LastEditTime: 2022-04-17 19:19:55
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +22,18 @@
         }
 
         .enter-active {
+            transition: all 1s linear;
+        }
+
+        .leave-from {
+            transform: translateX(0);
+        }
+
+        .leave-to {
+            transform: translateX(200px);
+        }
+
+        .leave-active {
             transition: all 1s linear;
         }
     </style>

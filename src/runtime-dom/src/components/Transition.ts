@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-17 15:01:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 16:09:02
+ * @LastEditTime: 2022-04-17 19:24:16
  */
 import { BaseTransition, h } from "../../../runtime-core/src";
 export const Transition = (props, { slots }) =>
@@ -12,6 +12,9 @@ Transition.props = {
   enterFromClass: String,
   enterActiveClass: String,
   enterToClass: String,
+  leaveFromClass: String,
+  leaveActiveClass: String,
+  leaveToClass: String,
 };
 
 /**
@@ -21,12 +24,27 @@ Transition.props = {
  * @return 处理后的props
  */
 function resolveTransitionProps(rawProps) {
-  const { type, enterFromClass, enterToClass, enterActiveClass } = rawProps;
+  const {
+    type,
+    enterFromClass,
+    enterToClass,
+    enterActiveClass,
+    leaveFromClass,
+    leaveActiveClass,
+    leaveToClass,
+  } = rawProps;
 
-  // 进入动画结束后触发的函数
+  // 进入动画结束后移除相关类
   const finishEnter = (el) => {
     removeTransitionClass(el, enterToClass);
     removeTransitionClass(el, enterActiveClass);
+  };
+
+  // 离开动画结束后移除相关类
+  const finishLeave = (el, done) => {
+    removeTransitionClass(el, leaveToClass);
+    removeTransitionClass(el, leaveActiveClass);
+    done && done(el);
   };
 
   function makeEnterHook() {
@@ -41,11 +59,23 @@ function resolveTransitionProps(rawProps) {
   }
 
   return {
+    // dom创建到挂载dom阶段触发的函数
     onBeforeEnter(el) {
       addTransitionClass(el, enterFromClass);
       addTransitionClass(el, enterActiveClass);
     },
+    // dom挂载后触发的函数
     onEnter: makeEnterHook(),
+    onLeave(el, done) {
+      const resolve = () => finishLeave(el, done);
+      addTransitionClass(el, leaveFromClass);
+      addTransitionClass(el, leaveActiveClass);
+      nextFrame(() => {
+        removeTransitionClass(el, leaveFromClass);
+        addTransitionClass(el, leaveToClass);
+        whenTransitionEnds(el, resolve);
+      });
+    },
   };
 }
 
@@ -77,7 +107,7 @@ function removeTransitionClass(el, cls) {
  * @author: Zhouqi
  * @description: 在下一帧执行回调，因为浏览器只会在当前帧绘制DOM，
  * 结束状态的类名和起始状态的类名需要在两帧绘制，否则起始状态的类名不会被绘制出来
- * @param cb 回调函数
+ * @param cb 下一帧触发的操作
  */
 function nextFrame(cb) {
   requestAnimationFrame(() => {
