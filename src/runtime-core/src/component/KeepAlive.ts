@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 22:31:34
+ * @LastEditTime: 2022-04-17 10:35:05
  */
 import { isArray, isString } from "../../..//shared/src";
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
@@ -12,6 +12,18 @@ import { getCurrentInstance } from "../component";
 // 判断是否是KeepAlive组件
 export const isKeepAlive = (vnode): boolean => vnode.type.__isKeepAlive;
 
+/**
+ * KeepAlive组件原理：
+ * KeepAlive可以缓存其内部渲染过的组件。当一个新的组件被渲染的时候，KeepAlive会将其渲染时的vnode和key建立一个映射关系，存储在一个缓存对象中（cache<Map>）
+ * 被渲染的组件会被标记上COMPONENT_SHOULD_KEEP_ALIVE，当该组件因为切换（比如：v-if）而进入unmount阶段时不会被直接卸载，而是将其DOM片段移入到一个隐藏容器中（storageContainer）
+ * 当该组件再次需要展示的时候，KeepAlive内部会拿到该组件的key，通过key去缓存对象中查找缓存的渲染时vnode，将缓存的部分数据更新到新的vnode上并将组件标记为COMPONENT_KEPT_ALIVE，
+ * 这个标记表示组件是从缓存中拿的，这样在patch的时候就不会重新挂载，而是调用activate将其DOM从隐藏容器中移动到真实页面上并更新props（props可能会变化）。
+ * 
+ * 缓存管理：
+ * KeepAlive有一个max配置，可以限制缓存组件的数量，当超过缓存的最大数量限制时，通过LRU的方式删除最近最少访问的组件缓存。
+ * 
+ * include和exclude的原理就是将组件名跟匹配字符串进行匹配，匹配到的组件才能被缓存/不缓存
+ */
 export const KeepAlive = {
   name: "KeepAlive",
   __isKeepAlive: true,
