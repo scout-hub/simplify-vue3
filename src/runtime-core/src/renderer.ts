@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 21:40:03
+ * @LastEditTime: 2022-04-17 09:51:03
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -227,7 +227,7 @@ function baseCreateRenderer(options) {
       parentComponent
     ));
 
-    // inject renderer internals for keepAlive
+    // keepalive组件需要为其上下文对象中添加渲染器，渲染器提供一些DOM操作
     if (isKeepAlive(initialVNode)) {
       (instance.ctx as any).renderer = internals;
     }

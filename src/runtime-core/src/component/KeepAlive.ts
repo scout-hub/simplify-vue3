@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 22:29:55
+ * @LastEditTime: 2022-04-16 22:31:34
  */
 import { isArray, isString } from "../../..//shared/src";
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
@@ -206,7 +206,6 @@ function resetShapeFlag(vnode) {
  * include="['a', 'b']"
  * include="/a|b/"
  * include="a,b"
- *
  * @param pattern 匹配表达式
  * @param name 组件名
  * @return 是否匹配
