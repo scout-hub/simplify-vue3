@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 14:25:44
+ * @LastEditTime: 2022-04-17 11:20:01
  */
 
 import {
@@ -15,6 +15,7 @@ import {
   normalizeClass,
   ShapeFlags,
 } from "./../../shared/src";
+import { isTeleport } from "./component/Teleport";
 
 // 片段type
 export const Fragment = Symbol("Fragment");
@@ -55,6 +56,9 @@ export function createVnode(type, props: any = null, children: unknown = null) {
   // 处理虚拟节点的shapeFlag
   if (isString(type)) {
     shapeFlag = ShapeFlags.ELEMENT;
+  } else if (isTeleport(type)) {
+    // teleport要在object判断之前，不然会走到object里面
+    shapeFlag = ShapeFlags.TELEPORT;
   } else if (isObject(type)) {
     shapeFlag = ShapeFlags.STATEFUL_COMPONENT;
   } else if (isFunction(type)) {

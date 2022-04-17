@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 15:36:54
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 14:28:28
+ * @LastEditTime: 2022-04-17 10:58:35
  */
 // 平台渲染操作
 export const nodeOps = {
@@ -75,4 +75,11 @@ export const nodeOps = {
    * @return 当前节点的下一个节点
    */
   nextSibling: (node) => node.nextSibling,
+  /**
+   * @author: Zhouqi
+   * @description: 查找节点
+   * @param selector 选择器
+   * @return 节点
+   */  
+  querySelector: (selector) => document.querySelector(selector),
 };

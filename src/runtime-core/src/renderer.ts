@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 09:51:03
+ * @LastEditTime: 2022-04-17 13:18:19
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -98,6 +98,8 @@ function baseCreateRenderer(options) {
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
           // 有状态、函数式组件
           processComponent(n1, n2, container, anchor, parentComponent);
+        } else if (shapeFlag & ShapeFlags.TELEPORT) {
+          type.process(n1, n2, container, anchor, parentComponent, internals);
         }
     }
   };
@@ -133,8 +135,8 @@ function baseCreateRenderer(options) {
     // #fix: example slots demo when update slot, the new node insertion exception
     // 由于插槽节点在渲染的时候不会创建根标签包裹去插槽节点，导致在更新的时候可能无法正确找到锚点元素
     // 这时候需要我们手动去创建一个空的文本节点去包裹所有的插槽节点。
-    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(""));
-    const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(""));
+    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateComment("fragment start"));
+    const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateComment("fragment end"));
     if (n1 === null) {
       // #fix: example slots demo when update slot, the new node insertion exception
       hostInsert(fragmentStartAnchor, container, anchor);
@@ -821,6 +823,8 @@ function baseCreateRenderer(options) {
     um: unmount,
     m: move,
     o: options,
+    mc: mountChildren,
+    pc: patchChildren,
   };
 
   return {

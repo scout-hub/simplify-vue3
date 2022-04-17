@@ -27,3 +27,4 @@ export {
 export { defineComponent } from "./apiDefineComponent";
 export { defineAsyncComponent } from "./apiAsyncComponent";
 export { KeepAlive } from "./component/KeepAlive";
+export { Teleport } from "./component/Teleport";

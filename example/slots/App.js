@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 20:31:59
+ * @LastEditTime: 2022-04-17 12:35:33
  */
 import {
     h,
@@ -44,8 +44,8 @@ export default {
                 head: ({
                     head
                 }) => [h('div', null, 1), h('p', null, head)],
-                // body: () => h('div', null, 'body'),
-                foot: () => h('div', null, 'foot')
+                body: () => h('div', null, 'body'),
+                // foot: () => h('div', null, 'foot')
             })]);
     }
 };
