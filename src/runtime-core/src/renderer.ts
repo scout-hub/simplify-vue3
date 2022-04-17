@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 13:18:19
+ * @LastEditTime: 2022-04-17 15:52:54
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -135,8 +135,12 @@ function baseCreateRenderer(options) {
     // #fix: example slots demo when update slot, the new node insertion exception
     // 由于插槽节点在渲染的时候不会创建根标签包裹去插槽节点，导致在更新的时候可能无法正确找到锚点元素
     // 这时候需要我们手动去创建一个空的文本节点去包裹所有的插槽节点。
-    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateComment("fragment start"));
-    const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateComment("fragment end"));
+    const fragmentStartAnchor = (n2.el = n1
+      ? n1.el
+      : hostCreateComment("fragment start"));
+    const fragmentEndAnchor = (n2.anchor = n1
+      ? n1.anchor
+      : hostCreateComment("fragment end"));
     if (n1 === null) {
       // #fix: example slots demo when update slot, the new node insertion exception
       hostInsert(fragmentStartAnchor, container, anchor);
@@ -662,11 +666,11 @@ function baseCreateRenderer(options) {
    * @author: Zhouqi
    * @description: 更新props属性
    * @param el 容器
-   * @param n2 新的虚拟节点
+   * @param vnode 新的虚拟节点
    * @param oldProps 旧的props
    * @param newProps 新的props
    */
-  const patchProps = (el, n2, oldProps, newProps) => {
+  const patchProps = (el, vnode, oldProps, newProps) => {
     if (oldProps === newProps) return;
 
     for (const key in newProps) {
@@ -695,7 +699,7 @@ function baseCreateRenderer(options) {
    * @param  parentComponent 父组件实例
    */
   const mountElement = (vnode, container, anchor, parentComponent) => {
-    const { type, props, children, shapeFlag } = vnode;
+    const { type, props, children, shapeFlag, transition } = vnode;
     const el = (vnode.el = hostCreateElement(type));
     // 处理children
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -714,7 +718,18 @@ function baseCreateRenderer(options) {
         hostPatchProp(el, key, null, props[key]);
       }
     }
+
+    if (transition) {
+      transition.beforeEnter(el);
+    }
+
     hostInsert(el, container, anchor);
+
+    if (transition) {
+      queuePostRenderEffect(() => {
+        transition.enter(el);
+      });
+    }
   };
 
   /**

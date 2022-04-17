@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-17 10:16:39
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 14:14:52
+ * @LastEditTime: 2022-04-17 14:17:37
  */
 import { ShapeFlags } from "../../../shared/src";
 
@@ -102,7 +102,6 @@ export const Teleport = {
  * @param internals dom操作集合
  */
 function moveTeleport(vnode, container, parentAnchor, internals) {
-  console.log(internals);
   const { shapeFlag, children } = vnode;
   const { m: move } = internals;
 

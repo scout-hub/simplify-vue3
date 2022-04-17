@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 10:35:05
+ * @LastEditTime: 2022-04-17 14:41:01
  */
 import { isArray, isString } from "../../..//shared/src";
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
@@ -11,6 +11,8 @@ import { getCurrentInstance } from "../component";
 
 // 判断是否是KeepAlive组件
 export const isKeepAlive = (vnode): boolean => vnode.type.__isKeepAlive;
+
+// TODO lifecycle of deactive and active
 
 /**
  * KeepAlive组件原理：

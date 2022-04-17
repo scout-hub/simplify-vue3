@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:44
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:07:51
+ * @LastEditTime: 2022-04-17 15:21:56
  */
 import { createRenderer } from "../../runtime-core/src";
 import { extend } from "../../shared/src";
@@ -41,3 +41,4 @@ function normalizeContainer(container) {
 }
 
 export * from "../../runtime-core/src";
+export { Transition } from "./components/Transition";

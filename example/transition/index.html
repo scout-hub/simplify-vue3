@@ -1,0 +1,41 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-03-26 21:15:56
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-04-17 15:54:21
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .enter-from {
+            transform: translateX(200px);
+        }
+
+        .enter-to {
+            transform: translateX(0);
+        }
+
+        .enter-active {
+            transition: all 1s linear;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="teleport">
+        <!-- <p>目标元素</p> -->
+    </div>
+    <div id="newTeleport">
+        <!-- <p>新的目标元素</p> -->
+    </div>
+    <script src="./index.js" type="module"></script>
+</body>
+
+</html>
