@@ -6,6 +6,7 @@
  */
 import { CREATE_ELEMENT_BLOCK } from "./runtimeHelpers";
 
+
 export const enum NodeTypes {
   ELEMENT,
   SIMPLE_EXPRESSION,
@@ -13,7 +14,8 @@ export const enum NodeTypes {
   TEXT,
   ROOT,
   // containers
-  COMPOUND_EXPRESSION, // 复合类型 text + interpolation
+  COMPOUND_EXPRESSION,
+  ATTRIBUTE
 }
 
 export const enum ElementTypes {

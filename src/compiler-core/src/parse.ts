@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 21:12:12
+ * @LastEditTime: 2022-04-18 22:14:08
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -185,6 +185,9 @@ function parseTag(context, type: TagType) {
   // 消除无用的空白字符
   advanceSpaces(context);
 
+  const props = parseAttributes(context, type);
+  console.log(props);
+  
   // close tag
 
   // 是否是自闭合标签 <input />
@@ -203,7 +206,106 @@ function parseTag(context, type: TagType) {
     tagType: ElementTypes.ELEMENT,
     isSelfClosing,
     children: [],
-    props: [],
+    props,
+  };
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 解析标签属性
+ * @param context 模板解析上下文
+ * @param type 标签类型
+ * @return 属性
+ */
+function parseAttributes(context, type) {
+  const props: any = [];
+  // 存储已经解析过的属性
+  const attributeNames = new Set();
+  // 当遇到结束标签/自闭合结束标签/模板已经解析完了，则结束解析
+  while (
+    context.source.length > 0 &&
+    !startsWith(context.source, ">") &&
+    !startsWith(context.source, "/>")
+  ) {
+    const attr = parseAttribute(context, attributeNames);
+    if (type === TagType.Start) {
+      // 起始标签中的属性才需要添加到结果中
+      props.push(attr);
+    }
+    // 截掉空白字符
+    advanceSpaces(context);
+  }
+  return props;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 解析单个属性
+ * @param context 模板解析上下文
+ * @param attributeNames 已经解析过的属性集合
+ * @return 单个属性解析后的结果
+ */
+function parseAttribute(context, attributeNames) {
+  const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source)!;
+
+  // 获取属性名称
+  const name = match[0];
+  if (attributeNames.has(name)) {
+    // 说明出现了重复的属性，需要抛出错误
+    console.warn(`the attr ${name} has already defined`);
+  }
+  attributeNames.add(name);
+  // 截掉属性名
+  advanceBy(context, name.length);
+  // 截掉空白字符
+  advanceSpaces(context);
+  // 截掉=号
+  advanceBy(context, 1);
+  // 截掉空白字符
+  advanceSpaces(context);
+
+  let value = parseAttributeValue(context);
+
+  return {
+    type: NodeTypes.ATTRIBUTE,
+    name,
+    value: value && {
+      type: NodeTypes.TEXT,
+      content: value.content,
+    },
+  };
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 解析属性值
+ * @param context 模板解析上下文
+ * @return 属性值
+ */
+function parseAttributeValue(context) {
+  let content;
+  const quote = context.source[0];
+  const isQuoted = quote === `"` || quote === `'`;
+  if (isQuoted) {
+    // 截掉起始引号
+    advanceBy(context, 1);
+
+    // 如果属性值有引号包裹，则获取引号之间的内容作为属性值
+    const endIndex = context.source.indexOf(quote);
+    if (endIndex > -1) {
+      // 存在结束引号，获取中间内容
+      content = parseTextData(context, endIndex);
+      // 截掉结束引号
+      advanceBy(context, 1);
+    } else {
+      // 抛出错误
+    }
+  } else {
+    // TODO 处理不是引号包裹的情况
+  }
+  return {
+    content,
+    isQuoted,
   };
 }
 
