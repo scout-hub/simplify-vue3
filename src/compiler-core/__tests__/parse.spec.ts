@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 22:13:32
+ * @LastEditTime: 2022-04-18 22:34:24
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -60,7 +60,7 @@ describe("parser", () => {
 
   describe("Element", () => {
     test("simple element", () => {
-      const ast = baseParse("<div id='div' class='itemlist' v-show='flag'></div>");
+      const ast = baseParse("<div id='div' class=itemlist :show='flag'></div>");
       const element = ast.children[0];
 
       expect(element).toStrictEqual({
@@ -87,11 +87,12 @@ describe("parser", () => {
             },
           },
           {
-            name: "v-show",
-            type: NodeTypes.ATTRIBUTE,
-            value: {
-              type: NodeTypes.TEXT,
+            name: "bind",
+            type: NodeTypes.DIRECTIVE,
+            exp: {
+              type: NodeTypes.SIMPLE_EXPRESSION,
               content: "flag",
+              isStatic: false,
             },
           },
         ],

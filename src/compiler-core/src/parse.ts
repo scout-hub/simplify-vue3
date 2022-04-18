@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 22:14:08
+ * @LastEditTime: 2022-04-18 22:34:01
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -187,7 +187,7 @@ function parseTag(context, type: TagType) {
 
   const props = parseAttributes(context, type);
   console.log(props);
-  
+
   // close tag
 
   // 是否是自闭合标签 <input />
@@ -265,6 +265,29 @@ function parseAttribute(context, attributeNames) {
   advanceSpaces(context);
 
   let value = parseAttributeValue(context);
+  if (/^(v-[A-Za-z0-9-]|:|\.|@|#)/.test(name)) {
+    // 判断属性是不是v-xxx | @xxx | :xxx | .xxxx | #xxx等vue内部规定的属性定义方式，是的话需要额外进行处理
+    const match =
+      /(?:^v-([a-z0-9-]+))?(?:(?::|^\.|^@|^#)(\[[^\]]+\]|[^\.]+))?(.+)?$/i.exec(
+        name
+      )!;
+
+    let dirName;
+    if (startsWith(name, ":")) {
+      // 属性绑定
+      dirName = "bind";
+    }
+
+    return {
+      type: NodeTypes.DIRECTIVE,
+      name: dirName,
+      exp: value && {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content: value.content,
+        isStatic: false,
+      },
+    };
+  }
 
   return {
     type: NodeTypes.ATTRIBUTE,
@@ -301,7 +324,11 @@ function parseAttributeValue(context) {
       // 抛出错误
     }
   } else {
-    // TODO 处理不是引号包裹的情况
+    // 处理不是引号包裹的情况
+    // 从起始位置到下一个空白字符之前的字符串作为属性值
+    const match = /^[^\t\r\n\f >]+/.exec(context.source);
+    if (!match) return;
+    content = parseTextData(context, match[0].length);
   }
   return {
     content,

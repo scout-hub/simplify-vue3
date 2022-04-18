@@ -7,6 +7,8 @@
 import { CREATE_ELEMENT_BLOCK } from "./runtimeHelpers";
 
 
+
+
 export const enum NodeTypes {
   ELEMENT,
   SIMPLE_EXPRESSION,
@@ -15,7 +17,8 @@ export const enum NodeTypes {
   ROOT,
   // containers
   COMPOUND_EXPRESSION,
-  ATTRIBUTE
+  ATTRIBUTE,
+  DIRECTIVE
 }
 
 export const enum ElementTypes {
