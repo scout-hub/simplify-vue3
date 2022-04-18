@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-09 20:47:29
+ * @LastEditTime: 2022-04-18 21:12:12
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -65,10 +65,17 @@ function parseChildren(context, ancestors) {
     let node;
     const template = context.source;
     if (template.startsWith(options.delimiters[0])) {
-      // 说明是插值节点
+      // 插值节点解析
       node = parseInterpolation(context);
     } else if (template[0] === "<") {
-      if (/[a-z]/i.test(template[1])) {
+      if (template[1] === "!") {
+        if (startsWith(template, "<!--")) {
+          // 注释节点
+          node = parseComment(context);
+        }
+      } else if (template[1] === "/") {
+        // 结束标签，</ 有问题，需要抛出异常
+      } else if (/[a-z]/i.test(template[1])) {
         // 解析标签
         node = parseElement(context, ancestors);
       }
@@ -117,6 +124,15 @@ function parseText(context) {
 
 /**
  * @author: Zhouqi
+ * @description: 解析注释节点
+ * @param context 模板解析上下文
+ */
+function parseComment(context) {
+  throw new Error("Function not implemented.");
+}
+
+/**
+ * @author: Zhouqi
  * @description: 获取文本内容和模板推进
  * @param context 模板解析上下文
  * @return {*}
@@ -136,6 +152,9 @@ function parseTextData(context, length) {
  */
 function parseElement(context, ancestors) {
   const element: any = parseTag(context, TagType.Start);
+  // 如果是自闭合标签则直接返回
+  if (element.isSelfClosing) return;
+
   ancestors.push(element);
   // 递归处理子节点
   element.children = parseChildren(context, ancestors);
@@ -158,11 +177,21 @@ function parseElement(context, ancestors) {
  * @return 解析后的标签数据
  */
 function parseTag(context, type: TagType) {
-  const match: any = /^<\/?([a-z]*)/i.exec(context.source);
-
+  // 正则匹配标签
+  const match: any = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source);
   const tag = match[1];
+  // 截掉匹配到的起始内容
   advanceBy(context, match[0].length);
-  advanceBy(context, 1);
+  // 消除无用的空白字符
+  advanceSpaces(context);
+
+  // close tag
+
+  // 是否是自闭合标签 <input />
+  let isSelfClosing = false;
+  isSelfClosing = startsWith(context.source, "/>");
+  // 自闭合标签要截掉2个长度的字符 />，非自闭合截掉一个 >
+  advanceBy(context, isSelfClosing ? 2 : 1);
 
   // 如果是结束标签，直接结束
   if (type === TagType.End) return;
@@ -172,6 +201,9 @@ function parseTag(context, type: TagType) {
     type: NodeTypes.ELEMENT,
     tag,
     tagType: ElementTypes.ELEMENT,
+    isSelfClosing,
+    children: [],
+    props: [],
   };
 }
 
@@ -245,7 +277,7 @@ const enum TagType {
 function isEnd(context, ancestors) {
   const template = context.source;
   // 1. 模板字符串开头为结束标签
-  if (template.startsWith("</")) {
+  if (startsWith(template, "</")) {
     // 当遇到结束标签时去配置之前记录的起始标签，如果匹配到了则结束模板的遍历，避免死循环，例如：<div><span></div>
     for (let i = ancestors.length - 1; i >= 0; i--) {
       const tag = ancestors[i].tag;
@@ -271,6 +303,17 @@ function startsWithEndTagOpen(source: string, tag: string): boolean {
     startsWith(source, "</") &&
     source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
   );
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 消费空白字符串
+ * @param context 模板解析上下文
+ * @return {*}
+ */
+function advanceSpaces(context): void {
+  const match = /^[\t\r\n\f ]+/.exec(context.source);
+  match && advanceBy(context, match[0].length);
 }
 
 function startsWith(source, target) {
