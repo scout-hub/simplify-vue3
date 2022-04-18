@@ -17,8 +17,10 @@ a simplified version of vue3 implementation for study
 - runtime-core
    - [x] createApp
    - [x] defineAsyncComponent/defineComponent
+   - [x] Transition组件
    - [x] Teleport组件
    - [x] KeepAlive组件
+   - [x] Functional Component
    - [x] slot插槽、组件类型、element类型、Text类型、Fragment类型、Comment类型节点的渲染更新卸载
    - [x] customRender自定义渲染器
    - [x] provide/inject
@@ -36,7 +38,6 @@ a simplified version of vue3 implementation for study
 - runtime-dom
    - [x] 属性绑定
    - [x] 事件处理
-   - [x] Transition组件
 - compiler-core
    - [x] 解析插值、文本、元素
    - [x] 基本的template编译、转化、代码生成
