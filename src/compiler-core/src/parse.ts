@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 22:34:01
+ * @LastEditTime: 2022-04-18 22:44:27
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -276,6 +276,22 @@ function parseAttribute(context, attributeNames) {
     if (startsWith(name, ":")) {
       // 属性绑定
       dirName = "bind";
+    } else if (startsWith(name, "@")) {
+      // 事件绑定
+      dirName = "on";
+    }
+
+    let arg;
+    // match[2]： @click => click :show => show
+    if (match[2]) {
+      const content = match[2];
+      let isStatic = true;
+
+      arg = {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content,
+        isStatic,
+      };
     }
 
     return {
@@ -286,6 +302,7 @@ function parseAttribute(context, attributeNames) {
         content: value.content,
         isStatic: false,
       },
+      arg,
     };
   }
 
