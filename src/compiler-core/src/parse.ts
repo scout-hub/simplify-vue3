@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 22:44:27
+ * @LastEditTime: 2022-04-19 21:10:38
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -128,7 +128,17 @@ function parseText(context) {
  * @param context 模板解析上下文
  */
 function parseComment(context) {
-  throw new Error("Function not implemented.");
+  const match = /--(\!)?>/.exec(context.source);
+  let content;
+  if (match) {
+    // <!--123--> ===> 123
+    content = context.source.slice(4, match.index);
+    advanceBy(context, match.index + 3);
+  }
+  return {
+    type: NodeTypes.COMMENT,
+    content,
+  };
 }
 
 /**
@@ -186,7 +196,6 @@ function parseTag(context, type: TagType) {
   advanceSpaces(context);
 
   const props = parseAttributes(context, type);
-  console.log(props);
 
   // close tag
 
@@ -265,8 +274,9 @@ function parseAttribute(context, attributeNames) {
   advanceSpaces(context);
 
   let value = parseAttributeValue(context);
+
+  // 判断属性是不是v-xxx | @xxx | :xxx | .xxxx | #xxx等vue内部规定的属性定义方式，是的话需要额外进行处理
   if (/^(v-[A-Za-z0-9-]|:|\.|@|#)/.test(name)) {
-    // 判断属性是不是v-xxx | @xxx | :xxx | .xxxx | #xxx等vue内部规定的属性定义方式，是的话需要额外进行处理
     const match =
       /(?:^v-([a-z0-9-]+))?(?:(?::|^\.|^@|^#)(\[[^\]]+\]|[^\.]+))?(.+)?$/i.exec(
         name

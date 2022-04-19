@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-18 22:45:12
+ * @LastEditTime: 2022-04-19 21:14:14
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -59,75 +59,67 @@ describe("parser", () => {
   // });
 
   describe("Element", () => {
-    test("simple element", () => {
-      const ast = baseParse(
-        "<div id='div' class=itemlist :show='flag' @click='click'></div>"
-      );
-      const element = ast.children[0];
+    // test("simple element", () => {
+    //   const ast = baseParse("<div id='div' :show='flag' @click='click'></div>");
+    //   const element = ast.children[0];
 
-      expect(element).toStrictEqual({
-        type: NodeTypes.ELEMENT,
-        tag: "div",
-        isSelfClosing: false,
-        tagType: ElementTypes.ELEMENT,
-        children: [],
-        props: [
-          {
-            name: "id",
-            type: NodeTypes.ATTRIBUTE,
-            value: {
-              type: NodeTypes.TEXT,
-              content: "div",
-            },
-          },
-          {
-            name: "class",
-            type: NodeTypes.ATTRIBUTE,
-            value: {
-              type: NodeTypes.TEXT,
-              content: "itemlist",
-            },
-          },
-          {
-            name: "bind",
-            type: NodeTypes.DIRECTIVE,
-            exp: {
-              type: NodeTypes.SIMPLE_EXPRESSION,
-              content: "flag",
-              isStatic: false,
-            },
-            arg: {
-              type: NodeTypes.SIMPLE_EXPRESSION,
-              content: "show",
-              isStatic: true,
-            },
-          },
-          {
-            name: "on",
-            type: NodeTypes.DIRECTIVE,
-            exp: {
-              type: NodeTypes.SIMPLE_EXPRESSION,
-              content: "click",
-              isStatic: false,
-            },
-            arg: {
-              type: NodeTypes.SIMPLE_EXPRESSION,
-              content: "click",
-              isStatic: true,
-            },
-          },
-        ],
-      });
-    });
+    //   expect(element).toStrictEqual({
+    //     type: NodeTypes.ELEMENT,
+    //     tag: "div",
+    //     isSelfClosing: false,
+    //     tagType: ElementTypes.ELEMENT,
+    //     children: [],
+    //     props: [
+    //       {
+    //         name: "id",
+    //         type: NodeTypes.ATTRIBUTE,
+    //         value: {
+    //           type: NodeTypes.TEXT,
+    //           content: "div",
+    //         },
+    //       },
+    //       {
+    //         name: "bind",
+    //         type: NodeTypes.DIRECTIVE,
+    //         exp: {
+    //           type: NodeTypes.SIMPLE_EXPRESSION,
+    //           content: "flag",
+    //           isStatic: false,
+    //         },
+    //         arg: {
+    //           type: NodeTypes.SIMPLE_EXPRESSION,
+    //           content: "show",
+    //           isStatic: true,
+    //         },
+    //       },
+    //       {
+    //         name: "on",
+    //         type: NodeTypes.DIRECTIVE,
+    //         exp: {
+    //           type: NodeTypes.SIMPLE_EXPRESSION,
+    //           content: "click",
+    //           isStatic: false,
+    //         },
+    //         arg: {
+    //           type: NodeTypes.SIMPLE_EXPRESSION,
+    //           content: "click",
+    //           isStatic: true,
+    //         },
+    //       },
+    //     ],
+    //   });
+    // });
 
     // test("three", () => {
-    //   const ast = baseParse("<div>hello, {{message}}</div>");
+    //   const ast = baseParse("<div>hello, {{message}} 123</div>");
     //   const element = ast.children[0];
 
     //   expect(element).toStrictEqual({
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",
     //     tagType: ElementTypes.ELEMENT,
+    //     isSelfClosing: false,
+    //     props: [],
     //     children: [
     //       {
     //         type: NodeTypes.TEXT,
@@ -141,8 +133,28 @@ describe("parser", () => {
     //           content: `message`,
     //         },
     //       },
+    //       {
+    //         type: NodeTypes.TEXT,
+    //         content: " 123",
+    //       },
     //     ],
     //   });
+    // });
+
+    // test("comment", () => {
+    //   const ast = baseParse("<!-- 123 --><!-- 123-->");
+    //   const element = ast.children;
+
+    //   expect(element).toStrictEqual([
+    //     {
+    //       type: NodeTypes.COMMENT,
+    //       content: " 123 ",
+    //     },
+    //     {
+    //       type: NodeTypes.COMMENT,
+    //       content: " 123",
+    //     },
+    //   ]);
     // });
 
     // test("three1", () => {
@@ -153,11 +165,15 @@ describe("parser", () => {
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",
     //     tagType: ElementTypes.ELEMENT,
+    //     isSelfClosing: false,
+    //     props: [],
     //     children: [
     //       {
     //         type: NodeTypes.ELEMENT,
     //         tag: "p",
     //         tagType: ElementTypes.ELEMENT,
+    //         isSelfClosing: false,
+    //         props: [],
     //         children: [
     //           {
     //             type: NodeTypes.TEXT,

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 14:41:01
+ * @LastEditTime: 2022-04-19 19:51:31
  */
 import { isArray, isString } from "../../..//shared/src";
 import { ShapeFlags } from "../../../shared/src/shapeFlags";
@@ -154,6 +154,7 @@ export const KeepAlive = {
       const name = vnode.type.name;
 
       // 如果要缓存的组件不在用户定义之内，则不缓存，直接返回vnode
+      // 如果include和exclude指定了同一个组件名，则根据判断逻辑最终生效的是exclude
       if (
         (include && (!name || !matches(include, name))) ||
         (exclude && name && matches(exclude, name))
