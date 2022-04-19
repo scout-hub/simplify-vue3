@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 14:28:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-14 22:06:50
+ * @LastEditTime: 2022-04-19 22:56:27
  */
 import { baseCompile } from "./compiler-core/src";
 import { registerRuntimeCompiler } from "./runtime-core/src";
@@ -13,7 +13,9 @@ export * from "./reactivity/src";
 
 function compileToFunction(template) {
   const { code } = baseCompile(template);
+  
   const render = new Function("Vue", code)(runtimeDom);
+  
   return render;
 }
 

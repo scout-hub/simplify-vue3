@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:00:37
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-19 21:14:14
+ * @LastEditTime: 2022-04-19 21:43:48
  */
 // import { ElementTypes, NodeTypes } from "../src/ast";
 import { ElementTypes, NodeTypes } from "../src/ast";
@@ -18,13 +18,19 @@ describe("parser", () => {
     //     content: "some text",
     //   });
     // });
-    // test.only("simple text with invalid end tag", () => {
-    //   const ast = baseParse("some text</div>");
-    //   const text = ast.children[0];
-    //   expect(text).toStrictEqual({
-    //     type: NodeTypes.TEXT,
-    //     content: "some text",
-    //   });
+    // test("simple text with invalid end tag", () => {
+    //   const ast = baseParse("some text</div>123");
+    //   const text = ast.children;
+    //   expect(text).toStrictEqual([
+    //     {
+    //       type: NodeTypes.TEXT,
+    //       content: "some text",
+    //     },
+    //     {
+    //       type: NodeTypes.TEXT,
+    //       content: "123",
+    //     },
+    //   ]);
     // });
     // test("text with interpolation", () => {
     //   const ast = baseParse("some {{ foo + bar }} text");
@@ -62,7 +68,6 @@ describe("parser", () => {
     // test("simple element", () => {
     //   const ast = baseParse("<div id='div' :show='flag' @click='click'></div>");
     //   const element = ast.children[0];
-
     //   expect(element).toStrictEqual({
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",
@@ -109,11 +114,9 @@ describe("parser", () => {
     //     ],
     //   });
     // });
-
     // test("three", () => {
     //   const ast = baseParse("<div>hello, {{message}} 123</div>");
     //   const element = ast.children[0];
-
     //   expect(element).toStrictEqual({
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",
@@ -140,11 +143,9 @@ describe("parser", () => {
     //     ],
     //   });
     // });
-
     // test("comment", () => {
     //   const ast = baseParse("<!-- 123 --><!-- 123-->");
     //   const element = ast.children;
-
     //   expect(element).toStrictEqual([
     //     {
     //       type: NodeTypes.COMMENT,
@@ -156,11 +157,9 @@ describe("parser", () => {
     //     },
     //   ]);
     // });
-
     // test("three1", () => {
     //   const ast = baseParse("<div><p>hello</p>{{message}}</div>");
     //   const element = ast.children[0];
-
     //   expect(element).toStrictEqual({
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",
@@ -192,34 +191,31 @@ describe("parser", () => {
     //     ],
     //   });
     // });
-
-    // test("simple div", () => {
-    //   const ast = baseParse("<div>hello</div>");
-    //   const element = ast.children[0];
-
-    //   expect(element).toStrictEqual({
-    //     type: NodeTypes.ELEMENT,
-    //     tag: "div",
-    //     tagType: ElementTypes.ELEMENT,
-    //     children: [
-    //       {
-    //         type: NodeTypes.TEXT,
-    //         content: "hello",
-    //       },
-    //     ],
-    //   });
-    // });
-
+    test("simple div", () => {
+      const ast = baseParse("<div>hello</div>");
+      const element = ast.children[0];
+      expect(element).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
+        tagType: ElementTypes.ELEMENT,
+        isSelfClosing: false,
+        props: [],
+        children: [
+          {
+            type: NodeTypes.TEXT,
+            content: "hello",
+          },
+        ],
+      });
+    });
     // test("no end tag", () => {
     //   expect(() => {
     //     baseParse("<div><span></div>");
     //   }).toThrow("缺少结束标签span");
     // });
-
     // test("element with interpolation", () => {
     //   const ast = baseParse("<div>{{ msg }}</div>");
     //   const element = ast.children[0];
-
     //   expect(element).toStrictEqual({
     //     type: NodeTypes.ELEMENT,
     //     tag: "div",

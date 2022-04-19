@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:51:48
+ * @LastEditTime: 2022-04-19 23:12:36
  */
 /**
  * 1. text
@@ -29,7 +29,7 @@
  *  }
  */
 
-import { isFunction, isString } from "../../shared/src";
+import { isArray, isFunction, isString } from "../../shared/src";
 import { NodeTypes } from "./ast";
 import {
   CREATE_ELEMENT_BLOCK,
@@ -99,7 +99,8 @@ function genNode(node, context) {
       genExpression(node, context);
     },
     [(type === NodeTypes.ELEMENT) as any]() {
-      genElement(node, context);
+      // TODO node.codegenNode || node
+      genElement(node.codegenNode || node, context);
     },
     [(type === NodeTypes.COMPOUND_EXPRESSION) as any]() {
       genCompoundExpression(node, context);
@@ -141,7 +142,7 @@ function genFunctionPreamble(ast, context) {
  */
 function genElement(node, context) {
   const { push, helper } = context;
-  const { tag, children, props } = node;
+  let { tag, children, props } = node;
   push(`${helper(CREATE_ELEMENT_BLOCK)}(`);
   genNodeList(genNullableArgs([tag, props, children]), context);
   push(`)`);
@@ -151,12 +152,20 @@ function genNullableArgs(args) {
   return args.map((arg) => arg || "null");
 }
 
+function genNodeListAsArray(nodes, context) {
+  context.push(`[`);
+  genNodeList(nodes, context);
+  context.push(`]`);
+}
+
 function genNodeList(nodes, context) {
   const { push } = context;
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {
       push(node);
+    } else if (isArray(node)) {
+      genNodeListAsArray(node, context);
     } else {
       genNode(node, context);
     }

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-19 21:10:38
+ * @LastEditTime: 2022-04-19 21:41:50
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -75,6 +75,10 @@ function parseChildren(context, ancestors) {
         }
       } else if (template[1] === "/") {
         // 结束标签，</ 有问题，需要抛出异常
+        console.warn("没有开始标签");
+        // 截掉这个异常的标签后继续解析
+        parseTag(context, TagType.End);
+        continue;
       } else if (/[a-z]/i.test(template[1])) {
         // 解析标签
         node = parseElement(context, ancestors);
