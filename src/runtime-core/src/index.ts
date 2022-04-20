@@ -2,13 +2,15 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 15:03:11
+ * @LastEditTime: 2022-04-20 22:45:22
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
   createTextVnode,
   createCommentVnode,
   createVnode as createElementBlock,
+  createElementVNode,
+  openBlock,
 } from "./vnode";
 export { getCurrentInstance, registerRuntimeCompiler } from "./component";
 export { provide, inject } from "./apiInject";

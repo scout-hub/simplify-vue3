@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-19 23:12:36
+ * @LastEditTime: 2022-04-20 22:42:39
  */
 /**
  * 1. text
@@ -33,7 +33,9 @@ import { isArray, isFunction, isString } from "../../shared/src";
 import { NodeTypes } from "./ast";
 import {
   CREATE_ELEMENT_BLOCK,
+  CREATE_ELEMENT_VNODE,
   helperNameMap,
+  OPEN_BLOCK,
   TO_DISPLAY_STRING,
 } from "./runtimeHelpers";
 
@@ -50,7 +52,7 @@ export function generate(ast, options = {}) {
   push(`function ${functionName}(${args}) { `);
   push(`return `);
   genNode(ast.codegenNode, context);
-  push(" }");
+  push("}");
 
   return { code: context.code };
 }
@@ -100,15 +102,34 @@ function genNode(node, context) {
     },
     [(type === NodeTypes.ELEMENT) as any]() {
       // TODO node.codegenNode || node
-      genElement(node.codegenNode || node, context);
+      genNode(node.codegenNode, context);
     },
     [(type === NodeTypes.COMPOUND_EXPRESSION) as any]() {
       genCompoundExpression(node, context);
+    },
+    [(type === NodeTypes.VNODE_CALL) as any]() {
+      genVNodeCall(node, context);
     },
   };
   const handler = nodeHandlers[true as any];
   if (isFunction(handler)) {
     handler();
+  }
+}
+
+// 处理虚拟节点
+function genVNodeCall(node, context) {
+  const { push, helper } = context;
+  const { isBlock, tag, props, children } = node;
+  if (isBlock) {
+    push(`(${helper(OPEN_BLOCK)}(${``}), `);
+  }
+  const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
+  push(helper(callHelper) + `(`, node);
+  genNodeList(genNullableArgs([tag, props, children]), context);
+  push(`)`);
+  if (isBlock) {
+    push(`)`);
   }
 }
 

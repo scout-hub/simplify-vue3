@@ -2,16 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-10 14:17:18
+ * @LastEditTime: 2022-04-20 21:50:31
  */
-import { CREATE_ELEMENT_BLOCK } from "./runtimeHelpers";
-
-
-
-
-
-
-
+import { CREATE_ELEMENT_BLOCK, CREATE_ELEMENT_VNODE } from "./runtimeHelpers";
 
 export const enum NodeTypes {
   ELEMENT,
@@ -23,7 +16,8 @@ export const enum NodeTypes {
   COMPOUND_EXPRESSION,
   ATTRIBUTE,
   DIRECTIVE,
-  COMMENT
+  COMMENT,
+  VNODE_CALL,
 }
 
 export const enum ElementTypes {
@@ -31,10 +25,11 @@ export const enum ElementTypes {
 }
 
 export function createVnodeCall(context, tag, props, children) {
-  context.helper(CREATE_ELEMENT_BLOCK);
+  // context.helper(CREATE_ELEMENT_BLOCK);
+  context.helper(CREATE_ELEMENT_VNODE);
 
   return {
-    type: NodeTypes.ELEMENT,
+    type: NodeTypes.VNODE_CALL,
     tag,
     props,
     children,

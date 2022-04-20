@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 11:20:01
+ * @LastEditTime: 2022-04-20 22:44:58
  */
 
 import {
@@ -73,7 +73,7 @@ function createBaseVNode(
   type,
   props,
   children,
-  shapeFlag,
+  shapeFlag = ShapeFlags.ELEMENT,
   needFullChildrenNormalization = false
 ) {
   const vnode = {
@@ -200,3 +200,7 @@ export function mergeProps(...args) {
   }
   return result;
 }
+
+export function openBlock(disableTracking = false) {}
+
+export { createBaseVNode as createElementVNode };

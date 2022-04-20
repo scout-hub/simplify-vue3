@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-19 21:41:50
+ * @LastEditTime: 2022-04-20 20:00:47
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -20,7 +20,6 @@ export const defaultParserOptions = {
  */
 export function baseParse(template: string) {
   const context = createParserContext(template);
-
   return createRoot(parseChildren(context, []));
 }
 
@@ -61,6 +60,9 @@ function createRoot(nodes) {
 function parseChildren(context, ancestors) {
   const { options } = context;
   const nodes: any = [];
+  /**
+   * 状态机
+   */
   while (!isEnd(context, ancestors)) {
     let node;
     const template = context.source;
@@ -74,7 +76,7 @@ function parseChildren(context, ancestors) {
           node = parseComment(context);
         }
       } else if (template[1] === "/") {
-        // 结束标签，</ 有问题，需要抛出异常
+        // 结束标签，</xx> 有问题，需要抛出异常
         console.warn("没有开始标签");
         // 截掉这个异常的标签后继续解析
         parseTag(context, TagType.End);
@@ -110,6 +112,7 @@ function parseText(context) {
   let endIndex = context.source.length;
 
   // 遍历模板中的结束标记，找到位置最靠前的结束标记的索引，这个索引就是需要截取的结束位置
+  // 例如 <p>div {{ msg }}</p>，此时靠前的结束标记应该是 {{ 而不是 <
   for (let i = 0; i < endTokens.length; i++) {
     const endToken = endTokens[i];
     const index = context.source.indexOf(endToken);
@@ -137,6 +140,7 @@ function parseComment(context) {
   if (match) {
     // <!--123--> ===> 123
     content = context.source.slice(4, match.index);
+    // TODO 复杂注释
     advanceBy(context, match.index + 3);
   }
   return {
@@ -149,7 +153,7 @@ function parseComment(context) {
  * @author: Zhouqi
  * @description: 获取文本内容和模板推进
  * @param context 模板解析上下文
- * @return {*}
+ * @return 文本内容
  */
 function parseTextData(context, length) {
   const content = context.source.slice(0, length);
