@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-20 22:47:24
+ * @LastEditTime: 2022-04-21 09:06:14
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -44,7 +44,6 @@ function createRootCodegen(root, context) {
       }
       root.codegenNode = codegenNode;
     } else {
-      // 多根标签情况
       root.codegenNode = child;
     }
   }

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-20 22:42:39
+ * @LastEditTime: 2022-04-21 09:10:06
  */
 /**
  * 1. text
@@ -161,19 +161,32 @@ function genFunctionPreamble(ast, context) {
  * @param node
  * @param context
  */
-function genElement(node, context) {
-  const { push, helper } = context;
-  let { tag, children, props } = node;
-  push(`${helper(CREATE_ELEMENT_BLOCK)}(`);
-  genNodeList(genNullableArgs([tag, props, children]), context);
-  push(`)`);
-}
+// function genElement(node, context) {
+//   const { push, helper } = context;
+//   let { tag, children, props } = node;
+//   push(`${helper(CREATE_ELEMENT_BLOCK)}(`);
+//   genNodeList(genNullableArgs([tag, props, children]), context);
+//   push(`)`);
+// }
 
+/**
+ * @author: Zhouqi
+ * @description: 把不存在的属性都变成null
+ * @param args 属性
+ * @return 处理后的属性
+ */
 function genNullableArgs(args) {
   return args.map((arg) => arg || "null");
 }
 
+/**
+ * @author: Zhouqi
+ * @description: 处理孩子节点
+ * @param nodes
+ * @param context
+ */
 function genNodeListAsArray(nodes, context) {
+  // 子节点需要加上[]包裹 h('xx',null, [children])
   context.push(`[`);
   genNodeList(nodes, context);
   context.push(`]`);
