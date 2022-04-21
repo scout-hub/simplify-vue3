@@ -40,6 +40,6 @@ a simplified version of vue3 implementation for study
    - [x] 事件处理
 - compiler-core
    - [x] 解析插值、文本、元素
-   - [x] 基本的template编译、转化、代码生成
+   - [x] 插值、文本、元素组合（支持嵌套）的template编译、转化、生成
 - shared
    - [x] 辅助函数
