@@ -99,7 +99,7 @@ function createBaseVNode(
 }
 
 // 创建文本节点的vnode
-export function createTextVnode(text: string) {
+export function createTextVNode(text: string) {
   return createVnode(Text, null, text);
 }
 

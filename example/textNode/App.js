@@ -7,7 +7,7 @@
 import {
     h,
     ref,
-    createTextVnode
+    createTextVNode
 } from "../../lib/simplify-vue.esm.js";
 
 export default {
@@ -20,6 +20,6 @@ export default {
         }
     },
     render() {
-        return this.flag ? h("div", null, [h('div'), createTextVnode(2)]) : h("div", null, [h('div'), createTextVnode(3)]);
+        return this.flag ? h("div", null, [h('div'), createTextVNode(2)]) : h("div", null, [h('div'), createTextVNode(3)]);
     }
 };

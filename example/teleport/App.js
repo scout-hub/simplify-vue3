@@ -7,7 +7,7 @@
 import {
     h,
     ref,
-    createTextVnode,
+    createTextVNode,
     Teleport
 } from "../../lib/simplify-vue.esm.js";
 
@@ -16,7 +16,7 @@ const Child = {
     setup() {},
     props: ['text'],
     render() {
-        return h('div', null, [createTextVnode(`I am a teleport component${this.$props.text} `)])
+        return h('div', null, [createTextVNode(`I am a teleport component${this.$props.text} `)])
     }
 }
 

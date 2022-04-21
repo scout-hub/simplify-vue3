@@ -9,7 +9,7 @@ import {
     renderSlot,
     ref,
     KeepAlive,
-    createTextVnode
+    createTextVNode
 } from "../../lib/simplify-vue.esm.js";
 
 const Child = {
@@ -23,7 +23,7 @@ const Child = {
             // onchange: (e) => {
             //     value = e.target.value
             // }
-        }), createTextVnode(`I am a ${this.$props.text} keep-alive component`)])
+        }), createTextVNode(`I am a ${this.$props.text} keep-alive component`)])
     }
 }
 

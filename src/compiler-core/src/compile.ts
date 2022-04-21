@@ -15,7 +15,7 @@ export function baseCompile(template) {
   const ast = baseParse(template);
 
   transform(ast, {
-    nodeTransforms: [transformElement, transformExpression, transformText],
+    nodeTransforms: [transformExpression, transformElement, transformText],
   });
 
   return generate(ast);

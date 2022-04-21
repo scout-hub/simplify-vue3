@@ -8,7 +8,7 @@ import { isFunction } from "../../shared/src";
 import { ref } from "../../reactivity/src";
 import { defineComponent } from "./apiDefineComponent";
 import { currentInstance } from "./component";
-import { createTextVnode, createVnode } from "./vnode";
+import { createTextVNode, createVnode } from "./vnode";
 import { onBeforeUnmount } from "./apiLifecycle";
 
 // 创建异步组件
@@ -134,7 +134,7 @@ export function defineAsyncComponent(source) {
         } else if (!delayed.value && loadingComponent) {
           return createVnode(loadingComponent);
         }
-        return createTextVnode("");
+        return createTextVNode("");
       };
     },
   });

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 09:06:14
+ * @LastEditTime: 2022-04-21 22:11:20
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -76,6 +76,7 @@ function createTransformContext(root, { nodeTransforms = [] }) {
     helpers: new Map(),
     helper(name) {
       context.helpers.set(name, 1);
+      return name;
     },
   };
 

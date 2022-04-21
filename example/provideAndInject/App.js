@@ -8,7 +8,7 @@ import {
     h,
     provide,
     inject,
-    createTextVnode
+    createTextVNode
 } from "../../lib/simplify-vue.esm.js";
 
 const Child = {
@@ -21,7 +21,7 @@ const Child = {
         }
     },
     render() {
-        return h('div', null, [createTextVnode(this.foo), h(GridSon)]);
+        return h('div', null, [createTextVNode(this.foo), h(GridSon)]);
     }
 }
 

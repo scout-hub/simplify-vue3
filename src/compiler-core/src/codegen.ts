@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 09:10:06
+ * @LastEditTime: 2022-04-21 22:13:47
  */
 /**
  * 1. text
@@ -42,6 +42,7 @@ import {
 export function generate(ast, options = {}) {
   const context = createCodegenContext(ast, options);
 
+  // 生成前导：例如 const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue
   genFunctionPreamble(ast, context);
 
   const { push } = context;
@@ -101,7 +102,6 @@ function genNode(node, context) {
       genExpression(node, context);
     },
     [(type === NodeTypes.ELEMENT) as any]() {
-      // TODO node.codegenNode || node
       genNode(node.codegenNode, context);
     },
     [(type === NodeTypes.COMPOUND_EXPRESSION) as any]() {
@@ -110,11 +110,32 @@ function genNode(node, context) {
     [(type === NodeTypes.VNODE_CALL) as any]() {
       genVNodeCall(node, context);
     },
+    [(type === NodeTypes.TEXT_CALL) as any]() {
+      genNode(node.codegenNode, context);
+    },
+    [(type === NodeTypes.JS_CALL_EXPRESSION) as any]() {
+      genCallExpression(node, context);
+    },
   };
   const handler = nodeHandlers[true as any];
   if (isFunction(handler)) {
     handler();
   }
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 处理多子节点中含有文本/插值表达式的情况
+ * @param node
+ * @param context
+ */
+function genCallExpression(node, context) {
+  const { push, helper } = context;
+  const callee = isString(node.callee) ? node.callee : helper(node.callee);
+  push(callee + `(`, node);
+  // 处理节点
+  genNodeList(node.arguments, context);
+  push(`)`);
 }
 
 // 处理虚拟节点
@@ -157,20 +178,6 @@ function genFunctionPreamble(ast, context) {
 
 /**
  * @author: Zhouqi
- * @description: 生成元素节点的代码字符串
- * @param node
- * @param context
- */
-// function genElement(node, context) {
-//   const { push, helper } = context;
-//   let { tag, children, props } = node;
-//   push(`${helper(CREATE_ELEMENT_BLOCK)}(`);
-//   genNodeList(genNullableArgs([tag, props, children]), context);
-//   push(`)`);
-// }
-
-/**
- * @author: Zhouqi
  * @description: 把不存在的属性都变成null
  * @param args 属性
  * @return 处理后的属性
@@ -192,6 +199,12 @@ function genNodeListAsArray(nodes, context) {
   context.push(`]`);
 }
 
+/**
+ * @author: Zhouqi
+ * @description: 处理列表形式的节点  ['p', props ,children]
+ * @param nodes 列表形式的节点
+ * @param context
+ */
 function genNodeList(nodes, context) {
   const { push } = context;
   for (let i = 0; i < nodes.length; i++) {
@@ -199,6 +212,7 @@ function genNodeList(nodes, context) {
     if (isString(node)) {
       push(node);
     } else if (isArray(node)) {
+      // 处理孩子节点
       genNodeListAsArray(node, context);
     } else {
       genNode(node, context);
@@ -222,7 +236,7 @@ function genText(node, context) {
 
 /**
  * @author: Zhouqi
- * @description: 生成插值节点的代码字符串
+ * @description: 处理插值节点
  * @param node
  * @param context
  */

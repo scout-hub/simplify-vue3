@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-20 22:41:11
+ * @LastEditTime: 2022-04-21 20:11:09
  */
 import { NodeTypes } from "../src/ast";
 import { generate } from "../src/codegen";
@@ -24,7 +24,8 @@ describe("Compiler: transform", () => {
       nodeTransforms: [transformText, transformElement],
     });
 
-    generate(ast);
+    const code = generate(ast);
+    console.log(code);
 
     // expect(ast.children[0].children[0].content).toBe("hello 33");
   });
