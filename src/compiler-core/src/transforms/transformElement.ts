@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 21:20:52
+ * @LastEditTime: 2022-04-21 22:39:12
  */
 import { createVnodeCall, NodeTypes } from "../ast";
 
@@ -19,7 +19,11 @@ export function transformElement(node, context) {
         const child = children[0];
         const type = child.type;
         // 是是否含有动态文本子节点
-        const hasDynamicTextChild = type === NodeTypes.INTERPOLATION;
+        // 1、插值节点
+        // 2、 复合节点（文本+插值）
+        const hasDynamicTextChild =
+          type === NodeTypes.INTERPOLATION ||
+          type === NodeTypes.COMPOUND_EXPRESSION;
         if (hasDynamicTextChild || child.type === NodeTypes.TEXT) {
           // 如果只有一个子节点且是文本节点或者插值节点，则vnodeChildren为当前文本节点对象
           vnodeChildren = child;

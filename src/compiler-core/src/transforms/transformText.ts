@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 11:31:15
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:10:28
+ * @LastEditTime: 2022-04-21 22:35:17
  */
 import { createCallExpression, NodeTypes } from "../ast";
 import { CREATE_TEXT } from "../runtimeHelpers";
@@ -35,6 +35,8 @@ export function transformText(node, context) {
               container.children.push(nextChild);
               // nextChild节点被重新处理过了，需要删除老的
               children.splice(j, 1);
+              // 删除了一个，为了不影响遍历j也要减1
+              j--;
             } else {
               // 下一个不是文本或者插值节点，跳出循环结束即可
               container = undefined;
