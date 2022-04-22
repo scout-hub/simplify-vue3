@@ -3,6 +3,7 @@
 exports[`Compiler: transform context state 1`] = `
 Object {
   "code": "const { createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
-      return function render(_ctx, _cache, $props, $setup, $data, $options) { return (_openBlock(), _createElementBlock(\\"div\\", { class: \\"name\\"} , []))}",
+      return function render(_ctx, _cache, $props, $setup, $data, $options) { 
+      return (_openBlock(), _createElementBlock(\\"div\\", { class: \\"name\\"} , []))}",
 }
 `;

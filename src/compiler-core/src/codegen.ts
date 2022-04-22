@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-22 21:33:30
+ * @LastEditTime: 2022-04-22 21:55:52
  */
 /**
  * 1. text
@@ -45,12 +45,13 @@ export function generate(ast, options = {}) {
   // 生成前导：例如 const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue
   genFunctionPreamble(ast, context);
 
-  const { push } = context;
+  const { push, newLine } = context;
   const functionName = "render";
   const args = ["_ctx", "_cache", "$props", "$setup", "$data", "$options"].join(
     ", "
   );
   push(`function ${functionName}(${args}) { `);
+  newLine();
   push(`return `);
   genNode(ast.codegenNode, context);
   push(`}`);
@@ -67,7 +68,7 @@ export function generate(ast, options = {}) {
  */
 function createCodegenContext(ast: any, options: {}) {
   const context = {
-    runtimeGlobalName: "Vue",
+    runtimeGlobalName: `Vue`,
     // 最终的代码字符串
     code: ``,
     // 字符串拼接操作
@@ -264,8 +265,7 @@ function genNodeList(nodes, context) {
  * @param context
  */
 function genText(node, context) {
-  const { push } = context;
-  push(`'${node.content}'`);
+  context.push(JSON.stringify(node.content));
 }
 
 /**
@@ -288,9 +288,9 @@ function genInterpolation(node, context) {
  * @param context
  */
 function genExpression(node, context) {
-  const { isStatic } = node;
+  const { isStatic, content } = node;
   // 静态静态节点转换成字符串
-  context.push(isStatic ? JSON.stringify(node.content) : node.content);
+  context.push(isStatic ? JSON.stringify(content) : content);
 }
 
 /**

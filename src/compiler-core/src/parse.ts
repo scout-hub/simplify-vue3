@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-22 20:25:33
+ * @LastEditTime: 2022-04-22 22:17:00
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -94,7 +94,27 @@ function parseChildren(context, ancestors) {
     nodes.push(node);
   }
 
-  return nodes;
+  // 处理无用空白字符，例如代码的首尾空白字符产生的节点需要清除
+  let shouldRemoveWhitespace = false;
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (node.type === NodeTypes.TEXT) {
+      const prevNode = nodes[i - 1];
+      const nextNode = nodes[i + 1];
+      // 当前文本节点的上一个节点不存在，说明是首节点
+      // 当前文本节点的下一个节点不存在，说明是尾节点
+      if (!prevNode || !nextNode) {
+        // 是否是无用空白字符
+        if (!/[^\t\r\n\f ]/.test(node.content)) {
+          shouldRemoveWhitespace = true;
+          nodes[i] = null;
+        }
+      }
+    }
+  }
+
+  // 如果存在无用空节点需要删除，则把节点中为null的数据清除
+  return shouldRemoveWhitespace ? nodes.filter(Boolean) : nodes;
 }
 
 /**
