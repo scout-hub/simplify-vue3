@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:22:33
+ * @LastEditTime: 2022-04-22 20:26:01
  */
 import { generate } from "../src/codegen";
 import { baseParse } from "../src/parse";
@@ -12,7 +12,7 @@ import { transformExpression } from "../src/transforms/transformExpression";
 import { transformText } from "../src/transforms/transformText";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div>hello {{ msg }}</div>`);
+    const ast = baseParse(`<div class="name"></div>`);
 
     transform(ast, {
       nodeTransforms: [transformExpression, transformElement, transformText],

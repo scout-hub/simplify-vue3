@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:13:47
+ * @LastEditTime: 2022-04-22 21:33:30
  */
 /**
  * 1. text
@@ -53,7 +53,7 @@ export function generate(ast, options = {}) {
   push(`function ${functionName}(${args}) { `);
   push(`return `);
   genNode(ast.codegenNode, context);
-  push("}");
+  push(`}`);
 
   return { code: context.code };
 }
@@ -75,7 +75,7 @@ function createCodegenContext(ast: any, options: {}) {
       context.code += text;
     },
     newLine() {
-      context.push("\n      ");
+      context.push(`\n      `);
     },
     helper(key) {
       return `_${helperNameMap[key]}`;
@@ -116,11 +116,45 @@ function genNode(node, context) {
     [(type === NodeTypes.JS_CALL_EXPRESSION) as any]() {
       genCallExpression(node, context);
     },
+    [(type === NodeTypes.JS_OBJECT_EXPRESSION) as any]() {
+      genObjectExpression(node, context);
+    },
   };
   const handler = nodeHandlers[true as any];
   if (isFunction(handler)) {
     handler();
   }
+}
+
+function genObjectExpression(node, context) {
+  const { push } = context;
+  const { properties } = node;
+  push(`{ `);
+  for (let i = 0; i < properties.length; i++) {
+    const { key, value } = properties[i];
+    // 处理key
+    genExpressionAsPropertyKey(key, context);
+    push(`: `);
+    // 处理value
+    genNode(value, context);
+    // {xx:xxx, saa:saa}
+    if (i < properties.length - 1) {
+      push(`,`);
+    }
+  }
+  push(`} `);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 处理属性key
+ * @param key
+ * @param context
+ */
+function genExpressionAsPropertyKey(key, context) {
+  const { push } = context;
+  const text = key.content;
+  push(text);
 }
 
 /**
@@ -132,7 +166,7 @@ function genNode(node, context) {
 function genCallExpression(node, context) {
   const { push, helper } = context;
   const callee = isString(node.callee) ? node.callee : helper(node.callee);
-  push(callee + `(`, node);
+  push(callee + `(`);
   // 处理节点
   genNodeList(node.arguments, context);
   push(`)`);
@@ -146,7 +180,7 @@ function genVNodeCall(node, context) {
     push(`(${helper(OPEN_BLOCK)}(${``}), `);
   }
   const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
-  push(helper(callHelper) + `(`, node);
+  push(helper(callHelper) + `(`);
   genNodeList(genNullableArgs([tag, props, children]), context);
   push(`)`);
   if (isBlock) {
@@ -218,7 +252,7 @@ function genNodeList(nodes, context) {
       genNode(node, context);
     }
     if (i < nodes.length - 1) {
-      push(", ");
+      push(`, `);
     }
   }
 }
@@ -254,7 +288,9 @@ function genInterpolation(node, context) {
  * @param context
  */
 function genExpression(node, context) {
-  context.push(node.content);
+  const { isStatic } = node;
+  // 静态静态节点转换成字符串
+  context.push(isStatic ? JSON.stringify(node.content) : node.content);
 }
 
 /**

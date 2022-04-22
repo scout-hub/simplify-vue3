@@ -6,6 +6,9 @@
  */
 import { CREATE_ELEMENT_BLOCK, CREATE_ELEMENT_VNODE } from "./runtimeHelpers";
 
+
+
+
 export const enum NodeTypes {
   ELEMENT,
   SIMPLE_EXPRESSION,
@@ -20,6 +23,8 @@ export const enum NodeTypes {
   VNODE_CALL,
   TEXT_CALL,
   JS_CALL_EXPRESSION,
+  JS_PROPERTY,
+  JS_OBJECT_EXPRESSION
 }
 
 export const enum ElementTypes {
