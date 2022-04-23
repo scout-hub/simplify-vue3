@@ -2,14 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:17:12
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 11:52:10
+ * @LastEditTime: 2022-04-23 19:33:35
  */
 import {
     ref
 } from "../../lib/simplify-vue.esm.js";
 export default {
     template: `
-    <div :class="className" id="div">
+    <div :class="className" id="div" @click="changeClass">
         {{ msg }}
         <h1 class="h1">
         {{ msg1 }}
@@ -25,12 +25,15 @@ export default {
         const msg1 = ref('simplify-vue');
         const className = ref('red');
 
-        window.className = className;
+        const changeClass = () => {
+            className.value = 'green';
+        }
 
         return {
             msg,
             className,
-            msg1
+            msg1,
+            changeClass
         }
     }
 };

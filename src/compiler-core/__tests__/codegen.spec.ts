@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 10:25:56
+ * @LastEditTime: 2022-04-23 19:59:22
  */
 import { generate } from "../src/codegen";
 import { baseParse } from "../src/parse";
@@ -11,14 +11,16 @@ import { transformElement } from "../src/transforms/transformElement";
 import { transformExpression } from "../src/transforms/transformExpression";
 import { transformText } from "../src/transforms/transformText";
 import { transformBind } from "../src/transforms/vBind";
+import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div :class="name"></div>`);
+    const ast = baseParse(`<div @click="click"></div>`);
 
     transform(ast, {
       nodeTransforms: [transformExpression, transformElement, transformText],
       directiveTransforms: {
         bind: transformBind,
+        on: transformOn,
       },
     });
 

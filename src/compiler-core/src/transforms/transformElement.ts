@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 11:26:47
+ * @LastEditTime: 2022-04-23 20:04:45
  */
 import { createCallExpression, createVnodeCall, NodeTypes } from "../ast";
 import { NORMALIZE_CLASS } from "../runtimeHelpers";
@@ -80,7 +80,7 @@ function buildProps(node, context) {
       // 处理指令
       const { name } = prop;
 
-      // 处理v-bind
+      // 处理v-bind、v-on
       const directiveTransform = context.directiveTransforms[name];
       if (directiveTransform) {
         const props = directiveTransform(prop);
@@ -123,7 +123,7 @@ function buildProps(node, context) {
   };
 }
 
-function createSimpleExpression(content, isStatic) {
+export function createSimpleExpression(content, isStatic) {
   return {
     type: NodeTypes.SIMPLE_EXPRESSION,
     isStatic,

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 14:20:47
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 10:43:49
+ * @LastEditTime: 2022-04-23 20:21:42
  */
 import { generate } from "./codegen";
 import { baseParse } from "./parse";
@@ -11,6 +11,7 @@ import { transformElement } from "./transforms/transformElement";
 import { transformExpression } from "./transforms/transformExpression";
 import { transformText } from "./transforms/transformText";
 import { transformBind } from "./transforms/vBind";
+import { transformOn } from "./transforms/vOn";
 
 export function baseCompile(template) {
   const ast = baseParse(template);
@@ -19,6 +20,7 @@ export function baseCompile(template) {
     nodeTransforms: [transformExpression, transformElement, transformText],
     directiveTransforms: {
       bind: transformBind,
+      on: transformOn,
     },
   });
 
