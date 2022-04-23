@@ -2,8 +2,8 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { normalizeClass: _normalizeClass, createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
       return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-      return (_openBlock(), _createElementBlock(\\"div\\", { class: \\"name\\"} , []))}",
+      return (_openBlock(), _createElementBlock(\\"div\\", { class: _normalizeClass(_ctx.name)} , []))}",
 }
 `;

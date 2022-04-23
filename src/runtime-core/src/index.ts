@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-20 22:45:22
+ * @LastEditTime: 2022-04-23 11:33:08
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
@@ -15,7 +15,7 @@ export {
 export { getCurrentInstance, registerRuntimeCompiler } from "./component";
 export { provide, inject } from "./apiInject";
 export { createRenderer } from "./renderer";
-export { toDisplayString } from "../../shared/src";
+export { toDisplayString, normalizeClass } from "../../shared/src";
 export { h } from "./h";
 export { watch, watchEffect, watchPostEffect } from "./apiWatch";
 export {

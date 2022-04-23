@@ -2,9 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-22 21:29:36
+ * @LastEditTime: 2022-04-23 11:26:47
  */
-import { createVnodeCall, NodeTypes } from "../ast";
+import { createCallExpression, createVnodeCall, NodeTypes } from "../ast";
+import { NORMALIZE_CLASS } from "../runtimeHelpers";
+import { isStaticExp } from "../utils";
 
 export function transformElement(node, context) {
   return () => {
@@ -70,14 +72,50 @@ function buildProps(node, context) {
     if (prop.type === NodeTypes.ATTRIBUTE) {
       const { name, value } = prop;
       let isStatic = true;
+      // 静态属性和值需要进行处理，处理对应的js ast表达式
       const nameExpression = createSimpleExpression(name, true);
       const valueExpression = createSimpleExpression(value.content, isStatic);
       properties.push(createObjectProperty(nameExpression, valueExpression));
+    } else {
+      // 处理指令
+      const { name } = prop;
+
+      // 处理v-bind
+      const directiveTransform = context.directiveTransforms[name];
+      if (directiveTransform) {
+        const props = directiveTransform(prop);
+        properties.push(props);
+      }
     }
   }
 
   if (properties.length) {
     propsExpression = createObjectExpression(dedupeProperties(properties));
+  }
+
+  if (propsExpression) {
+    switch (propsExpression.type) {
+      case NodeTypes.JS_OBJECT_EXPRESSION:
+        // 找到props中的class属性ast，对于静态/动态的class需要额外处理
+        const { properties } = propsExpression;
+        let classPropIndex = -1;
+        for (let i = 0; i < properties.length; i++) {
+          const property = properties[i];
+          if (property.key.content === "class") {
+            classPropIndex = i;
+          }
+        }
+        const classProp = properties[classPropIndex];
+        if (classProp) {
+          // 判断class属性值是不是动态的，如果是动态的需要添加辅助函数处理（normalizeClass）
+          if (!isStaticExp(classProp.value)) {
+            classProp.value = createCallExpression(
+              context.helper(NORMALIZE_CLASS),
+              [classProp.value]
+            );
+          }
+        }
+    }
   }
 
   return {
@@ -93,7 +131,7 @@ function createSimpleExpression(content, isStatic) {
   };
 }
 
-function createObjectProperty(key, value) {
+export function createObjectProperty(key, value) {
   return {
     type: NodeTypes.JS_PROPERTY,
     key,
@@ -121,6 +159,9 @@ function dedupeProperties(properties) {
     const prop = properties[i];
     const name = prop.key.content;
     if (kownProps.has(name)) {
+      // TODO
+      // 对于class、style、事件需要进行值的追加
+      // 例如：class="a" class="b" ===> class="a b"
     } else {
       // 如果没有重复的属性，则添加到去重后的结果中
       kownProps.set(name, prop);

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:11:20
+ * @LastEditTime: 2022-04-23 10:17:01
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -63,8 +63,12 @@ function makeBlock(node, context) {
  * @param options 配置
  * @return 上下文对象
  */
-function createTransformContext(root, { nodeTransforms = [] }) {
+function createTransformContext(
+  root,
+  { nodeTransforms = [], directiveTransforms = {} }
+) {
   const context = {
+    directiveTransforms,
     // 当前正在转换的节点
     currentNode: root,
     // 父节点
