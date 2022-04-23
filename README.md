@@ -41,7 +41,8 @@ a simplified version of vue3 implementation for study
 - compiler-core
    - [x] 解析插值、文本、元素
    - [x] 插值、文本、元素组合（支持嵌套）的template编译、转化、生成
-   - [x] 普通元素的静态属性解析、转换、生成
-   - [x] 普通元素属性动态绑定处理（v-bind）
+   - [x] 普通元素的静态属性编译
+   - [x] 普通元素的属性绑定（v-bind）
+   - [x] 普通元素的事件绑定（v-on）
 - shared
    - [x] 辅助函数
