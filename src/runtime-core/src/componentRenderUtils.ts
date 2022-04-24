@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 21:32:18
+ * @LastEditTime: 2022-04-24 21:50:41
  */
 
 import { ShapeFlags } from "../../shared/src";
+import { setCurrentRenderingInstance } from "./componentRenderContext";
 import { cloneVNode, normalizeVNode } from "./vnode";
 
 /**
@@ -28,6 +29,8 @@ export function renderComponentRoot(instance) {
 
   let fallthroughAttrs;
   let result;
+
+  setCurrentRenderingInstance(instance);
 
   if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     // 处理有状态组件

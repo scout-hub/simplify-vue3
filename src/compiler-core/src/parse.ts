@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-22 22:17:00
+ * @LastEditTime: 2022-04-24 20:15:03
  */
 import { extend } from "../../shared/src";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -311,7 +311,9 @@ function parseAttribute(context, attributeNames) {
       )!;
 
     let dirName;
-    if (startsWith(name, ":")) {
+    if (match[1]) {
+      dirName = match[1];
+    } else if (startsWith(name, ":")) {
       // 属性绑定
       dirName = "bind";
     } else if (startsWith(name, "@")) {

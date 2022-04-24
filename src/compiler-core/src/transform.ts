@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 10:17:01
+ * @LastEditTime: 2022-04-24 21:32:45
  */
 import { isFunction } from "../../shared/src";
 import { NodeTypes } from "./ast";
@@ -10,6 +10,7 @@ import {
   OPEN_BLOCK,
   TO_DISPLAY_STRING,
   CREATE_ELEMENT_BLOCK,
+  helperNameMap,
 } from "./runtimeHelpers";
 
 /**
@@ -81,6 +82,9 @@ function createTransformContext(
     helper(name) {
       context.helpers.set(name, 1);
       return name;
+    },
+    helperString(name) {
+      return `_${helperNameMap[context.helper(name)]}`;
     },
   };
 

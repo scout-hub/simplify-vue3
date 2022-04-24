@@ -1,3 +1,4 @@
+import { vShow } from "./../../../.history/src/runtime-dom/src/directives/vShow_20220424221121";
 /*
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:44
@@ -42,3 +43,4 @@ function normalizeContainer(container) {
 
 export * from "../../runtime-core/src";
 export { Transition } from "./components/Transition";
+export { vShow } from "./directives/vShow";

@@ -2,12 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:05:32
+ * @LastEditTime: 2022-04-24 21:12:30
  */
-import { CREATE_ELEMENT_BLOCK, CREATE_ELEMENT_VNODE } from "./runtimeHelpers";
-
-
-
+import { CREATE_ELEMENT_VNODE, WITH_DIRECTIVES } from "./runtimeHelpers";
 
 export const enum NodeTypes {
   ELEMENT,
@@ -24,31 +21,43 @@ export const enum NodeTypes {
   TEXT_CALL,
   JS_CALL_EXPRESSION,
   JS_PROPERTY,
-  JS_OBJECT_EXPRESSION
+  JS_OBJECT_EXPRESSION,
+  JS_ARRAY_EXPRESSION,
 }
 
 export const enum ElementTypes {
   ELEMENT,
 }
 
-// 普通元素的codegenNode
-export function createVnodeCall(context, tag, props, children) {
-  // context.helper(CREATE_ELEMENT_BLOCK);
+// 普通元素
+export function createVnodeCall(context, tag, props, children, directives?) {
   context.helper(CREATE_ELEMENT_VNODE);
+  if (directives) {
+    context.helper(WITH_DIRECTIVES);
+  }
 
   return {
     type: NodeTypes.VNODE_CALL,
     tag,
     props,
     children,
+    directives,
   };
 }
 
-// 插值表达式的codegenNode
+// 插值
 export function createCallExpression(callee, args) {
   return {
     type: NodeTypes.JS_CALL_EXPRESSION,
     callee,
     arguments: args,
+  };
+}
+
+// 指令 例如:v-show
+export function createArrayExpression(elements) {
+  return {
+    type: NodeTypes.JS_ARRAY_EXPRESSION,
+    elements,
   };
 }

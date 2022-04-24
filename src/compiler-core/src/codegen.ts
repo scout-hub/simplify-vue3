@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 11:27:38
+ * @LastEditTime: 2022-04-24 21:19:50
  */
 /**
  * 1. text
@@ -37,6 +37,7 @@ import {
   helperNameMap,
   OPEN_BLOCK,
   TO_DISPLAY_STRING,
+  WITH_DIRECTIVES,
 } from "./runtimeHelpers";
 
 export function generate(ast, options = {}) {
@@ -94,37 +95,52 @@ function genNode(node, context) {
   const { type } = node;
   const nodeHandlers = {
     [(type === NodeTypes.TEXT) as any]() {
+      // 文本
       genText(node, context);
     },
     [(type === NodeTypes.INTERPOLATION) as any]() {
+      // 插值
       genInterpolation(node, context);
     },
     [(type === NodeTypes.SIMPLE_EXPRESSION) as any]() {
+      // 值，例如属性名、属性值
       genExpression(node, context);
     },
     [(type === NodeTypes.ELEMENT) as any]() {
+      // 元素
       genNode(node.codegenNode, context);
     },
     [(type === NodeTypes.COMPOUND_EXPRESSION) as any]() {
+      // 复合类型 text+{{}}
       genCompoundExpression(node, context);
     },
     [(type === NodeTypes.VNODE_CALL) as any]() {
       genVNodeCall(node, context);
     },
     [(type === NodeTypes.TEXT_CALL) as any]() {
+      // 节点
       genNode(node.codegenNode, context);
     },
     [(type === NodeTypes.JS_CALL_EXPRESSION) as any]() {
       genCallExpression(node, context);
     },
     [(type === NodeTypes.JS_OBJECT_EXPRESSION) as any]() {
+      // 属性
       genObjectExpression(node, context);
+    },
+    [(type === NodeTypes.JS_ARRAY_EXPRESSION) as any]() {
+      // 指令
+      genArrayExpression(node, context);
     },
   };
   const handler = nodeHandlers[true as any];
   if (isFunction(handler)) {
     handler();
   }
+}
+
+function genArrayExpression(node, context) {
+  genNodeListAsArray(node.elements, context);
 }
 
 function genObjectExpression(node, context) {
@@ -176,7 +192,10 @@ function genCallExpression(node, context) {
 // 处理虚拟节点
 function genVNodeCall(node, context) {
   const { push, helper } = context;
-  const { isBlock, tag, props, children } = node;
+  const { isBlock, tag, props, children, directives } = node;
+  if (directives) {
+    push(helper(WITH_DIRECTIVES) + `(`);
+  }
   if (isBlock) {
     push(`(${helper(OPEN_BLOCK)}(${``}), `);
   }
@@ -185,6 +204,11 @@ function genVNodeCall(node, context) {
   genNodeList(genNullableArgs([tag, props, children]), context);
   push(`)`);
   if (isBlock) {
+    push(`)`);
+  }
+  if (directives) {
+    push(`, `);
+    genNode(directives, context);
     push(`)`);
   }
 }

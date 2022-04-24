@@ -2,11 +2,19 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 20:04:45
+ * @LastEditTime: 2022-04-24 22:04:21
  */
-import { createCallExpression, createVnodeCall, NodeTypes } from "../ast";
+import { isSymbol } from "../../../shared/src";
+import {
+  createArrayExpression,
+  createCallExpression,
+  createVnodeCall,
+  NodeTypes,
+} from "../ast";
 import { NORMALIZE_CLASS } from "../runtimeHelpers";
 import { isStaticExp } from "../utils";
+
+const directiveImportMap = new WeakMap();
 
 export function transformElement(node, context) {
   return () => {
@@ -17,11 +25,19 @@ export function transformElement(node, context) {
     const vnodeTag = `"${tag}"`;
     let vnodeProps;
     let vnodeChildren;
+    let vnodeDirectives;
 
     // 处理props
     if (props.length) {
       const buildResult = buildProps(node, context);
       vnodeProps = buildResult.props;
+      const directives = buildResult.directives;
+      if (directives && directives.length) {
+        const buildDirectivesResult = directives.map((dir) =>
+          buildDirectiveArgs(dir, context)
+        );
+        vnodeDirectives = createArrayExpression(buildDirectivesResult);
+      }
     }
 
     if (children.length === 1) {
@@ -49,7 +65,8 @@ export function transformElement(node, context) {
       context,
       vnodeTag,
       vnodeProps,
-      vnodeChildren
+      vnodeChildren,
+      vnodeDirectives
     );
   };
 }
@@ -65,6 +82,7 @@ function buildProps(node, context) {
   const { props } = node;
   const properties: any = [];
   let propsExpression;
+  let runtimeDirectives: any = [];
 
   for (let i = 0; i < props.length; i++) {
     const prop = props[i];
@@ -79,12 +97,18 @@ function buildProps(node, context) {
     } else {
       // 处理指令
       const { name } = prop;
-
-      // 处理v-bind、v-on
+      // 处理v-bind、v-on、v-show
       const directiveTransform = context.directiveTransforms[name];
       if (directiveTransform) {
-        const props = directiveTransform(prop);
-        properties.push(props);
+        const { props, needRuntime } = directiveTransform(prop, context);
+        properties.push(...props);
+        if (needRuntime) {
+          runtimeDirectives.push(prop);
+          // v-show
+          if (isSymbol(needRuntime)) {
+            directiveImportMap.set(prop, needRuntime);
+          }
+        }
       }
     }
   }
@@ -120,6 +144,7 @@ function buildProps(node, context) {
 
   return {
     props: propsExpression,
+    directives: runtimeDirectives,
   };
 }
 
@@ -169,4 +194,19 @@ function dedupeProperties(properties) {
     }
   }
   return deduped;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 创建指令数据
+ * @param  dir
+ */
+function buildDirectiveArgs(dir, context) {
+  let dirArgs: any = [];
+  const runtime = directiveImportMap.get(dir);
+  if (runtime) {
+    dirArgs.push(context.helperString(runtime));
+  }
+  if (dir.exp) dirArgs.push(dir.exp);
+  return createArrayExpression(dirArgs);
 }

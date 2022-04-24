@@ -2,8 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 19:59:22
+ * @LastEditTime: 2022-04-24 21:57:08
  */
+import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
 import { baseParse } from "../src/parse";
 import { transform } from "../src/transform";
@@ -14,22 +15,23 @@ import { transformBind } from "../src/transforms/vBind";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div @click="click"></div>`);
+    const ast = baseParse(`<div v-show="show"></div>`);
 
     transform(ast, {
       nodeTransforms: [transformExpression, transformElement, transformText],
       directiveTransforms: {
         bind: transformBind,
         on: transformOn,
+        show: transformShow,
       },
     });
 
     const code = generate(ast);
+    console.log(code);
     expect(code).toMatchSnapshot();
   });
   // test("codegen string", () => {
   //   const ast = baseParse(`hello`);
-
   //   transform(ast);
   //   const { code } = generate(ast);
 
