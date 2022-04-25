@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-24 22:04:21
+ * @LastEditTime: 2022-04-25 09:04:33
  */
 import { isSymbol } from "../../../shared/src";
 import {
@@ -32,6 +32,7 @@ export function transformElement(node, context) {
       const buildResult = buildProps(node, context);
       vnodeProps = buildResult.props;
       const directives = buildResult.directives;
+      // 处理指令
       if (directives && directives.length) {
         const buildDirectivesResult = directives.map((dir) =>
           buildDirectiveArgs(dir, context)

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 19:20:36
+ * @LastEditTime: 2022-04-25 09:50:24
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -22,6 +22,7 @@ import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
 import { updateProps } from "./componentProps";
 import { updateSlots } from "./componentSlots";
 import { isKeepAlive } from "./component/KeepAlive";
+import { invokeDirectiveHook } from "./directives";
 
 export const queuePostRenderEffect = queuePostFlushCb;
 
@@ -367,6 +368,10 @@ function baseCreateRenderer(options) {
      * 3、旧的key在新的上面不存在 ———— 删除属性
      */
     patchProps(el, n2, oldProps, newProps);
+    if (n2.dirs) {
+      // 触发指令钩子函数beforeMount
+      invokeDirectiveHook(n2, n1, "updated");
+    }
   };
 
   /**
@@ -699,7 +704,7 @@ function baseCreateRenderer(options) {
    * @param  parentComponent 父组件实例
    */
   const mountElement = (vnode, container, anchor, parentComponent) => {
-    const { type, props, children, shapeFlag, transition } = vnode;
+    const { type, props, children, shapeFlag, transition, dirs } = vnode;
     const el = (vnode.el = hostCreateElement(type));
     // 处理children
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -719,8 +724,15 @@ function baseCreateRenderer(options) {
       }
     }
 
+    // 动画
     if (transition) {
       transition.beforeEnter(el);
+    }
+
+    // 指令
+    if (dirs) {
+      // 触发指令钩子函数beforeMount
+      invokeDirectiveHook(vnode, null, "beforeMount");
     }
 
     hostInsert(el, container, anchor);
