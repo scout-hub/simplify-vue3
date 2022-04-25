@@ -44,5 +44,6 @@ a simplified version of vue3 implementation for study
    - [x] 普通元素的静态属性编译
    - [x] 普通元素的属性绑定（v-bind）
    - [x] 普通元素的事件绑定（v-on）
+   - [x] 普通元素v-show
 - shared
    - [x] 辅助函数
