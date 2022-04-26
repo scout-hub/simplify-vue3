@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 17:15:58
+ * @LastEditTime: 2022-04-26 21:43:16
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -12,18 +12,20 @@ import { transformElement } from "../src/transforms/transformElement";
 import { transformExpression } from "../src/transforms/transformExpression";
 import { transformText } from "../src/transforms/transformText";
 import { transformBind } from "../src/transforms/vBind";
+import { transformIf } from "../src/transforms/vIf";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div v-show="show"></div>`);
+    const ast = baseParse(`<div v-if="show"></div>`);
 
     transform(ast, {
-      nodeTransforms: [transformExpression, transformElement, transformText],
-      directiveTransforms: {
-        bind: transformBind,
-        on: transformOn,
-        show: transformShow,
-      },
+      nodeTransforms: [transformIf, transformElement],
+      // nodeTransforms: [transformExpression, transformElement, transformText],
+      // directiveTransforms: {
+      //   bind: transformBind,
+      //   on: transformOn,
+      //   show: transformShow,
+      // },
     });
 
     const code = generate(ast);

@@ -2,8 +2,8 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { undefined: _undefined, createElementVNode: _createElementVNode, withDirectives: _withDirectives, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { createElementVNode: _createElementVNode, createCommentVNode: _createCommentVNode } = Vue;
       return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-      return _withDirectives((_openBlock(), _createElementBlock(\\"div\\", null, [])), [[_undefined, _ctx.show]])}",
+      return }",
 }
 `;

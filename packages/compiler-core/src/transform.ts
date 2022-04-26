@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:38:02
+ * @LastEditTime: 2022-04-26 22:39:50
  */
-import { isFunction } from "@simplify-vue/shared";
+import { isFunction, isArray } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
 import {
   OPEN_BLOCK,
@@ -86,6 +86,11 @@ function createTransformContext(
     helperString(name) {
       return `_${helperNameMap[context.helper(name)]}`;
     },
+    replaceNode(node) {
+      // 替换当前节点的同时修改父节点上对应的子节点
+      (context.parent! as any).children[context.childIndex] =
+        context.currentNode = node;
+    },
   };
 
   return context;
@@ -100,9 +105,12 @@ function createTransformContext(
 function traverseNode(node, context) {
   // 设置当前正在转换的节点
   context.currentNode = node;
-  const { type } = node;
   const { nodeTransforms } = context;
-  const traverseChildrenType = [NodeTypes.ELEMENT, NodeTypes.ROOT];
+  const traverseChildrenType = [
+    NodeTypes.ELEMENT,
+    NodeTypes.ROOT,
+    NodeTypes.IF_BRANCH,
+  ];
 
   //   if (type === NodeTypes.TEXT) {
   //     node.content = node.content + "123";
@@ -111,14 +119,26 @@ function traverseNode(node, context) {
   const exitFns: any = [];
   for (let i = 0; i < nodeTransforms.length; i++) {
     const onExit = nodeTransforms[i](node, context);
+
     if (onExit) {
-      exitFns.push(onExit);
+      // v-if
+      if (isArray(onExit)) {
+        exitFns.push(...onExit);
+      } else {
+        exitFns.push(onExit);
+      }
     }
-    // if (!context.currentNode) {
-    //   // 说明节点被删除了，此时直接返回即可，不进行接下去的处理
-    //   return;
-    // }
+
+    if (!context.currentNode) {
+      // 说明节点被删除了，此时直接返回即可，不进行接下去的处理
+      return;
+    } else {
+      // 当前节点可能会被替换，所以要重新赋值一次，例如v-if处理元素时，当前ast节点会被替换成指定特殊的ast结构
+      node = context.currentNode;
+    }
   }
+
+  const { type } = node;
 
   const nodeTypeHandlers = {
     [(type === NodeTypes.INTERPOLATION) as any]() {
@@ -127,12 +147,18 @@ function traverseNode(node, context) {
     [traverseChildrenType.includes(type) as any]() {
       traverseChildren(node, context);
     },
+    [(type === NodeTypes.IF) as any]() {
+      for (let i = 0; i < node.branches.length; i++) {
+        traverseNode(node.branches[i], context);
+      }
+    },
   };
 
   const nodeHandler = nodeTypeHandlers[true as any];
   if (isFunction(nodeHandler)) {
     nodeHandler();
   }
+  context.currentNode = node;
   let i = exitFns.length;
   while (i--) {
     exitFns[i]();
@@ -154,4 +180,26 @@ function traverseChildren(parent, context) {
     context.childIndex = i;
     traverseNode(children[i], context);
   }
+}
+
+// 结构化指令转换器（v-if）
+export function createStructuralDirectiveTransform(name, fn) {
+  return (node, context) => {
+    if (node.type === NodeTypes.ELEMENT) {
+      const props = node.props;
+      const existFn: any = [];
+      for (let i = 0; i < props.length; i++) {
+        const prop = props[i];
+        // 如果属性名匹配到了对应的结构化指令
+        if (prop.type === NodeTypes.DIRECTIVE && name.test(prop.name)) {
+          // 从当前element元素的props中删除匹配到的结构化指令数据，避免无限递归循环
+          props.splice(i, 1);
+          i--;
+          const onExist = fn(node, prop, context);
+          onExist && existFn.push(onExist);
+        }
+      }
+      return existFn;
+    }
+  };
 }

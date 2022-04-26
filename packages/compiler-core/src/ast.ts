@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-24 21:12:30
+ * @LastEditTime: 2022-04-26 22:00:19
  */
 import { CREATE_ELEMENT_VNODE, WITH_DIRECTIVES } from "./runtimeHelpers";
 
@@ -23,6 +23,9 @@ export const enum NodeTypes {
   JS_PROPERTY,
   JS_OBJECT_EXPRESSION,
   JS_ARRAY_EXPRESSION,
+  IF_BRANCH,
+  IF,
+  JS_CONDITIONAL_EXPRESSION,
 }
 
 export const enum ElementTypes {
@@ -59,5 +62,14 @@ export function createArrayExpression(elements) {
   return {
     type: NodeTypes.JS_ARRAY_EXPRESSION,
     elements,
+  };
+}
+
+export function createConditionalExpression(test, consequent, alternate) {
+  return {
+    type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
+    test,
+    consequent,
+    alternate,
   };
 }
