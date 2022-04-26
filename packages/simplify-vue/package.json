@@ -1,0 +1,17 @@
+{
+  "name": "simplify-vue",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@simplify-vue/compiler-dom": "workspace:^1.0.0",
+    "@simplify-vue/runtime-dom": "workspace:^1.0.0"
+  }
+}

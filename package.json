@@ -1,23 +1,23 @@
 {
-  "name": "simplify-vue",
+  "name": "vue-test",
   "version": "1.0.0",
-  "license": "MIT",
-  "main": "lib/simplify-vue.cjs.js",
-  "module": "lib/simplify-vue.esm.js",
+  "description": "a simplified version of vue3 implementation for study",
+  "main": "babel.config.js",
   "scripts": {
-    "test": "jest",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.17.8",
+    "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
-    "@babel/preset-typescript": "^7.16.7",
-    "@rollup/plugin-typescript": "^8.3.1",
+    "@rollup/plugin-typescript": "^8.3.2",
     "@types/jest": "^27.4.1",
-    "babel-jest": "^27.5.1",
-    "jest": "^27.5.1",
-    "rollup": "^2.70.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.6.2"
+    "jest": "^28.0.0",
+    "rollup": "^2.70.2",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.3"
   }
 }

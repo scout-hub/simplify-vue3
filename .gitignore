@@ -1,4 +1,6 @@
+dist
+.DS_Store
 node_modules
+*.log
+.idea
 .history
-DS_Store
-lib
