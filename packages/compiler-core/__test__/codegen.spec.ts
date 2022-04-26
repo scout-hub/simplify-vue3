@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-24 21:57:08
+ * @LastEditTime: 2022-04-26 17:15:58
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -27,7 +27,6 @@ describe("Compiler: transform", () => {
     });
 
     const code = generate(ast);
-    console.log(code);
     expect(code).toMatchSnapshot();
   });
   // test("codegen string", () => {

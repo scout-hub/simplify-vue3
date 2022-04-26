@@ -6,8 +6,10 @@ importers:
     specifiers:
       '@babel/core': ^7.17.9
       '@babel/preset-env': ^7.16.11
+      '@babel/preset-typescript': ^7.16.7
       '@rollup/plugin-typescript': ^8.3.2
       '@types/jest': ^27.4.1
+      babel-jest: ^28.0.0
       jest: ^28.0.0
       rollup: ^2.70.2
       tslib: ^2.4.0
@@ -15,8 +17,10 @@ importers:
     devDependencies:
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11_@babel+core@7.17.9
+      '@babel/preset-typescript': 7.16.7_@babel+core@7.17.9
       '@rollup/plugin-typescript': 8.3.2_056aba5e56e0ab5307259a29131f3fbe
       '@types/jest': 27.4.1
+      babel-jest: 28.0.0_@babel+core@7.17.9
       jest: 28.0.0
       rollup: 2.70.2
       tslib: 2.4.0
@@ -1062,6 +1066,20 @@ packages:
       '@babel/helper-plugin-utils': 7.16.7
     dev: true
 
+  /@babel/plugin-transform-typescript/7.16.8_@babel+core@7.17.9:
+    resolution: {integrity: sha512-bHdQ9k7YpBDO2d0NVfkj51DpQcvwIzIusJ7mEUaMlbZq3Kt/U47j24inXZHQ5MDiYpCs+oZiwnXyKedE8+q7AQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.17.9
+      '@babel/helper-create-class-features-plugin': 7.17.9_@babel+core@7.17.9
+      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/plugin-syntax-typescript': 7.16.7_@babel+core@7.17.9
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@babel/plugin-transform-unicode-escapes/7.16.7_@babel+core@7.17.9:
     resolution: {integrity: sha512-TAV5IGahIz3yZ9/Hfv35TV2xEm+kaBDaZQCn2S/hG9/CZ0DktxJv9eKfPc7yYCvOYR4JGx1h8C+jcSOvgaaI/Q==}
     engines: {node: '>=6.9.0'}
@@ -1179,6 +1197,20 @@ packages:
       '@babel/plugin-transform-dotall-regex': 7.16.7_@babel+core@7.17.9
       '@babel/types': 7.17.0
       esutils: 2.0.3
+    dev: true
+
+  /@babel/preset-typescript/7.16.7_@babel+core@7.17.9:
+    resolution: {integrity: sha512-WbVEmgXdIyvzB77AQjGBEyYPZx+8tTsO50XtfozQrkW8QB2rLJpH2lgx0TRw5EJrBxOZQ+wCcyPVQvS8tjEHpQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.17.9
+      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-validator-option': 7.16.7
+      '@babel/plugin-transform-typescript': 7.16.8_@babel+core@7.17.9
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/runtime/7.17.9:

@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 14:13:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 09:57:55
+ * @LastEditTime: 2022-04-26 17:03:16
  */
-import { reactive, ref } from "../../reactivity/src";
+import { reactive, ref } from "@simplify-vue/reactivity";
 import { watch, watchEffect, watchPostEffect } from "../src";
 
 describe("first", () => {
