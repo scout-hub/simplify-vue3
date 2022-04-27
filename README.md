@@ -47,6 +47,6 @@ pnpm test
 - compiler-core
    - [x] 解析插值、文本、元素
    - [x] 插值、文本、元素组合（支持嵌套）的template编译、转化、生成
-   - [x] 普通元素v-show、v-if、v-bind、v-on
+   - [x] 普通元素v-show、v-if/v-else、v-bind、v-on
 - shared
    - [x] 辅助函数
