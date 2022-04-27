@@ -21,8 +21,8 @@ export function baseCompile(template, options) {
     ast,
     extend({}, options, {
       nodeTransforms: [
-        transformExpression,
         transformIf,
+        transformExpression,
         transformElement,
         transformText,
       ],

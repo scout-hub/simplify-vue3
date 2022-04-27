@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 23:38:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-23 11:27:05
+ * @LastEditTime: 2022-04-27 20:48:45
  */
 import { NodeTypes } from "../ast";
 
@@ -26,7 +26,7 @@ export function transformExpression(node) {
   }
 }
 
-function processExpression(node) {
+export function processExpression(node) {
   node.content = `_ctx.${node.content}`;
   return node;
 }

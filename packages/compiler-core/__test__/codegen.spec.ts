@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 15:44:56
+ * @LastEditTime: 2022-04-27 20:47:47
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -19,7 +19,7 @@ describe("Compiler: transform", () => {
     const ast = baseParse(`<div v-if="show"></div>`);
 
     transform(ast, {
-      nodeTransforms: [transformExpression, transformIf, transformElement],
+      nodeTransforms: [transformIf, transformExpression, transformElement],
       // nodeTransforms: [transformExpression, transformElement, transformText],
       // directiveTransforms: {
       //   bind: transformBind,

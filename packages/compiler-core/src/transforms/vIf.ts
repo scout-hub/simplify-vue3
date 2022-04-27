@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 22:37:21
+ * @LastEditTime: 2022-04-27 20:49:17
  */
 import {
   createCallExpression,
@@ -11,6 +11,7 @@ import {
 } from "../ast";
 import { CREATE_COMMENT } from "../runtimeHelpers";
 import { createStructuralDirectiveTransform } from "../transform";
+import { processExpression } from "./transformExpression";
 
 // v-if指令转换器
 export const transformIf = createStructuralDirectiveTransform(
@@ -30,7 +31,12 @@ export const transformIf = createStructuralDirectiveTransform(
 );
 
 function processIf(node, dir, context, fn?) {
-  if (dir.name === "if") {
+  const { name, exp } = dir;
+  if (exp) {
+    dir.exp = processExpression(exp);
+  }
+
+  if (name === "if") {
     // 处理 if
     const branch = createIfBranch(node, dir);
     const ifNode = {
