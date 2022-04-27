@@ -189,8 +189,6 @@ describe("Map and Set", () => {
   });
 
   test("shallowReadonly", () => {
-    console.log(1);
-    
     const obj = { name: 1 };
     const map = shallowReadonly(new Map([["name", obj]]));
     console.warn = jest.fn();

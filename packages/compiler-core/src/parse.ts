@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:37:53
+ * @LastEditTime: 2022-04-27 22:37:24
  */
 import { extend } from "@simplify-vue/shared";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -296,12 +296,17 @@ function parseAttribute(context, attributeNames) {
   advanceBy(context, name.length);
   // 截掉空白字符
   advanceSpaces(context);
-  // 截掉=号
-  advanceBy(context, 1);
-  // 截掉空白字符
-  advanceSpaces(context);
 
-  let value = parseAttributeValue(context);
+  let value;
+
+  // 属性有值的时候才需要去获取值并做相应的截取操作，否则不需要，例如v-else
+  if (/^[\t\r\n\f ]*=/.test(context.source)) {
+    // 截掉=号
+    advanceBy(context, 1);
+    // 截掉空白字符
+    advanceSpaces(context);
+    value = parseAttributeValue(context);
+  }
 
   // 判断属性是不是v-xxx | @xxx | :xxx | .xxxx | #xxx等vue内部规定的属性定义方式，是的话需要额外进行处理
   if (/^(v-[A-Za-z0-9-]|:|\.|@|#)/.test(name)) {

@@ -4,6 +4,6 @@ exports[`Compiler: transform context state 1`] = `
 Object {
   "code": "const { createElementVNode: _createElementVNode, createCommentVNode: _createCommentVNode } = Vue;
       return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-      return _ctx.show? _createElementVNode(\\"div\\", null, []): _createCommentVNode(\\"v-if\\", true)}",
+      return _ctx.show? _createElementVNode(\\"div\\", null, []): _createElementVNode(\\"h1\\", null, [])}",
 }
 `;

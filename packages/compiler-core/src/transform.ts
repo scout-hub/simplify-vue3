@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 15:24:54
+ * @LastEditTime: 2022-04-27 21:44:52
  */
 import { isFunction, isArray } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
@@ -91,6 +91,21 @@ function createTransformContext(
       (context.parent! as any).children[context.childIndex] =
         context.currentNode = node;
     },
+    removeNode(node) {
+      const children = (context.parent as any).children;
+      const nodeIndex = node
+        ? children.indexOf(node)
+        : context.currentNode
+        ? context.childIndex
+        : -1;
+      // 上下文中清空当前节点
+      context.currentNode = null;
+      // 此时在遍历traverseChildren的时候，由于当前node会从children中删除，会影响到遍历
+      // 因此需要调用onNodeRemoved方法，将正在遍历的index--
+      context.onNodeRemoved();
+      children.splice(nodeIndex, 1);
+    },
+    onNodeRemoved: () => {},
   };
 
   return context;
@@ -102,7 +117,7 @@ function createTransformContext(
  * @param context 上下文对象
  * @return
  */
-function traverseNode(node, context) {
+export function traverseNode(node, context) {
   // 设置当前正在转换的节点
   context.currentNode = node;
   const { nodeTransforms } = context;
@@ -166,12 +181,19 @@ function traverseNode(node, context) {
  * @return
  */
 function traverseChildren(parent, context) {
-  const children = parent.children;
   // 遍历子节点，递归处理
-  for (let i = 0; i < children.length; i++) {
+  let i = 0;
+  // 存在遍历当前节点，节点会被移除的情况，这里绑定一个nodeRemoved方法，
+  // 当节点被删除时可以通过context触发这个函数，从而让遍历正常进行
+  const nodeRemoved = () => {
+    i--;
+  };
+  for (i; i < parent.children.length; i++) {
+    const child = parent.children[i];
     context.parent = parent;
     context.childIndex = i;
-    traverseNode(children[i], context);
+    context.onNodeRemoved = nodeRemoved;
+    traverseNode(child, context);
   }
 }
 

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 20:47:47
+ * @LastEditTime: 2022-04-27 22:30:42
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -16,7 +16,7 @@ import { transformIf } from "../src/transforms/vIf";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div v-if="show"></div>`);
+    const ast = baseParse(`<div v-if="show"></div><h1 v-else></h1>`);
 
     transform(ast, {
       nodeTransforms: [transformIf, transformExpression, transformElement],
