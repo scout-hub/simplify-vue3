@@ -7,7 +7,7 @@
 import {
     h,
     ref,
-    createCommentVnode
+    createCommentVNode
 } from "../../dist/simplify-vue.esm.js";
 
 export default {
@@ -20,6 +20,6 @@ export default {
         }
     },
     render() {
-        return this.flag ? h("div", null, [createCommentVnode(2)]) : h("div", null, [createCommentVnode(3)]);
+        return this.flag ? h("div", null, [createCommentVNode(2)]) : h("div", null, [createCommentVNode(3)]);
     }
 };

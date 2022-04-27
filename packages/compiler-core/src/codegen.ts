@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:37:36
+ * @LastEditTime: 2022-04-27 16:01:07
  */
 /**
  * 1. text
@@ -27,9 +27,19 @@
  *  return function render(_ctx, _cache, $props, $setup, $data, $options) {
  *    return (_openBlock(), _createElementBlock("div", null, "hello, " + _toDisplayString(_ctx.message), 1));
  *  }
+ * 
+ * v-if/v-else-if/v-else
+ * import { openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode } from "vue"
+ * export function render(_ctx, _cache, $props, $setup, $data, $options) {
+ *   return (_ctx.show)
+ *     ? (_openBlock(), _createElementBlock("div", { key: 0 }, "Hello World"))
+ *     : (_ctx.name)
+ *       ? (_openBlock(), _createElementBlock("div", { key: 1 }, "123"))
+ *       : (_openBlock(), _createElementBlock("div", { key: 2 }, "1234"))
+ * }
  */
 
-import { isArray, isFunction, isString } from "@simplify-vue/shared";
+import { isArray, isString } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
 import {
   CREATE_ELEMENT_BLOCK,
@@ -93,50 +103,60 @@ function createCodegenContext(ast: any, options: {}) {
  */
 function genNode(node, context) {
   const { type } = node;
-  const nodeHandlers = {
-    [(type === NodeTypes.TEXT) as any]() {
+  switch (type) {
+    case NodeTypes.TEXT:
       // 文本
       genText(node, context);
-    },
-    [(type === NodeTypes.INTERPOLATION) as any]() {
+      break;
+    case NodeTypes.INTERPOLATION:
       // 插值
       genInterpolation(node, context);
-    },
-    [(type === NodeTypes.SIMPLE_EXPRESSION) as any]() {
+      break;
+    case NodeTypes.SIMPLE_EXPRESSION:
       // 值，例如属性名、属性值
       genExpression(node, context);
-    },
-    [(type === NodeTypes.ELEMENT) as any]() {
-      // 元素
+      break;
+    case NodeTypes.ELEMENT:
+    case NodeTypes.TEXT_CALL:
+    case NodeTypes.IF:
+      // 元素/文本/v-if
       genNode(node.codegenNode, context);
-    },
-    [(type === NodeTypes.COMPOUND_EXPRESSION) as any]() {
+      break;
+    case NodeTypes.COMPOUND_EXPRESSION:
       // 复合类型 text+{{}}
       genCompoundExpression(node, context);
-    },
-    [(type === NodeTypes.VNODE_CALL) as any]() {
+      break;
+    case NodeTypes.VNODE_CALL:
       genVNodeCall(node, context);
-    },
-    [(type === NodeTypes.TEXT_CALL) as any]() {
-      // 节点
-      genNode(node.codegenNode, context);
-    },
-    [(type === NodeTypes.JS_CALL_EXPRESSION) as any]() {
+      break;
+    case NodeTypes.JS_CALL_EXPRESSION:
       genCallExpression(node, context);
-    },
-    [(type === NodeTypes.JS_OBJECT_EXPRESSION) as any]() {
+      break;
+    case NodeTypes.JS_OBJECT_EXPRESSION:
       // 属性
       genObjectExpression(node, context);
-    },
-    [(type === NodeTypes.JS_ARRAY_EXPRESSION) as any]() {
+      break;
+    case NodeTypes.JS_ARRAY_EXPRESSION:
       // 指令
       genArrayExpression(node, context);
-    },
-  };
-  const handler = nodeHandlers[true as any];
-  if (isFunction(handler)) {
-    handler();
+      break;
+    case NodeTypes.JS_CONDITIONAL_EXPRESSION:
+      // v-if
+      genConditionalExpression(node, context);
+      break;
   }
+}
+
+function genConditionalExpression(node, context) {
+  const { test, consequent, alternate } = node;
+  const { push } = context;
+  if (test.type === NodeTypes.SIMPLE_EXPRESSION) {
+    genExpression(test, context);
+  }
+  push(`? `);
+  genNode(consequent, context);
+  push(`: `);
+  genNode(alternate, context);
 }
 
 function genArrayExpression(node, context) {

@@ -7,7 +7,7 @@
 export { renderSlot } from "./helpers/renderSlot";
 export {
   createTextVNode,
-  createCommentVnode,
+  createCommentVNode,
   createVnode as createElementBlock,
   createElementVNode,
   openBlock,

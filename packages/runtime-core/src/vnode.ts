@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:43:29
+ * @LastEditTime: 2022-04-27 15:49:02
  */
 
 import {
@@ -104,7 +104,7 @@ export function createTextVNode(text: string) {
 }
 
 // 创建注释节点的vnode
-export function createCommentVnode(text: string) {
+export function createCommentVNode(text: string) {
   return createVnode(Comment, null, text);
 }
 

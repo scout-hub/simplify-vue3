@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 22:39:50
+ * @LastEditTime: 2022-04-27 15:24:54
  */
 import { isFunction, isArray } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
@@ -106,11 +106,6 @@ function traverseNode(node, context) {
   // 设置当前正在转换的节点
   context.currentNode = node;
   const { nodeTransforms } = context;
-  const traverseChildrenType = [
-    NodeTypes.ELEMENT,
-    NodeTypes.ROOT,
-    NodeTypes.IF_BRANCH,
-  ];
 
   //   if (type === NodeTypes.TEXT) {
   //     node.content = node.content + "123";
@@ -140,24 +135,22 @@ function traverseNode(node, context) {
 
   const { type } = node;
 
-  const nodeTypeHandlers = {
-    [(type === NodeTypes.INTERPOLATION) as any]() {
+  switch (type) {
+    case NodeTypes.INTERPOLATION:
       context.helper(TO_DISPLAY_STRING);
-    },
-    [traverseChildrenType.includes(type) as any]() {
-      traverseChildren(node, context);
-    },
-    [(type === NodeTypes.IF) as any]() {
+      break;
+    case NodeTypes.IF:
       for (let i = 0; i < node.branches.length; i++) {
         traverseNode(node.branches[i], context);
       }
-    },
-  };
-
-  const nodeHandler = nodeTypeHandlers[true as any];
-  if (isFunction(nodeHandler)) {
-    nodeHandler();
+      break;
+    case NodeTypes.ELEMENT:
+    case NodeTypes.ROOT:
+    case NodeTypes.IF_BRANCH:
+      traverseChildren(node, context);
+      break;
   }
+
   context.currentNode = node;
   let i = exitFns.length;
   while (i--) {
