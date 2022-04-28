@@ -2,14 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 14:27:34
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 15:13:24
+ * @LastEditTime: 2022-04-28 15:48:40
  */
-// const {
-//     terser
-// } = require('rollup-plugin-terser');
+const {
+    terser
+} = require('rollup-plugin-terser');
 const typescript = require('@rollup/plugin-typescript');
-// const fs = require('fs');
 const path = require('path');
+// const fs = require('fs');
 // const targets = fs.readdirSync('packages');
 const targets = ['shared', 'reactivity', 'compiler-core', 'compiler-dom', 'runtime-core', 'runtime-dom', 'simplify-vue'];
 const packagesDir = path.resolve(__dirname, 'packages');
@@ -30,7 +30,7 @@ const createConfig = (target) => {
             typescript({
                 exclude: /__test__/
             }),
-            // terser()
+            terser()
         ],
         onwarn: (msg, warn) => {
             // 去除打包是循环依赖的warning提示
@@ -44,4 +44,3 @@ const createConfig = (target) => {
 const packageConfigs = targets.map(target => createConfig(target));
 
 export default packageConfigs;
-
