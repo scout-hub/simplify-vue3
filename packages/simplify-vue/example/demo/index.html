@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-27 14:50:10
+ * @LastEditTime: 2022-04-28 16:21:09
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +25,50 @@
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp
+        } = Vue;
+
+        const Child = {
+            name: "Child",
+            setup(props) {
+                props.count = 2;
+            },
+            render() {
+                return h('div', null, this.count);
+            }
+        }
+
+        const App = {
+            name: "App",
+            setup() {
+                return {
+                    msg: 'test123'
+                }
+            },
+            render() {
+                return h("div", {
+                    id: 'div',
+                    class: 'red',
+                    onClick: [() => {
+                        console.log(1);
+                    }, () => {
+                        console.log(3)
+                    }],
+                    onmousedown: () => {
+                        console.log(2);
+                    }
+                }, [h('div', null, this.msg), h(Child, {
+                    count: 1
+                })]);
+            }
+        }
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

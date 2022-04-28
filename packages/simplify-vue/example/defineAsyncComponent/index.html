@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-27 14:50:10
+ * @LastEditTime: 2022-04-28 16:19:02
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,20 +12,115 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .red {
-            color: red;
-        }
-
-        .green {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script type="module">
+        const {
+            h,
+            createApp,
+            defineAsyncComponent
+        } = Vue;
+
+        const Error = {  
+            name: "Error",
+            props: ['error'],
+            setup(props) {
+                return () => h('div', null, props.error.message);
+            }       
+        };
+
+        const Loading = {
+            name: "Loading",
+            setup(props) {
+                return () => h('div', null, 'loading……');
+            },
+        };
+
+        const SlotChild = defineAsyncComponent({
+            loader: () => import('./Child.js'),
+            text: 1
+        })
+
+        const Child = defineAsyncComponent(() => import('./Child.js'));
+
+        const timeoutChild = defineAsyncComponent({
+            loader: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(import('./Child.js'))
+                    }, 3000);
+                })
+            },
+            timeout: 2000,
+            errorComponent: Error
+        })
+        let times = 0
+        const ErrorChild = defineAsyncComponent({
+            loader: () => {
+                return new Promise((resolve) => {
+                    times++;
+                    if (times === 4) {
+                        resolve(import('./Child.js'));
+                    } else {
+                        resolve(import('./Child1.js'));
+                    }
+                })
+            },
+            timeout: 2000,
+            errorComponent: Error,
+            onError(error, retry, fail, attempts) {
+                if (attempts <= 3) {
+                    retry()
+                } else {
+                    fail();
+                }
+            }
+        })
+
+        const LoadingChild = defineAsyncComponent({
+            loader: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(import('./Child.js'))
+                    }, 3000);
+                })
+            },
+            delay: 1000,
+            loadingComponent: Loading
+        });
+
+        const App = {
+            name: "App",
+            setup() {},
+            render() {
+                return h("div", null, [
+                    h(SlotChild, {
+                        text: 'slotChild',
+                    }, {
+                        body: () => h('div', null, 'xxxx')
+                    }),
+                    h(Child, {
+                        text: 'Child',
+                        name: 'xxx'
+                    }),
+                    h(timeoutChild, {
+                        text: 'timeoutChild'
+                    }),
+                    h(ErrorChild, {
+                        text: 6
+                    }),
+                    h(LoadingChild, {
+                        text: 'LoadingChild'
+                    })
+                ]);
+            }
+        }
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>
