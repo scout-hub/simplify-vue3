@@ -4,7 +4,8 @@
   "description": "a simplified version of vue3 implementation for study",
   "scripts": {
     "test": "jest",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "dev": "node scripts/dev.js"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,10 @@
     "@rollup/plugin-typescript": "^8.3.2",
     "@types/jest": "^27.4.1",
     "babel-jest": "^28.0.0",
+    "esbuild": "^0.14.38",
     "jest": "^28.0.0",
     "rollup": "^2.70.2",
+    "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "^4.6.3"
   }
