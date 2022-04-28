@@ -1,11 +1,14 @@
 # simplify-vue
 a simplified version of vue3 implementation for study
 
-### 构建
-pnpm build
-
 ### 测试
 pnpm test
+
+### 开发
+pnpm dev
+
+### 生产
+pnpm build
 
 ### 目前实现的功能
 - reactivity
