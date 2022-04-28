@@ -39,7 +39,7 @@ pnpm build
    - [x] setup函数
    - [x] render函数
    - [x] getCurrentInstance
-   - [x] emit
+   - [x] emit事件派发/emits选项校验
    - [x] vnode
    - [x] 快速diff算法
    - [x] nextTick
