@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:42:37
+ * @LastEditTime: 2022-04-28 22:35:11
  */
 
 import { shallowReactive } from "@simplify-vue/reactivity";
@@ -14,6 +14,7 @@ import {
   isFunction,
   isObject,
 } from "@simplify-vue/shared";
+import { isEmitListener } from "./componentEmits";
 
 const enum BooleanFlags {
   shouldCast,
@@ -187,7 +188,7 @@ function setFullProps(instance, rawProps, props, attrs) {
         shouldCast
           ? (rawCastValues[camelKey] = value)
           : (props[camelKey] = value);
-      } else {
+      } else if (!isEmitListener(instance.emitsOptions, key)) {
         // 处理attrs
         if (!(key in attrs) || attrs[camelKey] !== value) {
           attrs[camelKey] = value;

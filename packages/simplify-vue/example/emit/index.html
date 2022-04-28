@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 20:11:46
+ * @LastEditTime: 2022-04-28 21:11:23
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -28,15 +28,22 @@
             setup(props, {
                 emit
             }) {
-                const say = () => {
-                    emit('sayParent', {
-                        name: 123
-                    });
-                    emit('say-parent', 1, 2, 3);
+                const say = (e) => {
+                    // emit('sayParent', {
+                    //     name: 123
+                    // });
+                    // emit('say-parent', 1, 2, 3);
+                    emit('click', 'click');
                 };
                 return {
                     say
                 };
+            },
+            emits: {
+                click(args) {
+                    console.log('args' + args);
+                    return true;
+                }
             },
             render() {
                 return h('button', {
@@ -60,7 +67,10 @@
                 return h("div", {
                     id: 'div',
                 }, [h('div', null, this.msg), h(Child, {
-                    onSayParent: this.sayParent
+                    onSayParent: this.sayParent,
+                    onClick: (data) => {
+                        console.log(data);
+                    }
                 })]);
             }
         };

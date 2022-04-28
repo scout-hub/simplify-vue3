@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:42:22
+ * @LastEditTime: 2022-04-28 21:06:39
  */
 
 import { shallowReadonly, proxyRefs } from "@simplify-vue/reactivity";
@@ -13,7 +13,7 @@ import {
   NOOP,
   ShapeFlags,
 } from "@simplify-vue/shared";
-import { emit } from "./componentEmits";
+import { emit, normalizeEmitsOptions } from "./componentEmits";
 import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
@@ -48,6 +48,7 @@ export function createComponentInstance(vnode, parent) {
     proxy: null,
     provides: parent ? parent.provides : Object.create(null),
     propsOptions: normalizePropsOptions(type),
+    emitsOptions: normalizeEmitsOptions(type),
 
     props: EMPTY_OBJ,
     attrs: EMPTY_OBJ,
