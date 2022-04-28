@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-28 15:14:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 15:42:14
+ * @LastEditTime: 2022-04-28 19:57:21
  */
 const {
     build
@@ -15,5 +15,11 @@ build({
     sourcemap: true,
     format: 'iife',
     globalName: 'Vue',
-    watch: true
-});
+    watch: {
+        onRebuild(error) {
+            console.log('rebuild');
+        }
+    }
+}).then(() => {
+    console.log(`watching`)
+})
