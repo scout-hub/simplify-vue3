@@ -35,6 +35,7 @@ pnpm build
    - [x] provide/inject
    - [x] attrs/props初始化和更新、props类型校验
    - [x] emit事件派发/emits选项校验
+   - [x] $el/$slots/$props/$attrs/$data
    - [x] 生命周期
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
    - [x] setup函数
