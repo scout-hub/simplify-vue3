@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 20:55:09
+ * @LastEditTime: 2022-04-29 11:37:29
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +16,63 @@
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+            ref,
+            KeepAlive,
+            createTextVNode
+        } = Vue;
+        const Child = {
+            name: "Child",
+            setup() {},
+            props: ['text'],
+            render() {
+                // let value = '';
+                return h('div', null, [h('input', {
+                    // value,
+                    // onchange: (e) => {
+                    //     value = e.target.value
+                    // }
+                }), createTextVNode(`I am a ${this.$props.text} keep-alive component`)])
+            }
+        }
+
+        let key = 1;
+        let i = 0
+
+
+        const App = {
+            name: "App",
+            setup() {
+                const flag = ref(true);
+                window.flag = flag;
+                return {
+                    flag
+                }
+            },
+            render() {
+                this.flag ? key++ : key--;
+                i++;
+                return h(KeepAlive, {
+                    // max: 1,
+                    include: 'Child'
+                }, {
+                    default: () => this.flag ?
+                        h(Child, {
+                            key,
+                            text: 'old' + i
+                        }) : h(Child, {
+                            key,
+                            text: 'new'
+                        })
+                });
+            }
+        };
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-27 14:50:10
+ * @LastEditTime: 2022-04-29 11:44:29
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,20 +12,64 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .red {
-            color: red;
-        }
-
-        .green {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+            ref
+        } = Vue;
+
+        const App = {
+            name: "App",
+            setup() {
+                const classObj = ref({
+                    red: 'red',
+                    green: 'green'
+                });
+
+                const change = () => {
+                    classObj.value.green = 'green1';
+                };
+                const change1 = () => {
+                    classObj.value.green = null;
+                };
+                const change2 = () => {
+                    classObj.value = {
+                        red: 'red1',
+                    }
+                };
+
+                return {
+                    classObj,
+                    change,
+                    change1,
+                    change2
+                };
+            },
+            render() {
+                return h("div", {
+                    // class: this.classObj // 这种情况在更新的时候有问题，待解决
+                    ...this.classObj
+                }, [h('button', {
+                        onClick: this.change,
+                    }, '新旧属性值存在但是不一样'),
+                    h('button', {
+                        onClick: this.change1,
+                    }, '新的值不存在'),
+                    h('button', {
+                        onClick: this.change2,
+                    }, '旧的key在新的上不存在')
+                ]);
+            }
+        };
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

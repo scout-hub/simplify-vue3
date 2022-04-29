@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-27 14:50:10
+ * @LastEditTime: 2022-04-29 11:34:18
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,20 +12,56 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .red {
-            color: red;
-        }
-
-        .green {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+            renderSlot,
+            ref
+        } = Vue;
+        const Child = function (props, {
+            slots
+        }) {
+            return h('div', null, [h('p', null, props.count), renderSlot(slots, 'default')]);
+        }
+        Child.props = {
+            count: Number,
+            name: {
+                type: String
+            }
+        }
+        const App = {
+            name: "App",
+            setup() {
+                const flag = ref(true);
+                window.flag = flag;
+                return {
+                    flag
+                }
+            },
+            render() {
+                return this.flag ?
+                    h("div", null, [h(Child, {
+                            count: 1,
+                            text: '123'
+                        },
+                        () => h('div', null, 'head1')
+                    )]) :
+                    h("div", null, [h(Child, {
+                            count: 1,
+                            text: '123'
+                        },
+                        () => h('div', null, 'head2')
+                    )])
+            }
+        };
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

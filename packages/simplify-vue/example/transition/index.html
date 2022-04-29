@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 19:19:55
+ * @LastEditTime: 2022-04-29 11:55:16
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -41,13 +41,43 @@
 
 <body>
     <div id="app"></div>
-    <div id="teleport">
-        <!-- <p>目标元素</p> -->
-    </div>
-    <div id="newTeleport">
-        <!-- <p>新的目标元素</p> -->
-    </div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+            ref,
+            Transition
+        } = Vue;
+
+        const App = {
+            name: "App",
+            setup() {
+                const flag = ref(true);
+                window.flag = flag;
+
+                return {
+                    flag,
+                }
+            },
+            render() {
+                return this.flag ? h(Transition, {
+                        enterFromClass: 'enter-from',
+                        enterToClass: 'enter-to',
+                        enterActiveClass: 'enter-active',
+                        leaveFromClass: 'leave-from',
+                        leaveToClass: 'leave-to',
+                        leaveActiveClass: 'leave-active'
+                    }, {
+                        default: () =>
+                            h('div', null, 'transition 组件')
+                    }) :
+                    null
+            }
+        };
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-30 20:55:09
+ * @LastEditTime: 2022-04-29 11:47:47
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +16,57 @@
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+            renderSlot,
+            ref
+        } = Vue;
+
+
+        const Child = {
+            name: "Child",
+            setup() {
+
+            },
+            render() {
+                const head = 'head';
+                return h('div', null, [renderSlot(this.$slots, 'head', {
+                    head
+                }), renderSlot(this.$slots, 'body'), renderSlot(this.$slots, 'foot')]);
+            }
+        }
+        const App = {
+            name: "App",
+            setup() {
+                const flag = ref(true);
+                window.flag = flag;
+                return {
+                    flag
+                }
+            },
+            render() {
+                return this.flag ?
+                    h("div", {}, [h(Child, {}, {
+                        head: ({
+                            head
+                        }) => [h('div', null, head)],
+                        body: () => h('div', null, 'body'),
+                    })]) :
+                    h("div", {}, [h(Child, {}, {
+                        head: ({
+                            head
+                        }) => [h('div', null, 1), h('p', null, head)],
+                        body: () => h('div', null, 'body'),
+                        // foot: () => h('div', null, 'foot')
+                    })]);
+            }
+        };
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-27 14:50:10
+ * @LastEditTime: 2022-04-29 11:47:12
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,20 +12,52 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .red {
-            color: red;
-        }
-
-        .green {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
     <div id="app"></div>
-    <script src="./index.js" type="module"></script>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            h,
+            createApp,
+        } = Vue;
+
+        const Child = {
+            name: "Child",
+            props: {
+                name: String
+            },
+            setup(props, setupContext) {
+                console.log({
+                    props,
+                    setupContext
+                });
+            },
+            render() {
+                return h('div', null, this.$slots.name());
+            }
+        }
+
+        const App = {
+            name: "App",
+            setup() {
+                return {
+                    msg: 'test123'
+                }
+            },
+            render() {
+                return h("div", null, [h(Child, {
+                    count: 1,
+                    name: '123'
+                }, {
+                    name: () => h('div', null, 'slots')
+                })]);
+            }
+        };
+
+        createApp(App).mount('#app')
+    </script>
 </body>
 
 </html>
