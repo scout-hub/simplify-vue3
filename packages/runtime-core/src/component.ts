@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 21:06:39
+ * @LastEditTime: 2022-04-29 20:37:29
  */
 
 import { shallowReadonly, proxyRefs } from "@simplify-vue/reactivity";
@@ -14,6 +14,7 @@ import {
   ShapeFlags,
 } from "@simplify-vue/shared";
 import { emit, normalizeEmitsOptions } from "./componentEmits";
+import { applyOptions } from "./componentOptions";
 import { initProps, normalizePropsOptions } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
@@ -51,11 +52,13 @@ export function createComponentInstance(vnode, parent) {
     emitsOptions: normalizeEmitsOptions(type),
 
     props: EMPTY_OBJ,
+    data: EMPTY_OBJ,
     attrs: EMPTY_OBJ,
     slots: EMPTY_OBJ,
     ctx: EMPTY_OBJ,
     setupState: EMPTY_OBJ,
 
+    accessCache: null,
     inheritAttrs: type.inheritAttrs,
 
     // lifecycle hooks
@@ -117,6 +120,10 @@ function setupStatefulComponent(instance) {
   const { type: component, props, emit, attrs, slots } = instance;
   const { setup } = component;
 
+  // 这里accessCache不能赋值为{}，因为通过this.xxx读取的xxx属性可能是对象内置的属性，比如hasOwnProperty，这会影响
+  // instance.proxy中get的读取逻辑
+  instance.accessCache = Object.create(null);
+
   // 这里只是代理了instance上的ctx对象
   // 在处理函数中由于需要instance组件实例，因此需要在ctx中增加一个变量_去存储组件实例，供处理函数内部访问
   // 通过这个代理，我们就能用this.xxx去访问数据了
@@ -168,6 +175,8 @@ function finishComponentSetup(instance) {
     }
     instance.render = component.render || NOOP;
   }
+
+  applyOptions(instance);
 }
 
 /**
