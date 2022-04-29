@@ -34,12 +34,12 @@ pnpm build
    - [x] customRender自定义渲染器
    - [x] provide/inject
    - [x] attrs/props初始化和更新、props类型校验
+   - [x] emit事件派发/emits选项校验
    - [x] 生命周期
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
    - [x] setup函数
    - [x] render函数
    - [x] getCurrentInstance
-   - [x] emit事件派发/emits选项校验
    - [x] vnode
    - [x] 快速diff算法
    - [x] nextTick
