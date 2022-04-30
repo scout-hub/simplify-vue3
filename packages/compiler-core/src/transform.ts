@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 21:44:52
+ * @LastEditTime: 2022-04-30 13:47:59
  */
 import { isFunction, isArray } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
@@ -197,7 +197,7 @@ function traverseChildren(parent, context) {
   }
 }
 
-// 结构化指令转换器（v-if）
+// 结构化指令转换器（v-if/v-else-if/v-else）
 export function createStructuralDirectiveTransform(name, fn) {
   return (node, context) => {
     if (node.type === NodeTypes.ELEMENT) {
@@ -207,7 +207,15 @@ export function createStructuralDirectiveTransform(name, fn) {
         const prop = props[i];
         // 如果属性名匹配到了对应的结构化指令
         if (prop.type === NodeTypes.DIRECTIVE && name.test(prop.name)) {
-          // 从当前element元素的props中删除匹配到的结构化指令数据，避免无限递归循环
+          /**
+           * 从当前element元素的props中删除匹配到的结构化指令数据，避免无限递归
+           * 
+           * 原因：
+           * 因为这里接下去会走processIf流程，这个流程会创建if_branch，if_branch中
+           * 的children存储着当前节点，当transverseNode处理if_branch的时候会transverseChildren，
+           * 此时又会遍历到当前这个节点，由于当前这个节点的props依旧存在。所以还是会继续走这里的流程，
+           * 从而形成无限递归的死循环现象。
+           */
           props.splice(i, 1);
           i--;
           const onExist = fn(node, prop, context);

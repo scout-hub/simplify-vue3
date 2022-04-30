@@ -1,0 +1,52 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-03-26 21:15:56
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-04-30 15:09:13
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            createApp,
+            ref
+        } = Vue;
+
+        const App = {
+            name: "App",
+            template: `
+            <div>
+                <div v-if="show === 1">我是v-if 1</div>
+                <button @click="changeClass">更新</button>
+            </div>`,
+            setup() {
+                const show = ref(1);
+
+                const changeClass = () => {
+                    show.value === 3 ? show.value = 1 : show.value++;
+                }
+
+                return {
+                    changeClass,
+                    show,
+                }
+            }
+        };
+
+
+        createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>

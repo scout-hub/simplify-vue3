@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-29 20:48:01
+ * @LastEditTime: 2022-04-30 13:02:29
  */
 import { shallowReadonly } from "@simplify-vue/reactivity";
 import { EMPTY_OBJ, hasOwn } from "@simplify-vue/shared";
@@ -28,8 +28,8 @@ export const PublicInstanceProxyHandlers = {
     /**
      * 这里每次都会通过hasOwn去判断属性是不是存在于某一个对象中，这样是不如直接访问对应对象属性来的更快
      * 为了能够直接访问到指定对象上的属性，需要建立一个映射表，在第一次读取值的时候将属性和对象之间进行关联
-     * 比如第一次读取属性值时，通过hasOwn发现是setupState上的属性，那就标记该属性是STATE_UP，下一次访问
-     * 该属性时，判断到标记为STATE_UP，则直接从setupState获取值
+     * 比如第一次读取属性值时，通过hasOwn发现是setupState上的属性，那就标记该属性是SETUP，下一次访问
+     * 该属性时，判断到标记为SETUP，则直接从setupState获取值
      */
     if (key[0] !== "$") {
       const t = accessCache[key];

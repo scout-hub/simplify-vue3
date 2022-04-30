@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 22:23:49
+ * @LastEditTime: 2022-04-30 14:49:58
  */
 import {
   createCallExpression,
@@ -109,9 +109,19 @@ function createChildrenCodegenNode(branch) {
   return branch.children[0];
 }
 
-// 查找v-if节点
+// 查找父级节点
 function getParentCondition(ifNode) {
-  // TODO v-else-if
-  // 这里先处理v-if v-else的情况，因此传入的ifNode就是v-if节点
-  return ifNode;
+  // 当找当前v-else-if/v-else ast节点的父级ast节点（v-if/v-else-if）
+  while (true) {
+    if (ifNode.type === NodeTypes.JS_CONDITIONAL_EXPRESSION) {
+      if (ifNode.alternate.type === NodeTypes.JS_CONDITIONAL_EXPRESSION) {
+        ifNode = ifNode.alternate;
+      } else {
+        return ifNode;
+      }
+    } else {
+      // TODO
+      return ifNode;
+    }
+  }
 }

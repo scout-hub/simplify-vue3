@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 22:30:42
+ * @LastEditTime: 2022-04-30 14:51:47
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -16,7 +16,9 @@ import { transformIf } from "../src/transforms/vIf";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div v-if="show"></div><h1 v-else></h1>`);
+    const ast = baseParse(
+      `<div v-if="show"></div><h1 v-else-if="show1"></h1><h2 v-else></h2>`
+    );
 
     transform(ast, {
       nodeTransforms: [transformIf, transformExpression, transformElement],
@@ -27,7 +29,6 @@ describe("Compiler: transform", () => {
       //   show: transformShow,
       // },
     });
-
     const code = generate(ast);
     expect(code).toMatchSnapshot();
   });

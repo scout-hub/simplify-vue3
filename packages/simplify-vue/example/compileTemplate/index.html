@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 15:44:20
+ * @LastEditTime: 2022-04-30 15:02:27
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,15 +12,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .red {
-            color: red;
-        }
-
-        .green {
-            color: green;
-        }
-    </style>
 </head>
 
 <body>
@@ -31,7 +22,7 @@
             createApp,
             ref
         } = Vue;
-        
+
         const App = {
             template: `
             <div :class="className" id="div">
@@ -43,8 +34,10 @@
                     hi，
                     <span v-if="show">scout</span>
                 </p>
-                <div v-if="show">我是v-if</div>
-                <div v-else >我是v-else</div>
+                <div v-if="show === 1">我是v-if 1</div>
+                <div v-else-if="show === 2">我是v-else-if 2</div>
+                <div v-else-if="show === 3">我是v-else-if 3</div>
+                <div v-else>我是v-else 4</div>
                 <button @click="changeClass">更新</button>
             </div>`,
             name: "App",
@@ -53,12 +46,12 @@
                 const msg1 = ref('simplify-vue');
                 const className = ref('red');
                 const visible = ref(false);
-                const show = ref(true);
+                const show = ref(1);
 
                 const changeClass = () => {
                     className.value = 'green';
                     visible.value = !visible.value;
-                    show.value = !show.value;
+                    show.value === 4 ? show.value = 1 : show.value++;
                 }
 
                 return {

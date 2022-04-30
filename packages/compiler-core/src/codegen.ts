@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 16:01:07
+ * @LastEditTime: 2022-04-30 14:28:02
  */
 /**
  * 1. text
@@ -27,7 +27,7 @@
  *  return function render(_ctx, _cache, $props, $setup, $data, $options) {
  *    return (_openBlock(), _createElementBlock("div", null, "hello, " + _toDisplayString(_ctx.message), 1));
  *  }
- * 
+ *
  * v-if/v-else-if/v-else
  * import { openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode } from "vue"
  * export function render(_ctx, _cache, $props, $setup, $data, $options) {
@@ -56,13 +56,13 @@ export function generate(ast, options = {}) {
   // 生成前导：例如 const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue
   genFunctionPreamble(ast, context);
 
-  const { push, newLine } = context;
+  const { push, indent } = context;
   const functionName = "render";
   const args = ["_ctx", "_cache", "$props", "$setup", "$data", "$options"].join(
     ", "
   );
   push(`function ${functionName}(${args}) { `);
-  newLine();
+  indent();
   push(`return `);
   genNode(ast.codegenNode, context);
   push(`}`);
@@ -77,22 +77,36 @@ export function generate(ast, options = {}) {
  * @param options
  * @return 上下文对象
  */
-function createCodegenContext(ast: any, options: {}) {
+function createCodegenContext(ast, options) {
   const context = {
     runtimeGlobalName: `Vue`,
+    indentLevel: 0,
     // 最终的代码字符串
     code: ``,
     // 字符串拼接操作
     push(text) {
       context.code += text;
     },
-    newLine() {
-      context.push(`\n      `);
+    indent() {
+      newline(++context.indentLevel);
+    },
+    newline() {
+      newline(context.indentLevel);
     },
     helper(key) {
       return `_${helperNameMap[key]}`;
     },
   };
+
+  /**
+   * @author: Zhouqi
+   * @description: 换行缩进
+   * @param n 锁进长度
+   */
+  function newline(n: number) {
+    context.push("\n" + `  `.repeat(n));
+  }
+
   return context;
 }
 
@@ -149,13 +163,16 @@ function genNode(node, context) {
 
 function genConditionalExpression(node, context) {
   const { test, consequent, alternate } = node;
-  const { push } = context;
+  const { push, newline, indent } = context;
   if (test.type === NodeTypes.SIMPLE_EXPRESSION) {
     genExpression(test, context);
   }
   push(`? `);
+  indent();
   genNode(consequent, context);
+  context.indentLevel--;
   push(`: `);
+  indent();
   genNode(alternate, context);
 }
 
@@ -240,7 +257,7 @@ function genVNodeCall(node, context) {
  * @param context
  */
 function genFunctionPreamble(ast, context) {
-  const { push, runtimeGlobalName, newLine } = context;
+  const { push, runtimeGlobalName, newline } = context;
   const { helpers } = ast;
 
   const aliasHelper = (s: symbol) =>
@@ -251,7 +268,7 @@ function genFunctionPreamble(ast, context) {
       `const { ${helpers.map(aliasHelper).join(", ")} } = ${runtimeGlobalName};`
     );
   }
-  newLine();
+  newline();
   push(`return `);
 }
 
