@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:43:18
+ * @LastEditTime: 2022-04-30 19:12:14
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -119,7 +119,7 @@ function baseCreateRenderer(options) {
       hostInsert(el, container, anchor);
     } else {
       // 不支持动态更新注释节点
-      n1.el = n2.el;
+      n2.el = n1.el;
     }
   };
 
