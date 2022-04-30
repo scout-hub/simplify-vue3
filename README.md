@@ -16,6 +16,7 @@ pnpm build
    - [x] readonly/shallowReadonly/isReadonly/toReadonly
    - [x] isProxy
    - [x] toRaw
+   - [ ] markRaw
    - [x] Object类型的响应式处理
    - [x] Set、Map类型的响应式处理
    - [x] 数组方法的响应式处理
