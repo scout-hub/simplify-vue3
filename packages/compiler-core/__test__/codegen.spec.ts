@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 14:51:47
+ * @LastEditTime: 2022-04-30 20:00:48
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -17,7 +17,7 @@ import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
     const ast = baseParse(
-      `<div v-if="show"></div><h1 v-else-if="show1"></h1><h2 v-else></h2>`
+      `<div>1</div><div>2</div>`
     );
 
     transform(ast, {

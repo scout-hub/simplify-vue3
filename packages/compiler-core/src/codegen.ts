@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 14:28:02
+ * @LastEditTime: 2022-04-30 20:23:37
  */
 /**
  * 1. text
@@ -39,7 +39,7 @@
  * }
  */
 
-import { isArray, isString } from "@simplify-vue/shared";
+import { isArray, isString, isSymbol } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
 import {
   CREATE_ELEMENT_BLOCK,
@@ -116,6 +116,11 @@ function createCodegenContext(ast, options) {
  * @param node astNode
  */
 function genNode(node, context) {
+  // 包裹多根标签的fragemnt节点
+  if (isSymbol(node)) {
+    context.push(context.helper(node));
+    return;
+  }
   const { type } = node;
   switch (type) {
     case NodeTypes.TEXT:

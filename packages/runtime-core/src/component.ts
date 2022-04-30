@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-29 20:37:29
+ * @LastEditTime: 2022-04-30 19:46:19
  */
 
 import { shallowReadonly, proxyRefs } from "@simplify-vue/reactivity";
@@ -138,6 +138,8 @@ function setupStatefulComponent(instance) {
     unsetCurrentInstance();
 
     handleSetupResult(instance, setupResult);
+  } else {
+    finishComponentSetup(instance);
   }
 }
 

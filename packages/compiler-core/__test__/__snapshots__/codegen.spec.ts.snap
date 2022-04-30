@@ -2,12 +2,8 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { createElementVNode: _createElementVNode, createCommentVNode: _createCommentVNode } = Vue;
+  "code": "const { createElementVNode: _createElementVNode, Fragment: _Fragment } = Vue;
 return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-  return _ctx.show? 
-    _createElementVNode(\\"div\\", null, []): 
-    _ctx.show1? 
-      _createElementVNode(\\"h1\\", null, []): 
-      _createElementVNode(\\"h2\\", null, [])}",
+  return _createElementVNode(_Fragment, null, [_createElementVNode(\\"div\\", null, \\"1\\"), _createElementVNode(\\"div\\", null, \\"2\\")])}",
 }
 `;

@@ -2,60 +2,17 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 13:47:59
+ * @LastEditTime: 2022-04-30 20:16:47
  */
 import { isFunction, isArray } from "@simplify-vue/shared";
-import { NodeTypes } from "./ast";
+import { createVnodeCall, NodeTypes } from "./ast";
 import {
   OPEN_BLOCK,
   TO_DISPLAY_STRING,
   CREATE_ELEMENT_BLOCK,
   helperNameMap,
+  FRAGMENT,
 } from "./runtimeHelpers";
-
-/**
- * @author: Zhouqi
- * @description: 转化ast
- * @param root ast
- * @param options 配置
- * @return
- */
-export function transform(root, options = {}) {
-  const context = createTransformContext(root, options);
-  traverseNode(root, context);
-  createRootCodegen(root, context);
-  root.helpers = [...context.helpers.keys()];
-}
-
-/**
- * @author: Zhouqi
- * @description: 创建codegen所需要的ast
- * @param root ast
- */
-function createRootCodegen(root, context) {
-  const { children } = root;
-
-  // root下只有一个子节点，即单根标签的情况
-  if (children.length === 1) {
-    const child = root.children[0];
-    if (child.type === NodeTypes.ELEMENT && child.codegenNode) {
-      const codegenNode = child.codegenNode;
-      if (codegenNode.type === NodeTypes.VNODE_CALL) {
-        makeBlock(codegenNode, context);
-      }
-      root.codegenNode = codegenNode;
-    } else {
-      root.codegenNode = child;
-    }
-  }
-}
-
-function makeBlock(node, context) {
-  const { helper } = context;
-  node.isBlock = true;
-  helper(OPEN_BLOCK);
-  helper(CREATE_ELEMENT_BLOCK);
-}
 
 /**
  * @author: Zhouqi
@@ -110,6 +67,52 @@ function createTransformContext(
 
   return context;
 }
+
+/**
+ * @author: Zhouqi
+ * @description: 转化ast
+ * @param root ast
+ * @param options 配置
+ * @return
+ */
+export function transform(root, options = {}) {
+  const context = createTransformContext(root, options);
+  traverseNode(root, context);
+  createRootCodegen(root, context);
+  root.helpers = [...context.helpers.keys()];
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 创建codegen所需要的ast
+ * @param root ast
+ */
+function createRootCodegen(root, context) {
+  const { children } = root;
+
+  // root下只有一个子节点，即单根标签的情况
+  if (children.length === 1) {
+    const child = root.children[0];
+    if (child.type === NodeTypes.ELEMENT && child.codegenNode) {
+      const codegenNode = child.codegenNode;
+      if (codegenNode.type === NodeTypes.VNODE_CALL) {
+        makeBlock(codegenNode, context);
+      }
+      root.codegenNode = codegenNode;
+    } else {
+      root.codegenNode = child;
+    }
+  } else if (children.length > 1) {
+    // 多根据标签的情况需要在外层套一个fragment
+    root.codegenNode = createVnodeCall(
+      context,
+      context.helper(FRAGMENT),
+      null,
+      root.children
+    );
+  }
+}
+
 /**
  * @author: Zhouqi
  * @description: 转化ast节点
@@ -209,7 +212,7 @@ export function createStructuralDirectiveTransform(name, fn) {
         if (prop.type === NodeTypes.DIRECTIVE && name.test(prop.name)) {
           /**
            * 从当前element元素的props中删除匹配到的结构化指令数据，避免无限递归
-           * 
+           *
            * 原因：
            * 因为这里接下去会走processIf流程，这个流程会创建if_branch，if_branch中
            * 的children存储着当前节点，当transverseNode处理if_branch的时候会transverseChildren，
@@ -225,4 +228,11 @@ export function createStructuralDirectiveTransform(name, fn) {
       return existFn;
     }
   };
+}
+
+function makeBlock(node, context) {
+  const { helper } = context;
+  node.isBlock = true;
+  helper(OPEN_BLOCK);
+  helper(CREATE_ELEMENT_BLOCK);
 }
