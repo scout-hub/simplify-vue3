@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 13:33:45
+ * @LastEditTime: 2022-04-30 21:00:27
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -79,4 +79,12 @@ export const hasOwn = (target: object, key: string | symbol) => {
 export const toRawType = (value: unknown): string => {
   // {} ===> [object Object] ==> Object
   return toTypeString(value).slice(8, -1);
+};
+
+export const def = (obj: object, key: string | symbol, value: any) => {
+  Object.defineProperty(obj, key, {
+    configurable: true,
+    enumerable: false,
+    value,
+  });
 };

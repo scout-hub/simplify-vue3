@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:46:00
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-12 10:34:56
+ * @LastEditTime: 2022-04-30 20:56:33
  */
 import { effect } from "../src/effect";
-import { reactive } from "../src/reactive";
+import { markRaw, reactive } from "../src/reactive";
 
 describe("reactive", () => {
   test("happy path", () => {
@@ -213,5 +213,11 @@ describe("reactive", () => {
 
     arr[0] = 2;
     expect(i).toBe(2);
+  });
+
+  test("mark raw", () => {
+    const org = { foo: 1 };
+    const obOrg: any = reactive(markRaw(org));
+    expect(obOrg).toBe(org);
   });
 });

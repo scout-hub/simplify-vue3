@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 11:49:18
+ * @LastEditTime: 2022-04-30 20:54:55
  */
-import { isObject, toRawType } from "@simplify-vue/shared";
+import { def, isObject, toRawType } from "@simplify-vue/shared";
 import {
   reactiveHandler,
   readonlyHandler,
@@ -24,6 +24,7 @@ export const enum ReactiveFlags {
   IS_READONLY = "__v_isReadonly",
   IS_SHALLOW = "__v_isShallow",
   RAW = "__v_raw",
+  SKIP = "__v_skip",
 }
 
 export interface Target {
@@ -57,7 +58,11 @@ function targetTypeMap(type: string) {
 
 // 获取当前数据的类型
 function getTargetType(value: Target) {
-  return targetTypeMap(toRawType(value));
+  // 如果对象是被标记为永远不被响应式处理(markRaw)或者对象不能被扩展的，则直接返回INVALID类型
+  // 否则返回对应的类型
+  return value[ReactiveFlags.SKIP] || !Object.isExtensible(value)
+    ? TargetType.INVALID
+    : targetTypeMap(toRawType(value));
 }
 
 // 缓存target->proxy的映射关系
@@ -159,6 +164,10 @@ function createReactiveObject(
   if (existingProxy) return existingProxy;
 
   const targetType = getTargetType(raw);
+  // 如果对象被指定为永远不需要响应式处理或者对象不可扩展，则直接返回原始值
+  if (targetType === TargetType.INVALID) {
+    return raw;
+  }
 
   // 集合类型例如Set、WeakSet、Map、WeakMap需要另外的handler处理
   const proxy = new Proxy(
@@ -167,4 +176,9 @@ function createReactiveObject(
   );
   proxyMap.set(raw, proxy);
   return proxy;
+}
+
+export function markRaw<T extends object>(value: T): T {
+  def(value, ReactiveFlags.SKIP, true);
+  return value;
 }
