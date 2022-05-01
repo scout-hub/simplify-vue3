@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 20:16:47
+ * @LastEditTime: 2022-05-01 20:23:08
  */
-import { isFunction, isArray } from "@simplify-vue/shared";
+import { isArray, isString } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
 import {
   OPEN_BLOCK,
@@ -200,8 +200,9 @@ function traverseChildren(parent, context) {
   }
 }
 
-// 结构化指令转换器（v-if/v-else-if/v-else）
+// 结构化指令转换器（v-if/v-else-if/v-else v-for）
 export function createStructuralDirectiveTransform(name, fn) {
+  const match = isString(name) ? (n) => n === name : (n) => name.test(n);
   return (node, context) => {
     if (node.type === NodeTypes.ELEMENT) {
       const props = node.props;
@@ -209,7 +210,7 @@ export function createStructuralDirectiveTransform(name, fn) {
       for (let i = 0; i < props.length; i++) {
         const prop = props[i];
         // 如果属性名匹配到了对应的结构化指令
-        if (prop.type === NodeTypes.DIRECTIVE && name.test(prop.name)) {
+        if (prop.type === NodeTypes.DIRECTIVE && match(prop.name)) {
           /**
            * 从当前element元素的props中删除匹配到的结构化指令数据，避免无限递归
            *
