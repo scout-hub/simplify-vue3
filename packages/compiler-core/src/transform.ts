@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-01 20:23:08
+ * @LastEditTime: 2022-05-02 19:46:36
  */
 import { isArray, isString } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -165,6 +165,7 @@ export function traverseNode(node, context) {
     case NodeTypes.ELEMENT:
     case NodeTypes.ROOT:
     case NodeTypes.IF_BRANCH:
+    case NodeTypes.FOR:
       traverseChildren(node, context);
       break;
   }

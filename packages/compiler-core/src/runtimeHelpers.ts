@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 22:40:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 20:13:17
+ * @LastEditTime: 2022-05-02 18:58:41
  */
 export const TO_DISPLAY_STRING = Symbol(`toDisplayString`);
 export const OPEN_BLOCK = Symbol(`openBlock`);
@@ -13,6 +13,7 @@ export const NORMALIZE_CLASS = Symbol(`normalizeClass`);
 export const WITH_DIRECTIVES = Symbol(`withDirectives`);
 export const CREATE_COMMENT = Symbol(`createCommentVNode`);
 export const FRAGMENT = Symbol(`Fragment`);
+export const RENDER_LIST = Symbol(`renderList`);
 
 export const helperNameMap: any = {
   [TO_DISPLAY_STRING]: `toDisplayString`,
@@ -24,6 +25,7 @@ export const helperNameMap: any = {
   [WITH_DIRECTIVES]: `withDirectives`,
   [CREATE_COMMENT]: `createCommentVNode`,
   [FRAGMENT]: `Fragment`,
+  [RENDER_LIST]: `renderList`,
 };
 
 // 注册运行时辅助函数

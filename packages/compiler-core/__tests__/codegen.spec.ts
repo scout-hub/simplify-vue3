@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-01 20:20:47
+ * @LastEditTime: 2022-05-02 20:57:34
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -17,7 +17,8 @@ import { transformIf } from "../src/transforms/vIf";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div v-for="item in arr">{{item.flag}}</div>`);
+    // const ast = baseParse(`<div v-for="item in arr">{{item.flag}}</div>`);
+    const ast = baseParse(`<div>{{item.flag}}</div>`);
 
     transform(ast, {
       nodeTransforms: [transformFor, transformExpression, transformElement],

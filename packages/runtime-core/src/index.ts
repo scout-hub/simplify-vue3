@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 20:12:06
+ * @LastEditTime: 2022-05-02 19:37:38
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
@@ -11,7 +11,7 @@ export {
   createVnode as createElementBlock,
   createElementVNode,
   openBlock,
-  Fragment
+  Fragment,
 } from "./vnode";
 export { getCurrentInstance, registerRuntimeCompiler } from "./component";
 export { provide, inject } from "./apiInject";
@@ -33,4 +33,5 @@ export { KeepAlive } from "./component/KeepAlive";
 export { Teleport } from "./component/Teleport";
 export { BaseTransition } from "./component/BaseTransition";
 export { withDirectives } from "./directives";
+export { renderList } from "./helpers/renderList";
 export * from "@simplify-vue/reactivity";

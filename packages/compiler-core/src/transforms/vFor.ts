@@ -2,9 +2,20 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-01 20:42:42
+ * @LastEditTime: 2022-05-02 20:16:50
  */
-import { NodeTypes } from "../ast";
+import {
+  createCallExpression,
+  createFunctionExpression,
+  createVnodeCall,
+  NodeTypes,
+} from "../ast";
+import {
+  FRAGMENT,
+  OPEN_BLOCK,
+  RENDER_LIST,
+  CREATE_ELEMENT_BLOCK,
+} from "../runtimeHelpers";
 import { createStructuralDirectiveTransform } from "../transform";
 import { createSimpleExpression } from "./transformElement";
 
@@ -20,7 +31,7 @@ export function processFor(node, dir, context, fn) {
     valueAlias: value,
     keyAlias: key,
     parseResult,
-    children: node.children,
+    children: [node],
   };
   // 将当前节点替换
   context.replaceNode(forNode);
@@ -33,11 +44,32 @@ export function processFor(node, dir, context, fn) {
 export const transformFor = createStructuralDirectiveTransform(
   "for",
   (node, dir, context) => {
+    const { helper } = context;
     return processFor(node, dir, context, (forNode) => {
-      console.log(forNode);
+      const renderExp = createCallExpression(helper(RENDER_LIST), [
+        forNode.source,
+      ]);
+      forNode.codegenNode = createVnodeCall(
+        context,
+        helper(FRAGMENT),
+        undefined,
+        renderExp
+      );
+      return () => {
+        const { children } = forNode;
+        helper(OPEN_BLOCK);
+        helper(CREATE_ELEMENT_BLOCK);
+        renderExp.arguments.push(
+          createFunctionExpression(
+            createForLoopParams(forNode.parseResult),
+            children[0]
+          )
+        );
+      };
     });
   }
 );
+
 /**
  * @author: Zhouqi
  * @description: 解析v-for表达式
@@ -65,4 +97,13 @@ function parseForExpression(exp) {
 
 function createAliasExpression(content) {
   return createSimpleExpression(content, false);
+}
+
+export function createForLoopParams({ value, key }) {
+  return createParamsList([value, key]);
+}
+
+function createParamsList(args) {
+  // TODO 这里暂时只处理只有item的情况（item in arr）
+  return [args[0]];
 }

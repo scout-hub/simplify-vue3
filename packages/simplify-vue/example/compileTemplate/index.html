@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 19:14:46
+ * @LastEditTime: 2022-05-02 20:38:48
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -20,13 +20,14 @@
     <script>
         const {
             createApp,
-            ref
+            ref,
+            reactive
         } = Vue;
 
         const App = {
             template: `
             <div :class="className" id="div">
-                {{ msg }}
+                {{ msg.title }}
                 <h1 class="h1">
                 {{ msg1 }}
                 </h1>
@@ -34,11 +35,14 @@
             </div>`,
             name: "App",
             setup() {
-                const msg = ref('hello');
+                const msg = reactive({
+                    title: 'hello'
+                });
                 const msg1 = ref('simplify-vue');
                 const className = ref('red');
 
                 const changeClass = () => {
+                    msg.title = "Hello";
                     className.value = 'green';
                 }
 

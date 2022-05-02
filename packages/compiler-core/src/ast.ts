@@ -2,32 +2,32 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 20:16:18
+ * @LastEditTime: 2022-05-02 19:19:31
  */
 import { CREATE_ELEMENT_VNODE, WITH_DIRECTIVES } from "./runtimeHelpers";
 
-
 export const enum NodeTypes {
-    ELEMENT,
-    SIMPLE_EXPRESSION,
-    INTERPOLATION,
-    TEXT,
-    ROOT,
-    // containers
-    COMPOUND_EXPRESSION,
-    ATTRIBUTE,
-    DIRECTIVE,
-    COMMENT,
-    VNODE_CALL,
-    TEXT_CALL,
-    JS_CALL_EXPRESSION,
-    JS_PROPERTY,
-    JS_OBJECT_EXPRESSION,
-    JS_ARRAY_EXPRESSION,
-    IF_BRANCH,
-    IF,
-    JS_CONDITIONAL_EXPRESSION,
-    FOR
+  ELEMENT,
+  SIMPLE_EXPRESSION,
+  INTERPOLATION,
+  TEXT,
+  ROOT,
+  // containers
+  COMPOUND_EXPRESSION,
+  ATTRIBUTE,
+  DIRECTIVE,
+  COMMENT,
+  VNODE_CALL,
+  TEXT_CALL,
+  JS_CALL_EXPRESSION,
+  JS_PROPERTY,
+  JS_OBJECT_EXPRESSION,
+  JS_ARRAY_EXPRESSION,
+  IF_BRANCH,
+  IF,
+  JS_CONDITIONAL_EXPRESSION,
+  FOR,
+  JS_FUNCTION_EXPRESSION,
 }
 
 export const enum ElementTypes {
@@ -66,11 +66,21 @@ export function createArrayExpression(elements) {
   };
 }
 
+// 结构行表达式 v-if/v-else-if/v-else
 export function createConditionalExpression(test, consequent, alternate) {
   return {
     type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
     test,
     consequent,
     alternate,
+  };
+}
+
+// v-for
+export function createFunctionExpression(params, returns = undefined) {
+  return {
+    type: NodeTypes.JS_FUNCTION_EXPRESSION,
+    params,
+    returns,
   };
 }

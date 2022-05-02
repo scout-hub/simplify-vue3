@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 20:23:37
+ * @LastEditTime: 2022-05-02 19:32:10
  */
 /**
  * 1. text
@@ -138,7 +138,8 @@ function genNode(node, context) {
     case NodeTypes.ELEMENT:
     case NodeTypes.TEXT_CALL:
     case NodeTypes.IF:
-      // 元素/文本/v-if
+    case NodeTypes.FOR:
+      // 元素/文本/v-if/v-for
       genNode(node.codegenNode, context);
       break;
     case NodeTypes.COMPOUND_EXPRESSION:
@@ -163,7 +164,26 @@ function genNode(node, context) {
       // v-if
       genConditionalExpression(node, context);
       break;
+    case NodeTypes.JS_FUNCTION_EXPRESSION:
+      // v-for
+      genFunctionExpression(node, context);
+      break;
   }
+}
+
+function genFunctionExpression(node, context) {
+  const { push, indent } = context;
+  const { params, returns } = node;
+  push(`(`, node);
+  genNodeList(params, context);
+  push(`) => `);
+  push(`{`);
+  indent();
+  if (returns) {
+    push(`return `);
+    genNode(returns, context);
+  }
+  push(`}`);
 }
 
 function genConditionalExpression(node, context) {

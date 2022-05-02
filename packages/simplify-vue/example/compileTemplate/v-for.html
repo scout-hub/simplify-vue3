@@ -1,0 +1,44 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-03-26 21:15:56
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-04-30 19:12:30
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            createApp,
+            ref
+        } = Vue;
+
+        const App = {
+            name: "App",
+            template: `
+            <div>
+                <h1 v-for="item in [1,2,3]">{{item}}</h1>    
+            </div>`,
+            setup() {
+                return {
+
+                }
+            }
+        };
+
+
+        createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>
