@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-02 19:19:31
+ * @LastEditTime: 2022-05-02 22:08:23
  */
 import { CREATE_ELEMENT_VNODE, WITH_DIRECTIVES } from "./runtimeHelpers";
 
@@ -82,5 +82,13 @@ export function createFunctionExpression(params, returns = undefined) {
     type: NodeTypes.JS_FUNCTION_EXPRESSION,
     params,
     returns,
+  };
+}
+
+// 复合类型表达式aaa.xxx
+export function createCompoundExpression(children) {
+  return {
+    type: NodeTypes.COMPOUND_EXPRESSION,
+    children,
   };
 }

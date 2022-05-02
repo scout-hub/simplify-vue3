@@ -2,8 +2,9 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { toDisplayString: _toDisplayString, createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { renderList: _renderList, Fragment: _Fragment, createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
 return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-  return (_openBlock(), _createElementBlock(\\"div\\", null, _toDisplayString(item.flag)))}",
+  return _createElementVNode(_Fragment, null, _renderList(arr, (item) => {
+    return _createElementVNode(\\"div\\", null, _toDisplayString(_ctx.item.flag))}))}",
 }
 `;

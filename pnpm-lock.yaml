@@ -5,7 +5,6 @@ importers:
   .:
     specifiers:
       '@babel/core': ^7.17.9
-      '@babel/parser': ^7.17.10
       '@babel/preset-env': ^7.16.11
       '@babel/preset-typescript': ^7.16.7
       '@rollup/plugin-typescript': ^8.3.2
@@ -21,7 +20,6 @@ importers:
       typescript: ^4.6.3
     devDependencies:
       '@babel/core': 7.17.9
-      '@babel/parser': 7.17.10
       '@babel/preset-env': 7.16.11_@babel+core@7.17.9
       '@babel/preset-typescript': 7.16.7_@babel+core@7.17.9
       '@rollup/plugin-typescript': 8.3.2_056aba5e56e0ab5307259a29131f3fbe
@@ -38,9 +36,13 @@ importers:
 
   packages/compiler-core:
     specifiers:
+      '@babel/parser': ^7.17.10
       '@simplify-vue/shared': workspace:^1.0.0
+      estree-walker: ^2.0.2
     dependencies:
+      '@babel/parser': 7.17.10
       '@simplify-vue/shared': link:../shared
+      estree-walker: 2.0.2
 
   packages/compiler-dom:
     specifiers:
@@ -373,7 +375,6 @@ packages:
     resolution: {integrity: sha512-n2Q6i+fnJqzOaq2VkdXxy2TCPCWQZHiCo0XqmrCvDWcZQKRyZzYi4Z0yxlBuN0w+r2ZHmre+Q087DSrw3pbJDQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-    dev: true
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.16.7_@babel+core@7.17.9:
     resolution: {integrity: sha512-anv/DObl7waiGEnC24O9zqL0pSuI9hljihqiDuFHC8d7/bjr/4RLGPWuc8rYOff/QPzbEPSkzG8wGG9aDuhHRg==}
@@ -2288,6 +2289,10 @@ packages:
   /estree-walker/1.0.1:
     resolution: {integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==}
     dev: true
+
+  /estree-walker/2.0.2:
+    resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
+    dev: false
 
   /esutils/2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
