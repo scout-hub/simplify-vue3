@@ -2,9 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 11:31:15
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-21 22:35:17
+ * @LastEditTime: 2022-05-03 10:45:28
  */
-import { createCallExpression, NodeTypes } from "../ast";
+import {
+  createCallExpression,
+  createCompoundExpression,
+  NodeTypes,
+} from "../ast";
 import { CREATE_TEXT } from "../runtimeHelpers";
 import { isText } from "../utils";
 
@@ -25,10 +29,7 @@ export function transformText(node, context) {
             if (isText(nextChild)) {
               // 表明是复合节点，需要重新去修改当前节点数据
               if (!container) {
-                container = children[i] = {
-                  type: NodeTypes.COMPOUND_EXPRESSION,
-                  children: [child],
-                };
+                container = children[i] = createCompoundExpression([child]);
               }
               // 前后需要进行拼接处理
               container.children.push(` + `);

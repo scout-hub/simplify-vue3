@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-02 20:16:50
+ * @LastEditTime: 2022-05-03 14:05:59
  */
 import {
   createCallExpression,
@@ -18,12 +18,14 @@ import {
 } from "../runtimeHelpers";
 import { createStructuralDirectiveTransform } from "../transform";
 import { createSimpleExpression } from "./transformElement";
+import { processExpression } from "./transformExpression";
 
 const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
 
 export function processFor(node, dir, context, fn) {
+  const { addIdentifiers } = context;
   // 获取v-for ast的转化结果
-  const parseResult = parseForExpression(dir.exp);
+  const parseResult = parseForExpression(dir.exp, context);
   const { source, key, value } = parseResult;
   const forNode = {
     type: NodeTypes.FOR,
@@ -35,6 +37,10 @@ export function processFor(node, dir, context, fn) {
   };
   // 将当前节点替换
   context.replaceNode(forNode);
+
+  //  添加作用域标识符变量，比如：item in arr中的item变量可能会在模板中的插值表达式中使用，那么插值表达式中的item就应该取v-for中的item而不是ctx
+  value && addIdentifiers(value);
+
   const onExist = fn(forNode);
   return () => {
     onExist && onExist();
@@ -76,7 +82,7 @@ export const transformFor = createStructuralDirectiveTransform(
  * @param exp
  * @param context
  */
-function parseForExpression(exp) {
+function parseForExpression(exp, context) {
   const content = exp.content;
   const forMatch = content.match(forAliasRE);
   if (!forMatch) return;
@@ -88,9 +94,12 @@ function parseForExpression(exp) {
     key: undefined,
     value: undefined,
   };
+  forResult.source = processExpression(forResult.source, context);
+
   // TODO 这里只是处理了key为这种情况，还有（item, index）等其他情况
   if (LHS) {
     forResult.value = createAliasExpression(LHS);
+    // forResult.value = processExpression(forResult.value);
   }
   return forResult;
 }

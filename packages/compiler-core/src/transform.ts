@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-02 19:46:36
+ * @LastEditTime: 2022-05-03 14:05:15
  */
 import { isArray, isString } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -26,6 +26,7 @@ function createTransformContext(
   { nodeTransforms = [], directiveTransforms = {} }
 ) {
   const context = {
+    identifiers: {},
     directiveTransforms,
     // 当前正在转换的节点
     currentNode: root,
@@ -63,6 +64,9 @@ function createTransformContext(
       children.splice(nodeIndex, 1);
     },
     onNodeRemoved: () => {},
+    addIdentifiers(value) {
+      context.identifiers[value.content] = 1;
+    },
   };
 
   return context;
