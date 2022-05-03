@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:05:37
+ * @LastEditTime: 2022-05-03 15:04:30
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -17,10 +17,23 @@ import { transformIf } from "../src/transforms/vIf";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`<div v-for="item in arr">{{name}}</div>`);
+    const ast = baseParse(`
+    <div>
+        <h1 v-for="item in arr">
+            <span>姓名：{{item.name}}</span>    
+            <span>年龄：{{item.age}}</span>    
+            <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
+        </h1>    
+    </div>`);
 
     transform(ast, {
-      nodeTransforms: [transformFor, transformExpression, transformElement],
+      nodeTransforms: [
+        transformIf,
+        transformFor,
+        transformExpression,
+        transformElement,
+        transformText,
+      ],
       // nodeTransforms: [transformExpression, transformElement, transformText],
       // directiveTransforms: {
       //   bind: transformBind,
@@ -28,7 +41,7 @@ describe("Compiler: transform", () => {
       //   show: transformShow,
       // },
     });
-    
+
     const code = generate(ast);
     expect(code).toMatchSnapshot();
   });

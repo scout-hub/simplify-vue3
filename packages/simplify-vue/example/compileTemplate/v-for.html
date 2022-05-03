@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:32:53
+ * @LastEditTime: 2022-05-03 15:02:08
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -30,6 +30,7 @@
                 <h1 v-for="item in arr">
                     <span>姓名：{{item.name}}</span>    
                     <span>年龄：{{item.age}}</span>    
+                    <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
                 </h1>    
                 <div v-for="item in [1,2,3]">{{item}}</div>    
             </div>`,
@@ -37,10 +38,12 @@
                 const arr = reactive([{
                     name: 'zs',
                     age: 14,
+                    hobby: ['足球'],
                     show: true
                 }, {
                     name: 'ls',
-                    age: 15
+                    age: 15,
+                    hobby: ['篮球']
                 }]);
 
                 const item = 'item';

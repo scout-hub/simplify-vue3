@@ -2,9 +2,12 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { renderList: _renderList, Fragment: _Fragment, createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { renderList: _renderList, Fragment: _Fragment, createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode } = Vue;
 return function render(_ctx, _cache, $props, $setup, $data, $options) { 
-  return _createElementVNode(_Fragment, null, _renderList(_ctx.arr, (item) => {
-    return _createElementVNode(\\"div\\", null, _toDisplayString(_ctx.name))}))}",
+  return (_openBlock(), _createElementBlock(\\"div\\", null, [_createElementVNode(_Fragment, null, _renderList(_ctx.arr, (item) => {
+    return _createElementVNode(\\"h1\\", null, [_createElementVNode(\\"span\\", null, \\"姓名：\\" + _toDisplayString(item.name)), _createTextVNode(\\"    \\\\n            \\"), _createElementVNode(\\"span\\", null, \\"年龄：\\" + _toDisplayString(item.age)), _createTextVNode(\\"    \\\\n            \\"), (item.show)? 
+      _createElementVNode(_Fragment, null, _renderList(item.hobby, (items) => {
+        return _createElementVNode(\\"span\\", null, \\"爱好：\\" + _toDisplayString(items))})): 
+        _createCommentVNode(\\"v-if\\", true)])}))]))}",
 }
 `;

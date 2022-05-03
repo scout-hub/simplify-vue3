@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-02 22:15:03
+ * @LastEditTime: 2022-05-03 15:02:50
  */
 /**
  * 1. text
@@ -53,7 +53,6 @@ import {
 export function generate(ast, options = {}) {
   const context = createCodegenContext(ast, options);
 
-  // 生成前导：例如 const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue
   genFunctionPreamble(ast, context);
 
   const { push, indent } = context;
@@ -143,7 +142,7 @@ function genNode(node, context) {
       genNode(node.codegenNode, context);
       break;
     case NodeTypes.COMPOUND_EXPRESSION:
-      // 复合类型 text+{{}}
+      // 复合类型 text+{{}}，{{aaa.bbb}}
       genCompoundExpression(node, context);
       break;
     case NodeTypes.VNODE_CALL:
@@ -188,9 +187,15 @@ function genFunctionExpression(node, context) {
 
 function genConditionalExpression(node, context) {
   const { test, consequent, alternate } = node;
-  const { push, newline, indent } = context;
+  const { push, indent } = context;
+  // 处理简单表达式，例如 xxx
   if (test.type === NodeTypes.SIMPLE_EXPRESSION) {
     genExpression(test, context);
+  } else {
+    // 处理复杂表达式，例如 aaa.bbb
+    push(`(`);
+    genNode(test, context);
+    push(`)`);
   }
   push(`? `);
   indent();
