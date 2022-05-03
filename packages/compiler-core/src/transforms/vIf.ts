@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 14:49:58
+ * @LastEditTime: 2022-05-03 14:31:16
  */
 import {
   createCallExpression,
@@ -39,7 +39,7 @@ export const transformIf = createStructuralDirectiveTransform(
 function processIf(node, dir, context, fn?) {
   const { name, exp } = dir;
   if (exp) {
-    dir.exp = processExpression(exp);
+    dir.exp = processExpression(exp, context);
   }
 
   if (name === "if") {
