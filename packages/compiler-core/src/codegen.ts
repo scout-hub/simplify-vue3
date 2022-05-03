@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 15:02:50
+ * @LastEditTime: 2022-05-03 19:08:15
  */
 /**
  * 1. text
@@ -115,7 +115,6 @@ function createCodegenContext(ast, options) {
  * @param node astNode
  */
 function genNode(node, context) {
-  // 包裹多根标签的fragemnt节点
   if (isSymbol(node)) {
     context.push(context.helper(node));
     return;
@@ -123,26 +122,21 @@ function genNode(node, context) {
   const { type } = node;
   switch (type) {
     case NodeTypes.TEXT:
-      // 文本
       genText(node, context);
       break;
     case NodeTypes.INTERPOLATION:
-      // 插值
       genInterpolation(node, context);
       break;
     case NodeTypes.SIMPLE_EXPRESSION:
-      // 值，例如属性名、属性值
       genExpression(node, context);
       break;
     case NodeTypes.ELEMENT:
     case NodeTypes.TEXT_CALL:
     case NodeTypes.IF:
     case NodeTypes.FOR:
-      // 元素/文本/v-if/v-for
       genNode(node.codegenNode, context);
       break;
     case NodeTypes.COMPOUND_EXPRESSION:
-      // 复合类型 text+{{}}，{{aaa.bbb}}
       genCompoundExpression(node, context);
       break;
     case NodeTypes.VNODE_CALL:
@@ -152,19 +146,15 @@ function genNode(node, context) {
       genCallExpression(node, context);
       break;
     case NodeTypes.JS_OBJECT_EXPRESSION:
-      // 属性
       genObjectExpression(node, context);
       break;
     case NodeTypes.JS_ARRAY_EXPRESSION:
-      // 指令
       genArrayExpression(node, context);
       break;
     case NodeTypes.JS_CONDITIONAL_EXPRESSION:
-      // v-if
       genConditionalExpression(node, context);
       break;
     case NodeTypes.JS_FUNCTION_EXPRESSION:
-      // v-for
       genFunctionExpression(node, context);
       break;
   }
@@ -182,6 +172,7 @@ function genFunctionExpression(node, context) {
     push(`return `);
     genNode(returns, context);
   }
+  indent();
   push(`}`);
 }
 
@@ -211,7 +202,7 @@ function genArrayExpression(node, context) {
 }
 
 function genObjectExpression(node, context) {
-  const { push } = context;
+  const { push, newline } = context;
   const { properties } = node;
   push(`{ `);
   for (let i = 0; i < properties.length; i++) {
@@ -224,6 +215,7 @@ function genObjectExpression(node, context) {
     // {xx:xxx, saa:saa}
     if (i < properties.length - 1) {
       push(`,`);
+      newline();
     }
   }
   push(`} `);
@@ -251,12 +243,10 @@ function genCallExpression(node, context) {
   const { push, helper } = context;
   const callee = isString(node.callee) ? node.callee : helper(node.callee);
   push(callee + `(`);
-  // 处理节点
   genNodeList(node.arguments, context);
   push(`)`);
 }
 
-// 处理虚拟节点
 function genVNodeCall(node, context) {
   const { push, helper } = context;
   const { isBlock, tag, props, children, directives } = node;
@@ -332,7 +322,7 @@ function genNodeListAsArray(nodes, context) {
  * @param context
  */
 function genNodeList(nodes, context) {
-  const { push } = context;
+  const { push, newline } = context;
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {
@@ -345,6 +335,7 @@ function genNodeList(nodes, context) {
     }
     if (i < nodes.length - 1) {
       push(`, `);
+      newline();
     }
   }
 }
