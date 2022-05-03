@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 15:49:02
+ * @LastEditTime: 2022-05-03 21:43:51
  */
 
 import {
+  EMPTY_ARR,
   extend,
   isArray,
   isFunction,
@@ -35,7 +36,12 @@ export function isSameVNodeType(n1, n2) {
 }
 
 // 创建虚拟节点函数
-export function createVnode(type, props: any = null, children: unknown = null) {
+export function createVnode(
+  type,
+  props: any = null,
+  children: unknown = null,
+  patchFlag: number = 0
+) {
   if (props) {
     /**
      * 规范化class的值
@@ -65,7 +71,7 @@ export function createVnode(type, props: any = null, children: unknown = null) {
     shapeFlag = ShapeFlags.FUNCTIONAL_COMPONENT;
   }
 
-  return createBaseVNode(type, props, children, shapeFlag, true);
+  return createBaseVNode(type, props, children, shapeFlag, true, patchFlag);
 }
 
 // 创建基础vnode
@@ -73,9 +79,12 @@ function createBaseVNode(
   type,
   props,
   children,
-  shapeFlag = ShapeFlags.ELEMENT,
-  needFullChildrenNormalization = false
+  shapeFlag = type === Fragment ? 0 : ShapeFlags.ELEMENT,
+  needFullChildrenNormalization = false,
+  patchFlag = 0,
+  isBlockNode = false
 ) {
+  // shapeFlag == null && (shapeFlag = ShapeFlags.ELEMENT);
   const vnode = {
     type,
     props,
@@ -84,6 +93,7 @@ function createBaseVNode(
     shapeFlag,
     component: null,
     key: props && props.key,
+    patchFlag,
   };
 
   if (needFullChildrenNormalization) {
@@ -95,6 +105,13 @@ function createBaseVNode(
       ? ShapeFlags.TEXT_CHILDREN
       : ShapeFlags.ARRAY_CHILDREN;
   }
+
+  // isBlockNode为false，即自身不是一个block节点的时候（避免自身触发自身）
+  // currentBlock存在并且patchFlag大于0说明是动态节点需要收集
+  if (!isBlockNode && currentBlock && vnode.patchFlag > 0) {
+    currentBlock.push(vnode);
+  }
+
   return vnode;
 }
 
@@ -201,6 +218,52 @@ export function mergeProps(...args) {
   return result;
 }
 
-export function openBlock(disableTracking = false) {}
+export function createElementBlock(
+  type,
+  props?,
+  children?,
+  patchFlag?,
+  shapeFlag?
+) {
+  return setupBlock(
+    createBaseVNode(type, props, children, shapeFlag, false, patchFlag, true)
+  );
+}
+
+/*
+ * 对于一些动态节点可以在编译阶段就收集到相关动态节点的信息，比如{{text}}可以认为是一个
+ * 动态文本节点。在编译阶段这个节点会附带patchFlag为TEXT的标记。在虚拟创建的时候，
+ * 对于这类动态节点需要添加到根节点的dynamicChildren中，这样在更新阶段就不需要再去遍历children，
+ * 因为children中可能存在静态节点，这些节点在patch的时候也会进行一系列的比较，这些比较是无意义的。
+ * 我们只需要遍历那些动态节点，然后通过补丁标记进行靶向更新即可。
+ */
+
+export const blockStack: any[] = [];
+export let currentBlock: any = null;
+
+/**
+ * 编译生成的渲染函数中，创建虚拟节点的函数是从子到父创建的，当执行到setupBlock的时候，子孙的虚拟节点函数
+ * 都已经执行完毕，对应的动态节点也收集完成了，此时只要将当前的block存储到根节点的dynamicChildren上，然后
+ * 关闭当前block的收集即可。
+ */
+function setupBlock(vnode) {
+  vnode.dynamicChildren = currentBlock || EMPTY_ARR;
+  closeBlock();
+  return vnode;
+}
+
+export function closeBlock() {
+  blockStack.pop();
+  currentBlock = blockStack[blockStack.length - 1] || null;
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 开启动态子/孙节点收集
+ * @param disableTracking 是否允许收集
+ */
+export function openBlock(disableTracking = false) {
+  blockStack.push((currentBlock = disableTracking ? null : []));
+}
 
 export { createBaseVNode as createElementVNode };

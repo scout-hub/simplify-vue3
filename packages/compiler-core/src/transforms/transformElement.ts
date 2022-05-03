@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:37:17
+ * @LastEditTime: 2022-05-03 21:25:40
  */
-import { isSymbol } from "@simplify-vue/shared";
+import { isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
   createArrayExpression,
   createCallExpression,
@@ -26,6 +26,8 @@ export function transformElement(node, context) {
     let vnodeProps;
     let vnodeChildren;
     let vnodeDirectives;
+    let patchFlag = 0;
+    let vnodePatchFlag;
 
     // 处理props
     if (props.length) {
@@ -50,6 +52,12 @@ export function transformElement(node, context) {
       const hasDynamicTextChild =
         type === NodeTypes.INTERPOLATION ||
         type === NodeTypes.COMPOUND_EXPRESSION;
+
+      // 如果是动态文本节点，则标记patchFlag为TEXT
+      if (hasDynamicTextChild) {
+        patchFlag = PatchFlags.TEXT;
+      }
+
       if (hasDynamicTextChild || child.type === NodeTypes.TEXT) {
         // 如果只有一个子节点且是文本节点或者插值节点，则vnodeChildren为当前文本节点对象
         vnodeChildren = child;
@@ -62,11 +70,16 @@ export function transformElement(node, context) {
       vnodeChildren = children;
     }
 
+    if (patchFlag !== 0) {
+      vnodePatchFlag = String(patchFlag);
+    }
+
     node.codegenNode = createVnodeCall(
       context,
       vnodeTag,
       vnodeProps,
       vnodeChildren,
+      vnodePatchFlag,
       vnodeDirectives
     );
   };

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 19:08:15
+ * @LastEditTime: 2022-05-03 21:30:03
  */
 /**
  * 1. text
@@ -249,7 +249,8 @@ function genCallExpression(node, context) {
 
 function genVNodeCall(node, context) {
   const { push, helper } = context;
-  const { isBlock, tag, props, children, directives } = node;
+  // TODO patchFlag不存在暂时标记为-2
+  const { isBlock, tag, props, children, directives, patchFlag = -2 } = node;
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
   }
@@ -258,7 +259,7 @@ function genVNodeCall(node, context) {
   }
   const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
   push(helper(callHelper) + `(`);
-  genNodeList(genNullableArgs([tag, props, children]), context);
+  genNodeList(genNullableArgs([tag, props, children, patchFlag]), context);
   push(`)`);
   if (isBlock) {
     push(`)`);

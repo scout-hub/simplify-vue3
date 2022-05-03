@@ -2,9 +2,14 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 10:46:32
+ * @LastEditTime: 2022-05-03 21:26:25
  */
-import { CREATE_ELEMENT_VNODE, WITH_DIRECTIVES } from "./runtimeHelpers";
+import {
+  CREATE_ELEMENT_VNODE,
+  WITH_DIRECTIVES,
+  CREATE_ELEMENT_BLOCK,
+  OPEN_BLOCK,
+} from "./runtimeHelpers";
 
 export const enum NodeTypes {
   ELEMENT,
@@ -35,16 +40,33 @@ export const enum ElementTypes {
 }
 
 // 普通元素
-export function createVnodeCall(context, tag, props, children, directives?) {
-  context.helper(CREATE_ELEMENT_VNODE);
-  if (directives) {
-    context.helper(WITH_DIRECTIVES);
+export function createVnodeCall(
+  context,
+  tag,
+  props?,
+  children?,
+  patchFlag?,
+  directives?,
+  isBlock = false
+) {
+  if (context) {
+    if (isBlock) {
+      context.helper(OPEN_BLOCK);
+      context.helper(CREATE_ELEMENT_BLOCK);
+    } else {
+      context.helper(CREATE_ELEMENT_VNODE);
+    }
+    if (directives) {
+      context.helper(WITH_DIRECTIVES);
+    }
   }
+
   return {
     type: NodeTypes.VNODE_CALL,
     tag,
     props,
     children,
+    patchFlag,
     directives,
   };
 }

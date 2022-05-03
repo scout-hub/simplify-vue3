@@ -2,11 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 21:26:36
+ * @LastEditTime: 2022-05-03 19:42:12
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
 export * from "./toDisplayString";
+export * from "./patchFlags";
 
 // 重新定义方法名，使其更具语义化命名
 export const extend = Object.assign;
