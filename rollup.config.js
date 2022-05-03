@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 14:27:34
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 15:56:59
+ * @LastEditTime: 2022-05-03 15:24:29
  */
 const {
     terser
@@ -26,9 +26,10 @@ const createConfig = (target) => {
             format: "es",
             file: ouputFile
         },
+        external: ['@babel/parser', 'estree-walker'],
         plugins: [
             typescript({
-                exclude: /__test__/
+                exclude: /__tests__/
             }),
             terser()
         ],
