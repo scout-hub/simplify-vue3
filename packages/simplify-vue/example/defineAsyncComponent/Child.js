@@ -2,12 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:37:53
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-16 10:39:04
+ * @LastEditTime: 2022-05-04 13:02:22
  */
-import {
+const {
     h,
     renderSlot
-} from '../../dist/simplify-vue.esm.js'
+} = Vue;
 
 export default {
     name: "Child",
@@ -17,6 +17,7 @@ export default {
     setup(props, {
         slots
     }) {
+        console.log(1);
         return () => h('div', null, [h('div', null, props.text), renderSlot(slots, 'body')]);
     },
 

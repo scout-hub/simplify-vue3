@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 19:12:14
+ * @LastEditTime: 2022-05-04 13:45:59
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -356,8 +356,20 @@ function baseCreateRenderer(options) {
   const patchElement = (n1, n2, parentComponent) => {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
+    const { dynamicChildren } = n2;
 
-    patchChildren(n1, n2, el, null, parentComponent);
+    // 只diff动态节点，跳过静态节点的diff
+    if (dynamicChildren) {
+      patchBlockChildren(
+        n1.dynamicChildren!,
+        dynamicChildren,
+        el,
+        parentComponent
+      );
+    } else {
+      // 全量diff
+      patchChildren(n1, n2, el, null, parentComponent);
+    }
 
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
@@ -371,6 +383,20 @@ function baseCreateRenderer(options) {
     if (n2.dirs) {
       // 触发指令钩子函数beforeMount
       invokeDirectiveHook(n2, n1, "updated");
+    }
+  };
+
+  const patchBlockChildren = (
+    oldChildren,
+    newChildren,
+    fallbackContainer,
+    parentComponent
+  ) => {
+    for (let i = 0; i < newChildren.length; i++) {
+      const newVNode = newChildren[i];
+      const oldVNode = oldChildren[i];
+      const container = oldVNode.el ? oldVNode.el : fallbackContainer;
+      patch(oldVNode, newVNode, container, null, parentComponent);
     }
   };
 

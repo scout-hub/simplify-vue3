@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 23:38:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:55:22
+ * @LastEditTime: 2022-05-04 12:49:30
  */
 import { createCompoundExpression, NodeTypes } from "../ast";
 import { parse } from "@babel/parser";
@@ -35,7 +35,7 @@ export function processExpression(node, context) {
   /**
    * 对于普通的插值表达式，例如：{{item}}，需要根据上下文判断item是否是当前作用域的中的变量，
    * 如果是则返回item即可，否则为_ctx.item
-   * 
+   *
    * 对于{{item.flag}}这种多重取值或者复杂表达式会进行分词，即将item.flag
    * 分为item . flag然后逐一进行操作，这里通过@babel/parser去进行代码字符串的解析
    * 然后通过es-walker进行ast的遍历处理
@@ -52,6 +52,7 @@ export function processExpression(node, context) {
   }
   const ast = parse(`(${content})`);
   const ids: any = [];
+
   walkIdentifiers(ast, (node, isReferenced) => {
     if (isReferenced) {
       node.name = rewriteIdentifier(node.name);
@@ -60,7 +61,7 @@ export function processExpression(node, context) {
   });
   const children: any = [];
   ids.forEach((id, i) => {
-    const { start, name } = id;
+    const { start, name, end } = id;
     const last = ids[i - 1];
     // 截取单词之前的符号，截取方式是：在遍历到下一个单词时，对前一个单词尾部的下一位开始到当前单词的第一位
     const leadingText = content.slice(last ? last.end - 1 : 0, start - 1);
@@ -69,6 +70,10 @@ export function processExpression(node, context) {
       children.push(leadingText);
     }
     children.push(createSimpleExpression(name, false));
+    // 如果标识符后面还有其他字符，则全部截取，例如：_ctx.show === 2中遍历到show之后的 === 2需要全部截取
+    if (i === ids.length - 1 && end < content.length) {
+      children.push(content.slice(end));
+    }
   });
   if (children.length) {
     return createCompoundExpression(children);

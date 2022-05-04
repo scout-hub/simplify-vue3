@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 19:12:30
+ * @LastEditTime: 2022-05-04 13:37:22
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -26,12 +26,23 @@
         const App = {
             name: "App",
             template: `
-            <div>{{text}}</div>
+            <div>
+               <span>{{text}}</span>
+               <p>我是静态文本节点</p>
+               <button @click="changeText">更新</button>
+            </div>
             `,
             setup() {
-                const text = ref('123');
+                const text = ref('我是动态文本节点');
+                const show = ref(true);
+                const changeText = () => {
+                    text.value = "patchFlag 1 TEXT";
+                    show.value = false;
+                }
 
                 return {
+                    show,
+                    changeText,
                     text
                 }
             }

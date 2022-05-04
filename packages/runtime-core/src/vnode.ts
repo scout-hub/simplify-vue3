@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 21:43:51
+ * @LastEditTime: 2022-05-04 13:03:34
  */
 
 import {
@@ -40,7 +40,9 @@ export function createVnode(
   type,
   props: any = null,
   children: unknown = null,
-  patchFlag: number = 0
+  patchFlag: number = 0,
+  dynamicProps = null,
+  isBlockNode = false
 ) {
   if (props) {
     /**
@@ -71,7 +73,16 @@ export function createVnode(
     shapeFlag = ShapeFlags.FUNCTIONAL_COMPONENT;
   }
 
-  return createBaseVNode(type, props, children, shapeFlag, true, patchFlag);
+  return createBaseVNode(
+    type,
+    props,
+    children,
+    patchFlag,
+    dynamicProps,
+    shapeFlag,
+    isBlockNode,
+    true
+  );
 }
 
 // 创建基础vnode
@@ -79,10 +90,11 @@ function createBaseVNode(
   type,
   props,
   children,
-  shapeFlag = type === Fragment ? 0 : ShapeFlags.ELEMENT,
-  needFullChildrenNormalization = false,
   patchFlag = 0,
-  isBlockNode = false
+  dynamicProps = null,
+  shapeFlag = type === Fragment ? 0 : ShapeFlags.ELEMENT,
+  isBlockNode = false,
+  needFullChildrenNormalization = false
 ) {
   // shapeFlag == null && (shapeFlag = ShapeFlags.ELEMENT);
   const vnode = {
@@ -108,7 +120,7 @@ function createBaseVNode(
 
   // isBlockNode为false，即自身不是一个block节点的时候（避免自身触发自身）
   // currentBlock存在并且patchFlag大于0说明是动态节点需要收集
-  if (!isBlockNode && currentBlock && vnode.patchFlag > 0) {
+  if (!isBlockNode && currentBlock && patchFlag > 0) {
     currentBlock.push(vnode);
   }
 
@@ -223,10 +235,19 @@ export function createElementBlock(
   props?,
   children?,
   patchFlag?,
+  dynamicProps?,
   shapeFlag?
 ) {
   return setupBlock(
-    createBaseVNode(type, props, children, shapeFlag, false, patchFlag, true)
+    createBaseVNode(
+      type,
+      props,
+      children,
+      patchFlag,
+      dynamicProps,
+      shapeFlag,
+      true
+    )
   );
 }
 
