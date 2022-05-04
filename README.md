@@ -37,13 +37,14 @@ pnpm build
    - [x] emit事件派发/emits选项校验
    - [x] $el/$slots/$props/$attrs/$data
    - [x] 生命周期
+   - [x] nextTick
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
    - [x] setup函数
    - [x] render函数
    - [x] getCurrentInstance
    - [x] vnode
    - [x] 快速diff算法
-   - [x] nextTick
+   - [x] 靶向更新文本节点、class属性 
    - [x] 等等
 - runtime-dom
    - [x] 属性绑定
@@ -53,5 +54,6 @@ pnpm build
    - [x] 插值、文本、元素组合（支持嵌套）的template编译、转化、生成
    - [x] 普通元素v-show、v-if/v-else-if/v-else、v-bind、v-on、v-for
    - [x] template下多根标签节点渲染 
+   - [x] 动态文本节点标记，动态class属性标记 
 - shared
    - [x] 辅助函数
