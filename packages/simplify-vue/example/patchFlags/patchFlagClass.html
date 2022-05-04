@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 13:37:22
+ * @LastEditTime: 2022-05-04 13:57:46
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +12,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .red {
+            color: red;
+        }
+
+        .green {
+            color: green;
+        }
+    </style>
 </head>
 
 <body>
@@ -20,30 +29,26 @@
     <script>
         const {
             createApp,
-            ref
+            reactive
         } = Vue;
 
         const App = {
             name: "App",
             template: `
             <div>
-               <span>{{text}}</span>
-               <p>我是静态文本节点</p>
-               <button @click="changeText">更新</button>
+               <p :class="classObj">我是静态文本节点，但有动态class属性</p>
+               <button @click="changeClass">更新</button>
             </div>
             `,
             setup() {
-                const text = ref('我是动态文本节点');
-                const show = ref(true);
-                const changeText = () => {
-                    text.value = "patchFlag 1 TEXT";
-                    show.value = false;
+                const classObj = reactive(['red']);
+                const changeClass = () => {
+                    classObj[0] = 'green';
                 }
 
                 return {
-                    show,
-                    changeText,
-                    text
+                    classObj,
+                    changeClass,
                 }
             }
         };

@@ -7,4 +7,5 @@
 export const enum PatchFlags {
   // 动态文本节点
   TEXT = 1,
+  CLASS
 }

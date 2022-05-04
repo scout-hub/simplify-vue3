@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 13:45:59
+ * @LastEditTime: 2022-05-04 14:54:32
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -12,6 +12,7 @@ import {
   EMPTY_ARR,
   EMPTY_OBJ,
   invokeArrayFns,
+  PatchFlags,
   ShapeFlags,
 } from "@simplify-vue/shared";
 import {
@@ -356,12 +357,14 @@ function baseCreateRenderer(options) {
   const patchElement = (n1, n2, parentComponent) => {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
-    const { dynamicChildren } = n2;
+    const { dynamicChildren, patchFlag } = n2;
 
     // 只diff动态节点，跳过静态节点的diff
-    if (dynamicChildren) {
+    // TODO 先改成 dynamicChildren.length 以保证不影响之前的demo
+
+    if (dynamicChildren && dynamicChildren.length) {
       patchBlockChildren(
-        n1.dynamicChildren!,
+        n1.dynamicChildren,
         dynamicChildren,
         el,
         parentComponent
@@ -373,13 +376,25 @@ function baseCreateRenderer(options) {
 
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
-    /**
-     * props更新的三种情况
-     * 1、旧的和新都存在key且新旧值存在但是不一样 —————— 更新属性值
-     * 2、新的key上的值不存在 ———— 删除属性
-     * 3、旧的key在新的上面不存在 ———— 删除属性
-     */
-    patchProps(el, n2, oldProps, newProps);
+
+    if (patchFlag > 0) {
+      // class是动态的，需要更新
+      if (patchFlag & PatchFlags.CLASS) {
+        if (oldProps.class !== newProps.class) {
+          hostPatchProp(el, "class", null, newProps.class);
+        }
+      }
+    } else {
+      /**
+       * props更新的三种情况
+       * 1、旧的和新都存在key且新旧值存在但是不一样 —————— 更新属性值
+       * 2、新的key上的值不存在 ———— 删除属性
+       * 3、旧的key在新的上面不存在 ———— 删除属性
+       */
+      // 全量更新
+      patchProps(el, n2, oldProps, newProps);
+    }
+
     if (n2.dirs) {
       // 触发指令钩子函数beforeMount
       invokeDirectiveHook(n2, n1, "updated");

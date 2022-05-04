@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 12:29:39
+ * @LastEditTime: 2022-05-04 14:55:13
  */
 import { isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -33,6 +33,7 @@ export function transformElement(node, context) {
     if (props.length) {
       const buildResult = buildProps(node, context);
       vnodeProps = buildResult.props;
+      patchFlag = buildResult.patchFlag;
       const directives = buildResult.directives;
       // 处理指令
       if (directives && directives.length) {
@@ -97,6 +98,19 @@ function buildProps(node, context) {
   const properties: any = [];
   let propsExpression;
   let runtimeDirectives: any = [];
+  let patchFlag = 0;
+  // 是否有v-bind的class
+  let hasClassBinding = false;
+
+  const analyzePatchFlag = (prop) => {
+    const { key, value } = prop;
+    // 处理静态的属性名
+    const name = key.content;
+    if (name === "class") {
+      hasClassBinding = true;
+    }
+    // TODO处理动态的属性名
+  };
 
   for (let i = 0; i < props.length; i++) {
     const prop = props[i];
@@ -115,6 +129,8 @@ function buildProps(node, context) {
       const directiveTransform = context.directiveTransforms[name];
       if (directiveTransform) {
         const { props, needRuntime } = directiveTransform(prop, context);
+        // 分析props上的属性，对不同性质的props进行动态信息的标记
+        props.forEach(analyzePatchFlag);
         properties.push(...props);
         if (needRuntime) {
           runtimeDirectives.push(prop);
@@ -156,9 +172,15 @@ function buildProps(node, context) {
     }
   }
 
+  // 如果有动态绑定的class，则标记为具有动态class的patchFlag
+  if (hasClassBinding) {
+    patchFlag |= PatchFlags.CLASS;
+  }
+
   return {
     props: propsExpression,
     directives: runtimeDirectives,
+    patchFlag,
   };
 }
 

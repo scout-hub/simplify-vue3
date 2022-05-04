@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 21:30:03
+ * @LastEditTime: 2022-05-04 14:50:27
  */
 /**
  * 1. text
@@ -51,6 +51,7 @@ import {
 } from "./runtimeHelpers";
 
 export function generate(ast, options = {}) {
+  // console.log(ast);
   const context = createCodegenContext(ast, options);
 
   genFunctionPreamble(ast, context);
@@ -65,7 +66,6 @@ export function generate(ast, options = {}) {
   push(`return `);
   genNode(ast.codegenNode, context);
   push(`}`);
-
   return { code: context.code };
 }
 

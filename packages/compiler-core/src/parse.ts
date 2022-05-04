@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-27 22:37:24
+ * @LastEditTime: 2022-05-04 14:46:40
  */
 import { extend } from "@simplify-vue/shared";
 import { ElementTypes, NodeTypes } from "./ast";
@@ -99,13 +99,20 @@ function parseChildren(context, ancestors) {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (node.type === NodeTypes.TEXT) {
-      const prevNode = nodes[i - 1];
-      const nextNode = nodes[i + 1];
-      // 当前文本节点的上一个节点不存在，说明是首节点
-      // 当前文本节点的下一个节点不存在，说明是尾节点
-      if (!prevNode || !nextNode) {
-        // 是否是无用空白字符
-        if (!/[^\t\r\n\f ]/.test(node.content)) {
+      // 是否是无用空白字符
+      if (!/[^\t\r\n\f ]/.test(node.content)) {
+        const prevNode = nodes[i - 1];
+        const nextNode = nodes[i + 1];
+        // 1、当前文本节点的上一个节点不存在，说明是首节点
+        // 2、当前文本节点的下一个节点不存在，说明是尾节点
+        // 3、两个元素之前的空白节点
+        if (
+          !prevNode ||
+          !nextNode ||
+          (prevNode.type === NodeTypes.ELEMENT &&
+            nextNode.type === NodeTypes.ELEMENT &&
+            /[\r\n]/.test(node.content))
+        ) {
           shouldRemoveWhitespace = true;
           nodes[i] = null;
         }
