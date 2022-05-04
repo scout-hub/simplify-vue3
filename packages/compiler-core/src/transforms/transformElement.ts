@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 14:55:13
+ * @LastEditTime: 2022-05-04 21:25:23
  */
 import { isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -28,12 +28,15 @@ export function transformElement(node, context) {
     let vnodeDirectives;
     let patchFlag = 0;
     let vnodePatchFlag;
+    let dynamicPropNames;
+    let vnodeDynamicProps;
 
     // 处理props
     if (props.length) {
       const buildResult = buildProps(node, context);
       vnodeProps = buildResult.props;
       patchFlag = buildResult.patchFlag;
+      dynamicPropNames = buildResult.dynamicPropNames;
       const directives = buildResult.directives;
       // 处理指令
       if (directives && directives.length) {
@@ -73,6 +76,9 @@ export function transformElement(node, context) {
 
     if (patchFlag !== 0) {
       vnodePatchFlag = String(patchFlag);
+      if (dynamicPropNames && dynamicPropNames.length) {
+        vnodeDynamicProps = JSON.stringify(dynamicPropNames);
+      }
     }
 
     node.codegenNode = createVnodeCall(
@@ -81,6 +87,7 @@ export function transformElement(node, context) {
       vnodeProps,
       vnodeChildren,
       vnodePatchFlag,
+      vnodeDynamicProps,
       vnodeDirectives
     );
   };
@@ -96,6 +103,8 @@ export function transformElement(node, context) {
 function buildProps(node, context) {
   const { props } = node;
   const properties: any = [];
+  // 存储动态属性的数组
+  const dynamicPropNames: string[] = [];
   let propsExpression;
   let runtimeDirectives: any = [];
   let patchFlag = 0;
@@ -103,11 +112,14 @@ function buildProps(node, context) {
   let hasClassBinding = false;
 
   const analyzePatchFlag = (prop) => {
-    const { key, value } = prop;
+    const { key } = prop;
     // 处理静态的属性名
     const name = key.content;
+
     if (name === "class") {
       hasClassBinding = true;
+    } else if (!dynamicPropNames.includes(name)) {
+      dynamicPropNames.push(name);
     }
     // TODO处理动态的属性名
   };
@@ -176,11 +188,16 @@ function buildProps(node, context) {
   if (hasClassBinding) {
     patchFlag |= PatchFlags.CLASS;
   }
+  // 有其他动态属性
+  if (dynamicPropNames) {
+    patchFlag |= PatchFlags.PROPS;
+  }
 
   return {
     props: propsExpression,
     directives: runtimeDirectives,
     patchFlag,
+    dynamicPropNames,
   };
 }
 

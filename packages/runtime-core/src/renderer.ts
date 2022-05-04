@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 14:54:32
+ * @LastEditTime: 2022-05-04 21:43:29
  */
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
@@ -377,11 +377,26 @@ function baseCreateRenderer(options) {
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
 
+    // 标记了对应的动态属性则只更新动态属性，否则全量更新
     if (patchFlag > 0) {
       // class是动态的，需要更新
       if (patchFlag & PatchFlags.CLASS) {
         if (oldProps.class !== newProps.class) {
           hostPatchProp(el, "class", null, newProps.class);
+        }
+      }
+
+      // 有其他动态属性，需要更新
+      if (patchFlag & PatchFlags.PROPS) {
+        const dynamicProps = n2.dynamicProps;
+        const dynamicPropsLength = dynamicProps.length;
+        for (let i = 0; i < dynamicPropsLength; i++) {
+          const key = dynamicProps[i];
+          const prev = oldProps[key];
+          const next = newProps[key];
+          if (next !== prev) {
+            hostPatchProp(el, key, prev, next);
+          }
         }
       }
     } else {
@@ -391,7 +406,6 @@ function baseCreateRenderer(options) {
        * 2、新的key上的值不存在 ———— 删除属性
        * 3、旧的key在新的上面不存在 ———— 删除属性
        */
-      // 全量更新
       patchProps(el, n2, oldProps, newProps);
     }
 

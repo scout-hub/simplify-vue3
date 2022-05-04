@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 13:03:34
+ * @LastEditTime: 2022-05-04 21:36:26
  */
 
 import {
@@ -96,7 +96,6 @@ function createBaseVNode(
   isBlockNode = false,
   needFullChildrenNormalization = false
 ) {
-  // shapeFlag == null && (shapeFlag = ShapeFlags.ELEMENT);
   const vnode = {
     type,
     props,
@@ -106,6 +105,7 @@ function createBaseVNode(
     component: null,
     key: props && props.key,
     patchFlag,
+    dynamicProps,
   };
 
   if (needFullChildrenNormalization) {

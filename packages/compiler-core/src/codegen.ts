@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 14:50:27
+ * @LastEditTime: 2022-05-04 21:31:03
  */
 /**
  * 1. text
@@ -250,7 +250,15 @@ function genCallExpression(node, context) {
 function genVNodeCall(node, context) {
   const { push, helper } = context;
   // TODO patchFlag不存在暂时标记为-2
-  const { isBlock, tag, props, children, directives, patchFlag = -2 } = node;
+  const {
+    isBlock,
+    tag,
+    props,
+    children,
+    directives,
+    patchFlag = "-2",
+    dynamicProps,
+  } = node;
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
   }
@@ -259,7 +267,10 @@ function genVNodeCall(node, context) {
   }
   const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
   push(helper(callHelper) + `(`);
-  genNodeList(genNullableArgs([tag, props, children, patchFlag]), context);
+  genNodeList(
+    genNullableArgs([tag, props, children, patchFlag, dynamicProps]),
+    context
+  );
   push(`)`);
   if (isBlock) {
     push(`)`);
@@ -323,7 +334,7 @@ function genNodeListAsArray(nodes, context) {
  * @param context
  */
 function genNodeList(nodes, context) {
-  const { push, newline } = context;
+  const { push } = context;
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {
@@ -336,7 +347,6 @@ function genNodeList(nodes, context) {
     }
     if (i < nodes.length - 1) {
       push(`, `);
-      newline();
     }
   }
 }

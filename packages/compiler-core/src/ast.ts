@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 21:26:25
+ * @LastEditTime: 2022-05-04 21:19:34
  */
 import {
   CREATE_ELEMENT_VNODE,
@@ -46,6 +46,7 @@ export function createVnodeCall(
   props?,
   children?,
   patchFlag?,
+  dynamicProps?,
   directives?,
   isBlock = false
 ) {
@@ -67,7 +68,9 @@ export function createVnodeCall(
     props,
     children,
     patchFlag,
+    dynamicProps,
     directives,
+    isBlock,
   };
 }
 
