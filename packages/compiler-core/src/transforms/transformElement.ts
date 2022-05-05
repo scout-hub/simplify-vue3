@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 19:45:54
+ * @LastEditTime: 2022-05-05 21:16:47
  */
-import { isSymbol, PatchFlags } from "@simplify-vue/shared";
+import { isString, isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
   createArrayExpression,
   createCallExpression,
@@ -223,12 +223,12 @@ export function createSimpleExpression(content, isStatic) {
 export function createObjectProperty(key, value) {
   return {
     type: NodeTypes.JS_PROPERTY,
-    key,
+    key: isString(key) ? createSimpleExpression(key, true) : key,
     value,
   };
 }
 
-function createObjectExpression(properties) {
+export function createObjectExpression(properties) {
   // JS_OBJECT_EXPRESSION 表示数据需要处理对象的形式，例如props
   return {
     type: NodeTypes.JS_OBJECT_EXPRESSION,

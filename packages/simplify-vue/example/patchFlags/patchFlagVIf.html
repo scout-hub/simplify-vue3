@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 15:04:40
+ * @LastEditTime: 2022-05-05 22:33:33
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -27,20 +27,33 @@
             name: "App",
             template: `
             <div>
-                <div v-if="show === 1">我是v-if 1</div>
-                <div v-else-if="show === 2">我是v-else-if 2</div>
-                <div v-else-if="show === 3">我是v-else-if 3</div>
-                <div v-else>我是v-else 4</div>
+                <div v-if="show1">
+                    <span>{{name}}</span>
+                </div>
+                <div v-if="show">
+                    <span>{{name}}</span>
+                </div>
+                <div v-else>
+                    <p>
+                        <span>{{name}}</span>
+                    </p>
+                </div>
                 <button @click="changeClass">更新</button>
             </div>`,
             setup() {
-                const show = ref(1);
+                const show = ref(true);
+                const show1 = ref(true);
 
                 const changeClass = () => {
-                    show.value === 4 ? show.value = 1 : show.value++;
+                    show.value = !show.value;
+                    name.value = 1
                 }
 
+                const name = ref('name');
+
                 return {
+                    show1,
+                    name,
                     changeClass,
                     show,
                 }

@@ -2,8 +2,10 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { toDisplayString: _toDisplayString, createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Vue;
 return function render(_ctx) { 
-  return (_openBlock(), _createElementBlock(\\"div\\", null, [_createElementVNode(\\"span\\", null, [], -2, null)], -2, null))}",
+  return (_openBlock(), _createElementBlock(\\"div\\", null, [_ctx.show? 
+    (_openBlock(), _createElementBlock(\\"div\\", { key: 0} , [_createElementVNode(\\"span\\", null, _toDisplayString(_ctx.name), 1, null)], -2, null)): 
+    _createCommentVNode(\\"v-if\\", true), _createElementVNode(\\"button\\", null, \\"更新\\", -2, null)], -2, null))}",
 }
 `;

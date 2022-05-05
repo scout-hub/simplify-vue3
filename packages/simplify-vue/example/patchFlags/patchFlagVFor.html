@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-05 19:29:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 19:29:03
+ * @LastEditTime: 2022-05-05 19:54:44
 -->
 <!--
  * @Author: Zhouqi
@@ -46,7 +46,7 @@
                     <span :class="item.class">姓名：{{item.name}};</span>    
                     <span>年龄：{{item.age}};</span>    
                     <span>性别：男;</span>    
-                    <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
+                    爱好：<span v-for="items in item.hobby" v-if="item.show">{{items}}</span>    
                 </h1>    
                 <div v-for="item in [1,2,3]">{{item}}</div>    
                 <button @click="change">更新</button>
@@ -71,6 +71,7 @@
                         hobby: ['羽毛球']
                     })
                     arr[0].class = ['green'];
+                    arr[0].hobby.push('乒乓球')
                 };
                 return {
                     change,

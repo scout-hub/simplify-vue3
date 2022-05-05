@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 21:21:29
+ * @LastEditTime: 2022-05-05 22:08:30
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -19,8 +19,12 @@ describe("Compiler: transform", () => {
   test("context state", () => {
     const ast = baseParse(`
     <div>
-       <span :id="id"></span> 
-    </div>`);
+      <div v-if="show">
+        <span>{{name}}</span>
+      </div>
+      <button @click="changeClass">更新</button>
+    </div>
+`);
 
     transform(ast, {
       nodeTransforms: [

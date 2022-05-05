@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 14:54:10
+ * @LastEditTime: 2022-05-05 22:37:38
  */
 import {
   createCallExpression,
@@ -15,6 +15,11 @@ import {
   makeBlock,
   traverseNode,
 } from "../transform";
+import { injectProp } from "../utils";
+import {
+  createObjectProperty,
+  createSimpleExpression,
+} from "./transformElement";
 import { processExpression } from "./transformExpression";
 
 // v-if指令转换器
@@ -22,16 +27,51 @@ export const transformIf = createStructuralDirectiveTransform(
   /^(if|else|else-if)$/,
   (node, dir, context) => {
     return processIf(node, dir, context, (ifNode, branch, isRoot) => {
+      const siblings = context.parent!.children;
+      let i = siblings.indexOf(ifNode);
+      let key = 0;
+      /**
+       * 为if/else分支生成不同的key，保证动态vif block节点在vif条件值变化时正常更新。
+       * 例如：
+       * <div v-if="show">
+            <span>{{name}}</span>
+         </div>
+         <div v-else>
+            <p>
+              <span>{{name}}</span>
+            </p>
+         </div>
+         假如没有为每一个if/else分支生成不同的key，那么收集到的vIf block树都是['div', null, children, dynamicChildren]
+         每一个vif block树收集到的动态子节点也都是['span', null, ctx.name]，此时不管show的值如何变化dom都不会正常更新（PS：即使name变了
+         也只是改变了文本子节点，缺少的p标签不会被更新，因为p是一个静态节点）。因为收集到的新旧动态节点一摸一样，但实际上v-else的结构跟v-if是不同的，
+         但是由于收集动态节点时不考虑vnode的层级，所以会出现这样的问题。因此我们需要为每一个if/else分支生成一个动态递增的key，保证条件值变化时dom能正常更新。
+       */
+      while (i-- >= 0) {
+        /**
+         * 同级情况下可能存在多个if/else分支，需要为每一个if/else分支初始化不同的key，保证不重复
+         * 例如:
+         * <div v-if="show">1</div>
+         * <div v-if="show1">2</div>
+         * <div v-if="show2">3</div>
+         * <div v-else>4</div>
+         * 此时v-if=“show2"的if/else分支的初始key应该是2，因为之前有两个if分支，他们占用了值为0和1的key
+         */
+        const sibling = siblings[i];
+        if (sibling && sibling.type === NodeTypes.IF) {
+          key += sibling.branches.length;
+        }
+      }
       return () => {
         if (isRoot) {
           // v-if
-          ifNode.codegenNode = createCodegenNodeForBranch(branch, context);
+          ifNode.codegenNode = createCodegenNodeForBranch(branch, key, context);
         } else {
           // 找到if类型节点
           const parentCondition = getParentCondition(ifNode.codegenNode);
           // 修改v-if表达式为false时要渲染的节点内容，即渲染v-else节点
           parentCondition.alternate = createCodegenNodeForBranch(
             branch,
+            key + ifNode.branches.length - 1,
             context
           );
         }
@@ -82,6 +122,7 @@ function processIf(node, dir, context, fn?) {
         onExit && onExit();
         // 清除当前节点
         context.currentNode = null;
+        break;
       }
     }
   }
@@ -95,25 +136,31 @@ function createIfBranch(node, dir) {
   };
 }
 
-function createCodegenNodeForBranch(branch, context) {
+function createCodegenNodeForBranch(branch, keyIndex, context) {
   if (branch.condition) {
     return createConditionalExpression(
       branch.condition,
-      // 表达式是true是需要创建的元素ast
-      createChildrenCodegenNode(branch, context),
+      // 表达式是true时需要创建的元素ast
+      createChildrenCodegenNode(branch, keyIndex, context),
       // 表达式是false时创建的注释节点ast
       createCallExpression(context.helper(CREATE_COMMENT), ['"v-if"', "true"])
     );
   } else {
-    return createChildrenCodegenNode(branch, context);
+    return createChildrenCodegenNode(branch, keyIndex, context);
   }
 }
 
-function createChildrenCodegenNode(branch, context) {
+function createChildrenCodegenNode(branch, keyIndex, context) {
   const ret = branch.children[0].codegenNode;
+  // 为v-if/else分支节点创建key属性
+  const keyProperty = createObjectProperty(
+    `key`,
+    createSimpleExpression(`${keyIndex}`, false)
+  );
   if (ret.type === NodeTypes.VNODE_CALL) {
     makeBlock(ret, context);
   }
+  injectProp(ret, keyProperty);
   return ret;
 }
 
@@ -127,9 +174,6 @@ function getParentCondition(ifNode) {
       } else {
         return ifNode;
       }
-    } else {
-      // TODO
-      return ifNode;
     }
   }
 }

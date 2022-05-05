@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 16:35:15
+ * @LastEditTime: 2022-05-05 21:14:50
  */
 /**
  * 1. text
@@ -204,6 +204,7 @@ function genObjectExpression(node, context) {
   push(`{ `);
   for (let i = 0; i < properties.length; i++) {
     const { key, value } = properties[i];
+
     // 处理key
     genExpressionAsPropertyKey(key, context);
     push(`: `);
@@ -221,12 +222,12 @@ function genObjectExpression(node, context) {
 /**
  * @author: Zhouqi
  * @description: 处理属性key
- * @param key
+ * @param node
  * @param context
  */
-function genExpressionAsPropertyKey(key, context) {
+function genExpressionAsPropertyKey(node, context) {
   const { push } = context;
-  const text = key.content;
+  const text = node.content;
   push(text);
 }
 
@@ -265,7 +266,7 @@ function genVNodeCall(node, context) {
   }
   const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
   push(helper(callHelper) + `(`);
-  
+
   genNodeList(
     genNullableArgs([tag, props, children, patchFlag, dynamicProps]),
     context

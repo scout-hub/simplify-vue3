@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 17:54:13
+ * @LastEditTime: 2022-05-05 22:27:04
  */
 
 import {
@@ -133,8 +133,10 @@ export function createTextVNode(text: string) {
 }
 
 // 创建注释节点的vnode
-export function createCommentVNode(text: string) {
-  return createVnode(Comment, null, text);
+export function createCommentVNode(text: string, asBlock: boolean = false) {
+  return asBlock
+    ? (openBlock(), createBlock(Comment, null, text))
+    : createVnode(Comment, null, text);
 }
 
 // 规范化子节点，子节点的类型有多种，比如string、function、object等等
@@ -251,6 +253,18 @@ export function createElementBlock(
   );
 }
 
+export function createBlock(
+  type,
+  props?,
+  children?,
+  patchFlag?,
+  dynamicProps?
+) {
+  return setupBlock(
+    createVnode(type, props, children, patchFlag, dynamicProps, true)
+  );
+}
+
 /*
  * 对于一些动态节点可以在编译阶段就收集到相关动态节点的信息，比如{{text}}可以认为是一个
  * 动态文本节点。在编译阶段这个节点会附带patchFlag为TEXT的标记。在虚拟创建的时候，
@@ -271,7 +285,7 @@ function setupBlock(vnode) {
   vnode.dynamicChildren = currentBlock || EMPTY_ARR;
   closeBlock();
   if (currentBlock) {
-    // 子block树也属于动态节点，它属于父block下的动态子节点
+    // 子block树也需要被收集到父block下，
     // 例如v-if会单独生成一个block
     currentBlock.push(vnode);
   }

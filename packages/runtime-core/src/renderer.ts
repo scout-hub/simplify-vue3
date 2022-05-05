@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 19:29:40
+ * @LastEditTime: 2022-05-05 22:31:05
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -368,7 +368,6 @@ function baseCreateRenderer(options) {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
     const { dynamicChildren, patchFlag } = n2;
-
     // 只diff动态节点，跳过静态节点的diff
     // TODO 先改成 dynamicChildren.length 以保证不影响之前的demo
     if (dynamicChildren && dynamicChildren.length) {
@@ -904,13 +903,14 @@ function baseCreateRenderer(options) {
       parentComponent.ctx.deactivate(vnode);
       return;
     }
-
     if (shapeFlag & ShapeFlags.COMPONENT) {
       // 销毁组件
       unmountComponent(component);
-    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      unmountChildren(children, parentComponent);
     } else {
+      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // 销毁子节点
+        unmountChildren(children, parentComponent);
+      }
       // 销毁元素
       remove(vnode);
     }
