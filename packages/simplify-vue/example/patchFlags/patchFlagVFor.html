@@ -1,0 +1,88 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-05-05 19:29:03
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-05-05 19:29:03
+-->
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-03-26 21:15:56
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-05-05 17:28:52
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .red {
+            color: red;
+        }
+
+        .green {
+            color: green
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            createApp,
+            reactive
+        } = Vue;
+
+        const App = {
+            name: "App",
+            template: `
+            <div>
+                <h1 v-for="item in arr">
+                    <span :class="item.class">姓名：{{item.name}};</span>    
+                    <span>年龄：{{item.age}};</span>    
+                    <span>性别：男;</span>    
+                    <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
+                </h1>    
+                <div v-for="item in [1,2,3]">{{item}}</div>    
+                <button @click="change">更新</button>
+            </div>`,
+            setup() {
+                const arr = reactive([{
+                    name: 'zs',
+                    age: 14,
+                    hobby: ['足球'],
+                    show: true,
+                    class: ['red']
+                }, {
+                    name: 'ls',
+                    age: 15,
+                    hobby: ['篮球']
+                }]);
+                const item = 'item';
+                const change = () => {
+                    arr.push({
+                        name: 'ww',
+                        age: 16,
+                        hobby: ['羽毛球']
+                    })
+                    arr[0].class = ['green'];
+                };
+                return {
+                    change,
+                    item,
+                    arr
+                }
+            }
+        };
+
+
+        createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>

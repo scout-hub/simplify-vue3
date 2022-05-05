@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 13:33:17
+ * @LastEditTime: 2022-05-05 19:45:54
  */
 import { isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -59,7 +59,7 @@ export function transformElement(node, context) {
 
       // 如果是动态文本节点，则标记patchFlag为TEXT
       if (hasDynamicTextChild) {
-        patchFlag = PatchFlags.TEXT;
+        patchFlag |= PatchFlags.TEXT;
       }
 
       if (hasDynamicTextChild || child.type === NodeTypes.TEXT) {
@@ -80,7 +80,6 @@ export function transformElement(node, context) {
         vnodeDynamicProps = JSON.stringify(dynamicPropNames);
       }
     }
-
     // TODO shoulUseBlock
     node.codegenNode = createVnodeCall(
       context,

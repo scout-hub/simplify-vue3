@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 19:14:04
+ * @LastEditTime: 2022-05-05 19:29:40
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -371,7 +371,6 @@ function baseCreateRenderer(options) {
 
     // 只diff动态节点，跳过静态节点的diff
     // TODO 先改成 dynamicChildren.length 以保证不影响之前的demo
-
     if (dynamicChildren && dynamicChildren.length) {
       patchBlockChildren(
         n1.dynamicChildren,
