@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 21:36:26
+ * @LastEditTime: 2022-05-05 14:14:51
  */
 
 import {
@@ -270,6 +270,11 @@ export let currentBlock: any = null;
 function setupBlock(vnode) {
   vnode.dynamicChildren = currentBlock || EMPTY_ARR;
   closeBlock();
+  if (currentBlock) {
+    // 子block树也属于动态节点，它属于父block下的动态子节点
+    // 例如v-if会单独生成一个block
+    currentBlock.push(vnode);
+  }
   return vnode;
 }
 

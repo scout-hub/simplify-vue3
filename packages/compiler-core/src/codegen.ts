@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 21:31:03
+ * @LastEditTime: 2022-05-05 13:47:14
  */
 /**
  * 1. text
@@ -51,16 +51,13 @@ import {
 } from "./runtimeHelpers";
 
 export function generate(ast, options = {}) {
-  // console.log(ast);
   const context = createCodegenContext(ast, options);
 
   genFunctionPreamble(ast, context);
 
   const { push, indent } = context;
   const functionName = "render";
-  const args = ["_ctx", "_cache", "$props", "$setup", "$data", "$options"].join(
-    ", "
-  );
+  const args = ["_ctx"].join(", ");
   push(`function ${functionName}(${args}) { `);
   indent();
   push(`return `);

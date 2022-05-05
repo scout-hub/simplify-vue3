@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:48:00
+ * @LastEditTime: 2022-05-05 14:54:10
  */
 import {
   createCallExpression,
@@ -10,7 +10,11 @@ import {
   NodeTypes,
 } from "../ast";
 import { CREATE_COMMENT } from "../runtimeHelpers";
-import { createStructuralDirectiveTransform, traverseNode } from "../transform";
+import {
+  createStructuralDirectiveTransform,
+  makeBlock,
+  traverseNode,
+} from "../transform";
 import { processExpression } from "./transformExpression";
 
 // v-if指令转换器
@@ -23,7 +27,7 @@ export const transformIf = createStructuralDirectiveTransform(
           // v-if
           ifNode.codegenNode = createCodegenNodeForBranch(branch, context);
         } else {
-          // 找到v-if节点
+          // 找到if类型节点
           const parentCondition = getParentCondition(ifNode.codegenNode);
           // 修改v-if表达式为false时要渲染的节点内容，即渲染v-else节点
           parentCondition.alternate = createCodegenNodeForBranch(
@@ -96,17 +100,21 @@ function createCodegenNodeForBranch(branch, context) {
     return createConditionalExpression(
       branch.condition,
       // 表达式是true是需要创建的元素ast
-      createChildrenCodegenNode(branch),
+      createChildrenCodegenNode(branch, context),
       // 表达式是false时创建的注释节点ast
       createCallExpression(context.helper(CREATE_COMMENT), ['"v-if"', "true"])
     );
   } else {
-    return createChildrenCodegenNode(branch);
+    return createChildrenCodegenNode(branch, context);
   }
 }
 
-function createChildrenCodegenNode(branch) {
-  return branch.children[0];
+function createChildrenCodegenNode(branch, context) {
+  const ret = branch.children[0].codegenNode;
+  if (ret.type === NodeTypes.VNODE_CALL) {
+    makeBlock(ret, context);
+  }
+  return ret;
 }
 
 // 查找父级节点

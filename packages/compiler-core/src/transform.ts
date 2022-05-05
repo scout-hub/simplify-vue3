@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 10:42:20
+ * @LastEditTime: 2022-05-05 14:50:49
  */
 import { isArray, isString } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -243,7 +243,7 @@ export function createStructuralDirectiveTransform(name, fn) {
   };
 }
 
-function makeBlock(node, context) {
+export function makeBlock(node, context) {
   const { helper } = context;
   // 根元素标记为block
   node.isBlock = true;
