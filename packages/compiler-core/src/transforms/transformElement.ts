@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 21:25:23
+ * @LastEditTime: 2022-05-05 13:22:32
  */
 import { isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -81,6 +81,7 @@ export function transformElement(node, context) {
       }
     }
 
+    // TODO shoulUseBlock
     node.codegenNode = createVnodeCall(
       context,
       vnodeTag,
@@ -114,14 +115,17 @@ function buildProps(node, context) {
   const analyzePatchFlag = (prop) => {
     const { key } = prop;
     // 处理静态的属性名
-    const name = key.content;
+    if (isStaticExp(key)) {
+      const name = key.content;
 
-    if (name === "class") {
-      hasClassBinding = true;
-    } else if (!dynamicPropNames.includes(name)) {
-      dynamicPropNames.push(name);
+      if (name === "class") {
+        hasClassBinding = true;
+      } else if (!dynamicPropNames.includes(name)) {
+        dynamicPropNames.push(name);
+      }
+    } else {
+      // TODO处理动态的属性名
     }
-    // TODO处理动态的属性名
   };
 
   for (let i = 0; i < props.length; i++) {
@@ -188,9 +192,15 @@ function buildProps(node, context) {
   if (hasClassBinding) {
     patchFlag |= PatchFlags.CLASS;
   }
-  // 有其他动态属性
-  if (dynamicPropNames) {
+
+  // 出了class和style，有其他动态属性
+  if (dynamicPropNames.length) {
     patchFlag |= PatchFlags.PROPS;
+  }
+
+  // 有运行时指令的情况下需要添加NEED_PATCH标记，例如v-show
+  if (patchFlag === 0 && runtimeDirectives.length > 0) {
+    patchFlag |= PatchFlags.NEED_PATCH;
   }
 
   return {
@@ -202,6 +212,8 @@ function buildProps(node, context) {
 }
 
 export function createSimpleExpression(content, isStatic) {
+  // SIMPLE_EXPRESSION 对简单值的标记，比如props中的key和value。这些值如果是静态的会被序列化，
+  // 如果是动态的则原封不动的使用
   return {
     type: NodeTypes.SIMPLE_EXPRESSION,
     isStatic,
@@ -218,6 +230,7 @@ export function createObjectProperty(key, value) {
 }
 
 function createObjectExpression(properties) {
+  // JS_OBJECT_EXPRESSION 表示数据需要处理对象的形式，例如props
   return {
     type: NodeTypes.JS_OBJECT_EXPRESSION,
     properties,

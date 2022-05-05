@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:05:15
+ * @LastEditTime: 2022-05-05 10:42:20
  */
 import { isArray, isString } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -88,7 +88,7 @@ export function transform(root, options = {}) {
 
 /**
  * @author: Zhouqi
- * @description: 创建codegen所需要的ast
+ * @description: 创建codegen所需要的node，为了区分ast的node
  * @param root ast
  */
 function createRootCodegen(root, context) {
@@ -97,9 +97,11 @@ function createRootCodegen(root, context) {
   // root下只有一个子节点，即单根标签的情况
   if (children.length === 1) {
     const child = root.children[0];
+    // 普通元素在transformElement的时候已经生成了codegenNode
     if (child.type === NodeTypes.ELEMENT && child.codegenNode) {
       const codegenNode = child.codegenNode;
       if (codegenNode.type === NodeTypes.VNODE_CALL) {
+        // 如果是vnode_call则创建block
         makeBlock(codegenNode, context);
       }
       root.codegenNode = codegenNode;
@@ -107,12 +109,17 @@ function createRootCodegen(root, context) {
       root.codegenNode = child;
     }
   } else if (children.length > 1) {
-    // 多根据标签的情况需要在外层套一个fragment
+    let patchFlag = undefined;
+    // 多根据标签的情况需要在外层套一个fragment，这个fragment也是一个block，需要收集动态子节点
     root.codegenNode = createVnodeCall(
       context,
       context.helper(FRAGMENT),
       null,
-      root.children
+      root.children,
+      patchFlag,
+      undefined,
+      undefined,
+      true // block
     );
   }
 }
@@ -238,6 +245,7 @@ export function createStructuralDirectiveTransform(name, fn) {
 
 function makeBlock(node, context) {
   const { helper } = context;
+  // 根元素标记为block
   node.isBlock = true;
   helper(OPEN_BLOCK);
   helper(CREATE_ELEMENT_BLOCK);

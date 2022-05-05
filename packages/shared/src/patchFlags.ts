@@ -8,5 +8,6 @@ export const enum PatchFlags {
   // 动态文本节点
   TEXT = 1,
   CLASS,
-  PROPS
+  PROPS,
+  NEED_PATCH
 }

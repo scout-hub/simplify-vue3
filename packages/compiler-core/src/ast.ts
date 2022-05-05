@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 21:19:34
+ * @LastEditTime: 2022-05-05 11:22:42
  */
 import {
   CREATE_ELEMENT_VNODE,
@@ -39,7 +39,6 @@ export const enum ElementTypes {
   ELEMENT,
 }
 
-// 普通元素
 export function createVnodeCall(
   context,
   tag,
@@ -53,6 +52,7 @@ export function createVnodeCall(
   if (context) {
     if (isBlock) {
       context.helper(OPEN_BLOCK);
+      // TODO component create_block
       context.helper(CREATE_ELEMENT_BLOCK);
     } else {
       context.helper(CREATE_ELEMENT_VNODE);
@@ -62,6 +62,7 @@ export function createVnodeCall(
     }
   }
 
+  // 创建VNODE_CALL是为了block
   return {
     type: NodeTypes.VNODE_CALL,
     tag,
@@ -76,6 +77,7 @@ export function createVnodeCall(
 
 // 插值
 export function createCallExpression(callee, args) {
+  // JS_CALL_EXPRESSION 表示节点需要作为参数被特定的callee函数调用
   return {
     type: NodeTypes.JS_CALL_EXPRESSION,
     callee,
@@ -83,8 +85,8 @@ export function createCallExpression(callee, args) {
   };
 }
 
-// 指令 例如:v-show
 export function createArrayExpression(elements) {
+  // JS_ARRAY_EXPRESSION 表示数据需要处理成数组的形式，例如:v-show指令 ['V-SHOW', expression]
   return {
     type: NodeTypes.JS_ARRAY_EXPRESSION,
     elements,
