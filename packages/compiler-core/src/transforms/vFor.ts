@@ -2,8 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 14:05:59
+ * @LastEditTime: 2022-05-05 16:35:53
  */
+import { PatchFlags } from "@simplify-vue/shared";
 import {
   createCallExpression,
   createFunctionExpression,
@@ -55,12 +56,23 @@ export const transformFor = createStructuralDirectiveTransform(
       const renderExp = createCallExpression(helper(RENDER_LIST), [
         forNode.source,
       ]);
+
+      // TODO 这里还未做v-for的key绑定
+      const fragmentFlag = PatchFlags.UNKEYED_FRAGMENT;
+
+      // v-for外层的Fragment也是一个block，但它可能不收集动态节点（是否是稳定的Fragment，这里还需要理解）
       forNode.codegenNode = createVnodeCall(
         context,
         helper(FRAGMENT),
         undefined,
-        renderExp
+        renderExp,
+        String(fragmentFlag),
+        undefined,
+        undefined,
+        true, // isBlock
+        true // TODO
       );
+
       return () => {
         const { children } = forNode;
         helper(OPEN_BLOCK);

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 13:47:14
+ * @LastEditTime: 2022-05-05 16:35:15
  */
 /**
  * 1. text
@@ -255,15 +255,17 @@ function genVNodeCall(node, context) {
     directives,
     patchFlag = "-2",
     dynamicProps,
+    disableTracking,
   } = node;
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
   }
   if (isBlock) {
-    push(`(${helper(OPEN_BLOCK)}(${``}), `);
+    push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `);
   }
   const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
   push(helper(callHelper) + `(`);
+  
   genNodeList(
     genNullableArgs([tag, props, children, patchFlag, dynamicProps]),
     context

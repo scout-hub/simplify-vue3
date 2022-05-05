@@ -2,10 +2,17 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 15:04:04
+ * @LastEditTime: 2022-05-05 19:14:04
  */
 import { createComponentInstance, setupComponent } from "./component";
-import { Fragment, isSameVNodeType, Text, Comment, cloneVNode } from "./vnode";
+import {
+  Fragment,
+  isSameVNodeType,
+  Text,
+  Comment,
+  cloneVNode,
+  normalizeVNode,
+} from "./vnode";
 import { createAppApi } from "./apiCreateApp";
 import { ReactiveEffect } from "@simplify-vue/reactivity";
 import {
@@ -52,6 +59,7 @@ function baseCreateRenderer(options) {
     createText: hostCreateText,
     createComment: hostCreateComment,
     nextSibling: hostNextSibling,
+    parentNode: hostParentNode,
   } = options;
 
   /**
@@ -134,6 +142,8 @@ function baseCreateRenderer(options) {
    * @param parentComponent 父组件实例
    */
   const processFragment = (n1, n2, container, anchor, parentComponent) => {
+    let { patchFlag, dynamicChildren } = n2;
+
     // #fix: example slots demo when update slot, the new node insertion exception
     // 由于插槽节点在渲染的时候不会创建根标签包裹去插槽节点，导致在更新的时候可能无法正确找到锚点元素
     // 这时候需要我们手动去创建一个空的文本节点去包裹所有的插槽节点。
@@ -424,7 +434,11 @@ function baseCreateRenderer(options) {
     for (let i = 0; i < newChildren.length; i++) {
       const newVNode = newChildren[i];
       const oldVNode = oldChildren[i];
-      const container = oldVNode.el ? oldVNode.el : fallbackContainer;
+      const container =
+        // 如果节点是一个Fragment，如果要进行节点的移动/挂载，需要找到这个Fragment节点的父节点去处理，否则会报错
+        oldVNode.el && oldVNode.type === Fragment
+          ? hostParentNode(oldVNode.el)
+          : fallbackContainer;
       patch(oldVNode, newVNode, container, null, parentComponent);
     }
   };
@@ -442,7 +456,18 @@ function baseCreateRenderer(options) {
     const c1 = n1.children;
     const c2 = n2.children;
     const prevShapeFlag = n1 ? n1.shapeFlag : 0;
-    const { shapeFlag } = n2;
+    const { shapeFlag, patchFlag } = n2;
+
+    // fast path
+    if (patchFlag > 0) {
+      // 处理children节点有key属性的情况（部分有，部分没有也算）
+      // 处理children节点没有key属性的情况（先针对v-for没有绑定key的情况）
+      if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
+        patchUnkeyedChildren(c1, c2, container, anchor, parentComponent);
+        return;
+      }
+    }
+
     // 更新的几种情况
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // 1. 新的虚拟节点的子节点是一个文本节点，旧的虚拟节点的子节点是一个数组，则删除旧的节点元素，然后创建新的文本节点
@@ -474,6 +499,33 @@ function baseCreateRenderer(options) {
           mountChildren(c2, container, anchor, parentComponent);
         }
       }
+    }
+  };
+
+  /**
+   * @author: Zhouqi
+   * @description: 更新没有绑定过key属性的动态节点
+   * @param c1 旧的子节点
+   * @param c2 新的子节点
+   * @param parentAnchor 锚点元素
+   * @param container 容器
+   * @param parentComponent 父组件实例
+   */
+  const patchUnkeyedChildren = (c1, c2, container, anchor, parentComponent) => {
+    // TODO optimized优化，对原节点进行克隆，以避免重新normalizeVNode带来的消耗
+    const oldLen = c1.length;
+    const newLen = c2.length;
+    const minLen = Math.min(oldLen, newLen);
+    for (let i = 0; i < minLen; i++) {
+      const newChild = normalizeVNode(c2[i]);
+      patch(c1[i], newChild, container, null, parentComponent);
+    }
+    // 说明有新增的节点，需要新增
+    if (oldLen < newLen) {
+      mountChildren(c2, container, anchor, parentComponent, minLen);
+    } else {
+      // 说明有要删除的节点
+      unmountChildren(c1, parentComponent, minLen);
     }
   };
 
@@ -714,10 +766,11 @@ function baseCreateRenderer(options) {
    * @description: 删除数组类型的子节点
    * @param children 孩子节点vnode
    * @param parentComponent 父组件实例
+   * @param start children子节点起始遍历的位置
    */
-  const unmountChildren = (children, parentComponent) => {
+  const unmountChildren = (children, parentComponent, start = 0) => {
     const childrenLength = children.length;
-    for (let i = 0; i < childrenLength; i++) {
+    for (let i = start; i < childrenLength; i++) {
       unmount(children[i], parentComponent);
     }
   };
@@ -789,7 +842,6 @@ function baseCreateRenderer(options) {
       // 触发指令钩子函数beforeMount
       invokeDirectiveHook(vnode, null, "beforeMount");
     }
-
     hostInsert(el, container, anchor);
 
     if (transition) {
@@ -806,11 +858,18 @@ function baseCreateRenderer(options) {
    * @param container 父容器
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
+   * @param start children子节点起始遍历的位置
    */
-  const mountChildren = (children, container, anchor, parentComponent) => {
-    children.forEach((vnode) => {
-      patch(null, vnode, container, anchor, parentComponent);
-    });
+  const mountChildren = (
+    children,
+    container,
+    anchor,
+    parentComponent,
+    start = 0
+  ) => {
+    for (let i = start; i < children.length; i++) {
+      patch(null, children[i], container, anchor, parentComponent);
+    }
   };
 
   /**

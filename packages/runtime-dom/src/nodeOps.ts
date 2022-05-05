@@ -2,10 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-03 15:36:54
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-17 10:58:35
+ * @LastEditTime: 2022-05-05 17:15:06
  */
 // 平台渲染操作
 export const nodeOps = {
+  parentNode(node) {
+    return node.parentNode || null;
+  },
   /**
    * @author: Zhouqi
    * @description: 创建节点
@@ -80,6 +83,6 @@ export const nodeOps = {
    * @description: 查找节点
    * @param selector 选择器
    * @return 节点
-   */  
+   */
   querySelector: (selector) => document.querySelector(selector),
 };

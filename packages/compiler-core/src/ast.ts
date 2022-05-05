@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 11:22:42
+ * @LastEditTime: 2022-05-05 16:04:49
  */
 import {
   CREATE_ELEMENT_VNODE,
@@ -47,7 +47,8 @@ export function createVnodeCall(
   patchFlag?,
   dynamicProps?,
   directives?,
-  isBlock = false
+  isBlock = false,
+  disableTracking = false
 ) {
   if (context) {
     if (isBlock) {
@@ -72,6 +73,7 @@ export function createVnodeCall(
     dynamicProps,
     directives,
     isBlock,
+    disableTracking,
   };
 }
 
