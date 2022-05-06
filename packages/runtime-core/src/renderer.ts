@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 22:31:05
+ * @LastEditTime: 2022-05-06 13:58:03
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -161,6 +161,19 @@ function baseCreateRenderer(options) {
       const { children } = n2;
       mountChildren(children, container, fragmentEndAnchor, parentComponent);
     } else {
+      if (
+        patchFlag > 0 &&
+        patchFlag & PatchFlags.STABLE_FRAGMENT &&
+        dynamicChildren
+      ) {
+        // 稳定的fragment包括v-for产生的稳定的fragment之需要更新patchBlockChildren，不用patchChildren
+        patchBlockChildren(
+          n1.dynamicChildren,
+          dynamicChildren,
+          container,
+          parentComponent
+        );
+      }
       // 更新节点
       patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
     }

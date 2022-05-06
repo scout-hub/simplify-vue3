@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 22:37:38
+ * @LastEditTime: 2022-05-06 10:32:12
  */
 import {
   createCallExpression,
@@ -122,8 +122,8 @@ function processIf(node, dir, context, fn?) {
         onExit && onExit();
         // 清除当前节点
         context.currentNode = null;
-        break;
       }
+      break;
     }
   }
 }

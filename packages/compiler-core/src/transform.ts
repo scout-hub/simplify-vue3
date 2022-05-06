@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 14:50:49
+ * @LastEditTime: 2022-05-06 13:52:03
  */
-import { isArray, isString } from "@simplify-vue/shared";
+import { isArray, isString, PatchFlags } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
 import {
   OPEN_BLOCK,
@@ -109,14 +109,16 @@ function createRootCodegen(root, context) {
       root.codegenNode = child;
     }
   } else if (children.length > 1) {
-    let patchFlag = undefined;
     // 多根据标签的情况需要在外层套一个fragment，这个fragment也是一个block，需要收集动态子节点
+    // 这个fragment被标记为稳定的fragment
+    let patchFlag = PatchFlags.STABLE_FRAGMENT;
+
     root.codegenNode = createVnodeCall(
       context,
       context.helper(FRAGMENT),
       null,
       root.children,
-      patchFlag,
+      String(patchFlag),
       undefined,
       undefined,
       true // block

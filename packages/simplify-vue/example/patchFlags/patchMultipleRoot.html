@@ -1,0 +1,59 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-05-06 13:34:49
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-05-06 13:52:30
+-->
+<!--
+ * @Author: Zhouqi
+ * @Date: 2022-03-26 21:15:56
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2022-04-30 20:24:24
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../../dist/simplify-vue.global.js"></script>
+    <script>
+        const {
+            createApp,
+            ref
+        } = Vue;
+
+        const App = {
+            name: "App",
+            template: `
+            <div>{{rootName1}}</div>
+            <div>{{rootName2}}</div>
+            <div>我是静态节点</div>
+            <button @click="update">更新</button>
+            `,
+            setup() {
+                const rootName1 = ref('root1');
+                const rootName2 = ref('root2');
+                const update = () => {
+                    rootName1.value = 'root11'
+                    rootName2.value = 'root22'
+                }
+                return {
+                    rootName2,
+                    rootName1,
+                    update
+                }
+            }
+        };
+
+        createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>
