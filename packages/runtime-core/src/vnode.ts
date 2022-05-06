@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 22:27:04
+ * @LastEditTime: 2022-05-06 16:05:00
  */
 
 import {
@@ -283,6 +283,7 @@ export let currentBlock: any = null;
  */
 function setupBlock(vnode) {
   vnode.dynamicChildren = currentBlock || EMPTY_ARR;
+  console.log(vnode);
   closeBlock();
   if (currentBlock) {
     // 子block树也需要被收集到父block下，

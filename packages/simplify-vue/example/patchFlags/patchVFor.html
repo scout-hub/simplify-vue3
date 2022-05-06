@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-05 19:29:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 13:34:11
+ * @LastEditTime: 2022-05-06 16:45:13
 -->
 <!--
  * @Author: Zhouqi
@@ -46,9 +46,8 @@
                     <span :class="item.class">姓名：{{item.name}};</span>    
                     <span>年龄：{{item.age}};</span>    
                     <span>性别：男;</span>    
-                    爱好：<span v-for="items in item.hobby" v-if="item.show">{{items}}</span>    
                 </h1>    
-                <div v-for="item in [1,2,3]">{{item}}</div>    
+                <div v-for="(item,index) in [1,2,3]">{{item}}</div>    
                 <button @click="change">更新</button>
             </div>`,
             setup() {
@@ -65,11 +64,7 @@
                 }]);
                 const item = 'item';
                 const change = () => {
-                    arr.push({
-                        name: 'ww',
-                        age: 16,
-                        hobby: ['羽毛球']
-                    })
+                    arr.splice(0, 1);
                     arr[0].class = ['green'];
                 };
                 return {

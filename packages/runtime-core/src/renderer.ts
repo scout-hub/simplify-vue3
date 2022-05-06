@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 13:58:03
+ * @LastEditTime: 2022-05-06 16:33:30
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -10,7 +10,6 @@ import {
   isSameVNodeType,
   Text,
   Comment,
-  cloneVNode,
   normalizeVNode,
 } from "./vnode";
 import { createAppApi } from "./apiCreateApp";
@@ -157,7 +156,6 @@ function baseCreateRenderer(options) {
       // #fix: example slots demo when update slot, the new node insertion exception
       hostInsert(fragmentStartAnchor, container, anchor);
       hostInsert(fragmentEndAnchor, container, anchor);
-      // 创建节点
       const { children } = n2;
       mountChildren(children, container, fragmentEndAnchor, parentComponent);
     } else {
@@ -166,16 +164,17 @@ function baseCreateRenderer(options) {
         patchFlag & PatchFlags.STABLE_FRAGMENT &&
         dynamicChildren
       ) {
-        // 稳定的fragment包括v-for产生的稳定的fragment之需要更新patchBlockChildren，不用patchChildren
+        // 稳定的fragment（template root，template v-for）只需要更新patchBlockChildren，不用patchChildren
         patchBlockChildren(
           n1.dynamicChildren,
           dynamicChildren,
           container,
           parentComponent
         );
+      } else {
+        // 全量更新节点
+        patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
       }
-      // 更新节点
-      patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
     }
   };
 
@@ -446,7 +445,7 @@ function baseCreateRenderer(options) {
       const newVNode = newChildren[i];
       const oldVNode = oldChildren[i];
       const container =
-        // 如果节点是一个Fragment，如果要进行节点的移动/挂载，需要找到这个Fragment节点的父节点去处理，否则会报错
+        // 节点是一个Fragment片段，如果要进行节点的移动/挂载，需要找到这个节点的父节点去处理，否则会报错
         oldVNode.el && oldVNode.type === Fragment
           ? hostParentNode(oldVNode.el)
           : fallbackContainer;

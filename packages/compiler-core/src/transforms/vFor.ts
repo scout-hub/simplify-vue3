@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 16:35:53
+ * @LastEditTime: 2022-05-06 20:38:36
  */
 import { PatchFlags } from "@simplify-vue/shared";
 import {
@@ -60,7 +60,7 @@ export const transformFor = createStructuralDirectiveTransform(
       // TODO 这里还未做v-for的key绑定
       const fragmentFlag = PatchFlags.UNKEYED_FRAGMENT;
 
-      // v-for外层的Fragment也是一个block，但它可能不收集动态节点（是否是稳定的Fragment，这里还需要理解）
+      // v-for生成的Fragment也是一个block，但它可能不收集动态节点（是否是稳定的Fragment，这里还需要理解）
       forNode.codegenNode = createVnodeCall(
         context,
         helper(FRAGMENT),
@@ -105,6 +105,7 @@ function parseForExpression(exp, context) {
     source: createAliasExpression(RHS),
     key: undefined,
     value: undefined,
+    index: undefined,
   };
   forResult.source = processExpression(forResult.source, context);
 
