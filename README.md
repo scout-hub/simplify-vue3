@@ -56,6 +56,6 @@ pnpm build
    - [x] 普通元素v-show、v-if/v-else-if/v-else、v-bind、v-on、v-for
    - [x] template下多根标签节点渲染 
    - [x] patchFlag: 动态文本节点标记，动态class属性标记，动态props属性标记，指令标记(v-show)
-   - [x] block标记：v-if、Fragment 
+   - [x] block标记
 - shared
    - [x] 辅助函数
