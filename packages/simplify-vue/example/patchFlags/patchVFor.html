@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-05 19:29:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 16:45:13
+ * @LastEditTime: 2022-05-07 16:57:18
 -->
 <!--
  * @Author: Zhouqi
@@ -47,7 +47,7 @@
                     <span>年龄：{{item.age}};</span>    
                     <span>性别：男;</span>    
                 </h1>    
-                <div v-for="(item,index) in [1,2,3]">{{item}}</div>    
+                <div v-for="(item,index) in [1,2,3]">item:{{item}}====index:{{index}}</div>    
                 <button @click="change">更新</button>
             </div>`,
             setup() {

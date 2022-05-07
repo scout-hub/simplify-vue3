@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-28 15:14:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 19:57:21
+ * @LastEditTime: 2022-05-07 15:42:33
  */
 const {
     build
@@ -17,9 +17,9 @@ build({
     globalName: 'Vue',
     watch: {
         onRebuild(error) {
-            console.log('rebuild');
+            console.log('rebuild simplify-vue/dist/simplify-vue.global.js');
         }
     }
 }).then(() => {
-    console.log(`watching`)
+    console.log(`watching simplify-vue/dist/simplify-vue.global.js`)
 })

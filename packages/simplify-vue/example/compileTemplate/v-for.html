@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 13:33:08
+ * @LastEditTime: 2022-05-07 16:56:10
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -42,7 +42,7 @@
                     <span>性别：男;</span>    
                     <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
                 </h1>    
-                <div v-for="item in [1,2,3]">{{item}}</div>    
+                <div v-for="(item,index) in [1,2,3]">item:{{item}}====index:{{index}}</div>    
             </div>`,
             setup() {
                 const arr = reactive([{
@@ -58,7 +58,6 @@
                 }]);
                 const item = 'item';
                 return {
-                    change,
                     item,
                     arr
                 }
