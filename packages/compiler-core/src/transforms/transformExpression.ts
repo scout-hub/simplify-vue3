@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 23:38:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 12:49:30
+ * @LastEditTime: 2022-05-06 21:53:27
  */
 import { createCompoundExpression, NodeTypes } from "../ast";
 import { parse } from "@babel/parser";
@@ -50,7 +50,12 @@ export function processExpression(node, context) {
     node.content = rewriteIdentifier(content);
     return node;
   }
-  const ast = parse(`(${content})`);
+  let ast;
+  try {
+    ast = parse(`(${content})`);
+  } catch (e) {
+    return node;
+  }
   const ids: any = [];
 
   walkIdentifiers(ast, (node, isReferenced) => {

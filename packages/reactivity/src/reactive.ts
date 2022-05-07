@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 21:26:24
+ * @LastEditTime: 2022-05-07 11:38:02
  */
 import { def, isObject, toRawType } from "@simplify-vue/shared";
 import {
@@ -151,6 +151,12 @@ function createReactiveObject(
   collectionHandlers: ProxyHandler<any>,
   proxyMap: WeakMap<Target, any>
 ) {
+  // 如果已经是响应式对象了，直接返回。
+  // TODO 除非是将响应式对象转化为readonly
+  if (raw[ReactiveFlags.RAW]) {
+    return raw;
+  }
+
   /**
    * 如果映射表里有原始对象对应的代理对象，则直接返回，避免因同一个原始对象而创建出的代理对象不同导致比较失败
    * 例如：
