@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 21:14:50
+ * @LastEditTime: 2022-05-07 21:43:42
  */
 /**
  * 1. text
@@ -261,6 +261,7 @@ function genVNodeCall(node, context) {
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
   }
+  
   if (isBlock) {
     push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `);
   }

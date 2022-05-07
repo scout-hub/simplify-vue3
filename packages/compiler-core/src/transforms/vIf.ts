@@ -2,11 +2,12 @@
  * @Author: Zhouqi
  * @Date: 2022-04-26 21:19:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 10:32:12
+ * @LastEditTime: 2022-05-07 21:22:31
  */
 import {
   createCallExpression,
   createConditionalExpression,
+  createSimpleExpression,
   NodeTypes,
 } from "../ast";
 import { CREATE_COMMENT } from "../runtimeHelpers";
@@ -16,10 +17,7 @@ import {
   traverseNode,
 } from "../transform";
 import { injectProp } from "../utils";
-import {
-  createObjectProperty,
-  createSimpleExpression,
-} from "./transformElement";
+import { createObjectProperty } from "./transformElement";
 import { processExpression } from "./transformExpression";
 
 // v-if指令转换器

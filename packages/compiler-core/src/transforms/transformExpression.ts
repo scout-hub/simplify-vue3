@@ -2,13 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 23:38:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 21:53:27
+ * @LastEditTime: 2022-05-07 21:22:18
  */
 import { createCompoundExpression, NodeTypes } from "../ast";
 import { parse } from "@babel/parser";
 import { isSimpleIdentifier } from "../utils";
 import { walkIdentifiers } from "../babelUtils";
-import { createSimpleExpression } from "./transformElement";
+import { createSimpleExpression } from "../ast";
 
 export function transformExpression(node, context) {
   if (node.type === NodeTypes.INTERPOLATION) {

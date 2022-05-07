@@ -2,10 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 16:55:35
+ * @LastEditTime: 2022-05-07 21:56:15
  */
 import { PatchFlags } from "@simplify-vue/shared";
 import {
+  ConstantTypes,
   createCallExpression,
   createFunctionExpression,
   createVnodeCall,
@@ -16,9 +17,10 @@ import {
   OPEN_BLOCK,
   RENDER_LIST,
   CREATE_ELEMENT_BLOCK,
+  CREATE_ELEMENT_VNODE,
 } from "../runtimeHelpers";
 import { createStructuralDirectiveTransform } from "../transform";
-import { createSimpleExpression } from "./transformElement";
+import { createSimpleExpression } from "../ast";
 import { processExpression } from "./transformExpression";
 
 // copy from vue-core
@@ -62,10 +64,97 @@ export const transformFor = createStructuralDirectiveTransform(
         forNode.source,
       ]);
 
-      // TODO 这里还未做v-for的key绑定
-      const fragmentFlag = PatchFlags.UNKEYED_FRAGMENT;
+      /**
+       * v-for产生的Fragment也是一个block，但它可能不收集动态节点，具体看Fragment是否具有稳定性。
+       *
+       * v-for产生的Fragment片段也是一个block的原因：
+       *
+       * <div>
+       *  <div v-for="item in arr">{{item}}</div>
+       *  <p>{{ p }}</p>
+       * </div>
+       *
+       * 更新前：
+       * arr: [1, 2]
+       * block = {
+       *  tag:'div',
+       *  dynamicChildren:[
+       *    {tag:'div',children: 1},
+       *    {tag:'div',children: 2},
+       *    {tag:'p',children: _ctx.p}
+       *  ]
+       * }
+       *
+       * 更新后：
+       * arr: [1]
+       * block = {
+       *  tag:'div',
+       *  dynamicChildren:[
+       *    {tag:'div',children: 1},
+       *    {tag:'p',children: _ctx.p}
+       *  ]
+       * }
+       *
+       * 假如这个Fragment不是一个block，则动态节点收集情况如上，在更新前后动态子节点数量发生了变化，此时无法进行一对一靶向更新。
+       * 那是否可以考虑对dynamicChildren进行传统diff更新？显然也是不行的，因为diff的一个前提是两个同级节点的比较，虽然例子中
+       * 的节点都是平级的，但是dynamicChildren收集的可能还包含子孙节点，子孙节点和子节点肯定不是同级的。因此我们需要将Fragment
+       * 也设置成block
+       *
+       * 更新前：
+       * block = {
+       *  tag:'div',
+       *  dynamicChildren:[
+       *    {tag: Fragment, children, dynamicChildren:[xxx, xxx]}
+       *    {tag:'p',children: _ctx.p}
+       *  ]
+       * }
+       *
+       * 更新后：
+       * block = {
+       *  tag:'div',
+       *  dynamicChildren:[
+       *    {tag: Fragment, children, dynamicChildren:[xxx]}
+       *    {tag:'p',children: _ctx.p}
+       *  ]
+       * }
+       *
+       * 将Fragment也设置成block后，这个颗block tree看上去就比较稳定，不管v-for如何变化，block的整体结构还是不变的，注意是结构。
+       *
+       * 我们将Fragment标记成block后，v-for产生的动态子节点的收集就交给了Fragment，这就又回到了上面这种情况。Fragment 这个block
+       * 收集的动态子节点结构可能也是不稳定的。这里就又涉及到Fragment的稳定性：
+       *
+       * 稳定的Fragment:
+       * 更新前后，block的dynamicChildren数组中收集的动态节点数量或者顺序不一致。
+       * 例如 v-for="item in [1,2,3]" 遍历的是常量
+       *
+       * 不稳定的Fragment:
+       * 更新前后，block的dynamicChildren数组中收集的动态节点数量或者顺序不一致。
+       * 例如 v-for="item in arr"，而arr可能会动态增加或者减少或者改变顺序
+       *
+       * 对于稳定的Fragment，可以通过dynamicChildren进行靶向更新，
+       * 对于不稳定的Fragment只能通过传统的dom diff，对Fragment的children（不是dynamicChildren）进行更新。
+       * 显然对一个子block树进行传统diff比对整棵block树（第一个例子）做diff要来的更好。
+       *
+       * 当然Fragment的children子节点也可以是block，这样对于Fragment的子节点进行更新时依旧可以用靶向更新
+       * block = {
+       *  tag:'Fragment',
+       *  dynamicChildren:[
+       *    {tag: xxx', dynamicChildren:[xxx]}
+       *    {tag: xxx', dynamicChildren:[xxx]}
+       *  ]
+       * }
+       *
+       */
 
-      // v-for生成的Fragment也是一个block，但它可能不收集动态节点（是否是稳定的Fragment，这里还需要理解）
+      const isStableFragment =
+        forNode.source.type === NodeTypes.SIMPLE_EXPRESSION &&
+        forNode.source.constType > ConstantTypes.NOT_CONSTANT;
+
+      // TODO 这里还未做v-for的key绑定，不稳定的情况下暂时标记为UNKEYED_FRAGMENT
+      const fragmentFlag = isStableFragment
+        ? PatchFlags.STABLE_FRAGMENT
+        : PatchFlags.UNKEYED_FRAGMENT;
+
       forNode.codegenNode = createVnodeCall(
         context,
         helper(FRAGMENT),
@@ -75,17 +164,25 @@ export const transformFor = createStructuralDirectiveTransform(
         undefined,
         undefined,
         true, // isBlock
-        true // TODO
+        !isStableFragment // 稳定的fragment可以进行动态子节点的收集，不稳定不需要收集
       );
 
       return () => {
         const { children } = forNode;
-        helper(OPEN_BLOCK);
-        helper(CREATE_ELEMENT_BLOCK);
+        const childBlock = children[0].codegenNode;
+        // 稳定的fragment可以收集动态节点，不需要它的children子节点是一个block去收集动态节点
+        // 不稳定fragment不收集动态节点，此时需要它的children子节点是一个block去收集动态节点
+        childBlock.isBlock = !isStableFragment;
+        if (childBlock.isBlock) {
+          helper(OPEN_BLOCK);
+          helper(CREATE_ELEMENT_BLOCK);
+        } else {
+          helper(CREATE_ELEMENT_VNODE);
+        }
         renderExp.arguments.push(
           createFunctionExpression(
             createForLoopParams(forNode.parseResult),
-            children[0]
+            childBlock
           )
         );
       };

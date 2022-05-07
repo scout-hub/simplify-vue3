@@ -2,13 +2,11 @@
  * @Author: Zhouqi
  * @Date: 2022-04-23 19:47:29
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:37:29
+ * @LastEditTime: 2022-05-07 21:22:44
  */
 import { toHandlerKey } from "@simplify-vue/shared";
-import {
-  createObjectProperty,
-  createSimpleExpression,
-} from "./transformElement";
+import { createSimpleExpression } from "../ast";
+import { createObjectProperty } from "./transformElement";
 
 export function transformOn(dir) {
   const { arg, exp } = dir;

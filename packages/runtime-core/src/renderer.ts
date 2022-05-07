@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 16:33:30
+ * @LastEditTime: 2022-05-07 21:14:50
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -172,7 +172,7 @@ function baseCreateRenderer(options) {
           parentComponent
         );
       } else {
-        // 全量更新节点
+        // 全量更新节点，比如v-for 产生的不稳定的Fragment
         patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
       }
     }
@@ -472,7 +472,11 @@ function baseCreateRenderer(options) {
     if (patchFlag > 0) {
       // 处理children节点有key属性的情况（部分有，部分没有也算）
       // 处理children节点没有key属性的情况（先针对v-for没有绑定key的情况）
-      if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
+      if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
+        patchKeyedChildren(c1, c2, container, anchor, parentComponent);
+        return;
+      } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
+        // unkeyed
         patchUnkeyedChildren(c1, c2, container, anchor, parentComponent);
         return;
       }

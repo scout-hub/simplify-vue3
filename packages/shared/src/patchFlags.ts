@@ -10,6 +10,7 @@ export const enum PatchFlags {
   CLASS = 1 << 1,
   PROPS = 1 << 3,
   STABLE_FRAGMENT = 1 << 6,
+  KEYED_FRAGMENT = 1 << 7,
   UNKEYED_FRAGMENT = 1 << 8,
   NEED_PATCH = 1 << 9,
 }

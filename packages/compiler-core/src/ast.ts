@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 16:04:49
+ * @LastEditTime: 2022-05-07 21:26:27
  */
 import {
   CREATE_ELEMENT_VNODE,
@@ -33,6 +33,13 @@ export const enum NodeTypes {
   JS_CONDITIONAL_EXPRESSION,
   FOR,
   JS_FUNCTION_EXPRESSION,
+}
+
+export const enum ConstantTypes {
+  NOT_CONSTANT = 0,
+  CAN_SKIP_PATCH,
+  CAN_HOIST,
+  CAN_STRINGIFY,
 }
 
 export const enum ElementTypes {
@@ -74,6 +81,21 @@ export function createVnodeCall(
     directives,
     isBlock,
     disableTracking,
+  };
+}
+
+export function createSimpleExpression(
+  content,
+  isStatic,
+  constType = ConstantTypes.NOT_CONSTANT
+) {
+  // SIMPLE_EXPRESSION 对简单值的标记，比如props中的key和value。这些值如果是静态的会被序列化，
+  // 如果是动态的则原封不动的使用
+  return {
+    type: NodeTypes.SIMPLE_EXPRESSION,
+    isStatic,
+    content,
+    constType: isStatic ? ConstantTypes.CAN_STRINGIFY : constType,
   };
 }
 

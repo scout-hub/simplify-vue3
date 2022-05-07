@@ -2,12 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 21:16:47
+ * @LastEditTime: 2022-05-07 21:21:28
  */
 import { isString, isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
   createArrayExpression,
   createCallExpression,
+  createSimpleExpression,
   createVnodeCall,
   NodeTypes,
 } from "../ast";
@@ -207,16 +208,6 @@ function buildProps(node, context) {
     directives: runtimeDirectives,
     patchFlag,
     dynamicPropNames,
-  };
-}
-
-export function createSimpleExpression(content, isStatic) {
-  // SIMPLE_EXPRESSION 对简单值的标记，比如props中的key和value。这些值如果是静态的会被序列化，
-  // 如果是动态的则原封不动的使用
-  return {
-    type: NodeTypes.SIMPLE_EXPRESSION,
-    isStatic,
-    content,
   };
 }
 
