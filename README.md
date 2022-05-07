@@ -44,7 +44,7 @@ pnpm build
    - [x] getCurrentInstance
    - [x] vnode
    - [x] 快速diff算法
-   - [x] 根据patchFlag靶向更新文本节点、class属性、其他动态props
+   - [x] 根据patchFlag靶向更新文本节点、class属性、其他动态props、children节点
    - [x] block树 
    - [x] 等等
 - runtime-dom
@@ -56,6 +56,6 @@ pnpm build
    - [x] 普通元素v-show、v-if/v-else-if/v-else、v-bind、v-on、v-for
    - [x] template下多根标签节点渲染 
    - [x] patchFlag: 动态文本节点标记，动态class属性标记，动态props属性标记，指令标记(v-show)
-   - [x] block标记
+   - [x] block标记：v-if、v-for
 - shared
    - [x] 辅助函数
