@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-05 19:29:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 16:57:18
+ * @LastEditTime: 2022-05-07 22:00:45
 -->
 <!--
  * @Author: Zhouqi
@@ -65,6 +65,13 @@
                 const item = 'item';
                 const change = () => {
                     arr.splice(0, 1);
+                    arr.unshift({
+                        name: 'zs',
+                        age: 14,
+                        hobby: ['足球'],
+                        show: true,
+                        class: ['red']
+                    });
                     arr[0].class = ['green'];
                 };
                 return {
