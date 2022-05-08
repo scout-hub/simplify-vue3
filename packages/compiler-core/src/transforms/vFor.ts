@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-01 20:15:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:56:15
+ * @LastEditTime: 2022-05-08 22:09:48
  */
 import { PatchFlags } from "@simplify-vue/shared";
 import {
@@ -23,7 +23,7 @@ import { createStructuralDirectiveTransform } from "../transform";
 import { createSimpleExpression } from "../ast";
 import { processExpression } from "./transformExpression";
 
-// copy from vue-core
+// follow regular expression copy from vue-core
 const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
 const stripParensRE = /^\(|\)$/g;
 const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
