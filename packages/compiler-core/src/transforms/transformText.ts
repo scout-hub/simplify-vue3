@@ -2,15 +2,18 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 11:31:15
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 12:25:48
+ * @LastEditTime: 2022-05-08 21:53:43
  */
+import { PatchFlags } from "@simplify-vue/shared";
 import {
+  ConstantTypes,
   createCallExpression,
   createCompoundExpression,
   NodeTypes,
 } from "../ast";
 import { CREATE_TEXT } from "../runtimeHelpers";
 import { isText } from "../utils";
+import { getConstantType } from "./hoistStatic";
 
 export function transformText(node, context) {
   if (node.type === NodeTypes.ROOT || node.type === NodeTypes.ELEMENT) {
@@ -48,7 +51,7 @@ export function transformText(node, context) {
       }
 
       // 不处理文本节点的情况
-      // 1、存在文本节点
+      // 1、不存在文本节点
       // 2、只有一个文本子节点，且父元素是element/root类型
       if (
         !hasText ||
@@ -65,6 +68,9 @@ export function transformText(node, context) {
         if (isText(child) || child.type === NodeTypes.COMPOUND_EXPRESSION) {
           const callArgs: any = [];
           callArgs.push(child);
+          if (getConstantType(child) === ConstantTypes.NOT_CONSTANT) {
+            callArgs.push(String(PatchFlags.TEXT));
+          }
           children[i] = {
             type: NodeTypes.TEXT_CALL,
             content: child,

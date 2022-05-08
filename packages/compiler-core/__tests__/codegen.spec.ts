@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:55:25
+ * @LastEditTime: 2022-05-08 21:52:57
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -19,7 +19,7 @@ describe("Compiler: transform", () => {
   test("context state", () => {
     const ast = baseParse(`
     <div>
-      <div v-for="item in [1,2,3]">{{item}}</div>
+      {{text}}
     </div>
 `);
 

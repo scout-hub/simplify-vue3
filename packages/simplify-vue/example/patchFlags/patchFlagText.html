@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 13:56:20
+ * @LastEditTime: 2022-05-08 21:22:38
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +27,8 @@
             name: "App",
             template: `
             <div>
-               <span>{{text}}</span>
+               {{text}}
+               <p>{{text}}</p>
                <p>我是静态文本节点</p>
                <button @click="changeText">更新</button>
             </div>
@@ -39,7 +40,6 @@
                 }
 
                 return {
-                    show,
                     changeText,
                     text
                 }

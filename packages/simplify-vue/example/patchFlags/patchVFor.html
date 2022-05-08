@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-05-05 19:29:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 22:00:45
+ * @LastEditTime: 2022-05-08 20:55:39
 -->
 <!--
  * @Author: Zhouqi
@@ -35,7 +35,8 @@
     <script>
         const {
             createApp,
-            reactive
+            reactive,
+            ref
         } = Vue;
 
         const App = {
@@ -47,7 +48,11 @@
                     <span>年龄：{{item.age}};</span>    
                     <span>性别：男;</span>    
                 </h1>    
-                <div v-for="(item,index) in [1,2,3]">item:{{item}}====index:{{index}}</div>    
+                <div v-for="(item, index) in [1,2,3]">
+                    item:{{item}}====index:{{index}}
+                    <span>===={{items}}====</span>
+                    {{items}}
+                </div>    
                 <button @click="change">更新</button>
             </div>`,
             setup() {
@@ -62,7 +67,7 @@
                     age: 15,
                     hobby: ['篮球']
                 }]);
-                const item = 'item';
+                const items = ref('items');
                 const change = () => {
                     arr.splice(0, 1);
                     arr.unshift({
@@ -73,10 +78,12 @@
                         class: ['red']
                     });
                     arr[0].class = ['green'];
+                    items.value += 1;
                 };
+
                 return {
                     change,
-                    item,
+                    items,
                     arr
                 }
             }

@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 14:46:40
+ * @LastEditTime: 2022-05-08 21:46:34
  */
 import { extend } from "@simplify-vue/shared";
-import { ElementTypes, NodeTypes } from "./ast";
+import { ConstantTypes, ElementTypes, NodeTypes } from "./ast";
 
 // 默认的解析配置
 export const defaultParserOptions = {
@@ -343,6 +343,9 @@ function parseAttribute(context, attributeNames) {
         type: NodeTypes.SIMPLE_EXPRESSION,
         content,
         isStatic,
+        constType: isStatic
+          ? ConstantTypes.CAN_STRINGIFY
+          : ConstantTypes.NOT_CONSTANT,
       };
     }
 
@@ -353,6 +356,7 @@ function parseAttribute(context, attributeNames) {
         type: NodeTypes.SIMPLE_EXPRESSION,
         content: value.content,
         isStatic: false,
+        constType: ConstantTypes.NOT_CONSTANT,
       },
       arg,
     };
@@ -443,6 +447,7 @@ function parseInterpolation(context) {
       type: NodeTypes.SIMPLE_EXPRESSION,
       // 非静态节点，也就是内容会变化
       isStatic: false,
+      constType: ConstantTypes.NOT_CONSTANT,
       // 插值内容
       content,
     },

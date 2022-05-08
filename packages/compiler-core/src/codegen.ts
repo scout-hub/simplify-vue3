@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:43:42
+ * @LastEditTime: 2022-05-08 21:57:19
  */
 /**
  * 1. text
@@ -336,6 +336,7 @@ function genNodeListAsArray(nodes, context) {
  */
 function genNodeList(nodes, context) {
   const { push } = context;
+  
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {

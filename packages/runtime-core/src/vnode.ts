@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 16:57:46
+ * @LastEditTime: 2022-05-08 21:58:46
  */
 
 import {
@@ -120,6 +120,7 @@ function createBaseVNode(
 
   // isBlockNode为false，即自身不是一个block节点的时候（避免自身触发自身）
   // currentBlock存在并且patchFlag大于0说明是动态节点需要收集
+
   if (!isBlockNode && currentBlock && patchFlag > 0) {
     currentBlock.push(vnode);
   }
@@ -128,8 +129,8 @@ function createBaseVNode(
 }
 
 // 创建文本节点的vnode
-export function createTextVNode(text: string) {
-  return createVnode(Text, null, text);
+export function createTextVNode(text: string, patchFlag: number = 0) {
+  return createVnode(Text, null, text, patchFlag);
 }
 
 // 创建注释节点的vnode
@@ -284,6 +285,7 @@ export let currentBlock: any = null;
 function setupBlock(vnode) {
   vnode.dynamicChildren = currentBlock || EMPTY_ARR;
   closeBlock();
+
   if (currentBlock) {
     // 子block树也需要被收集到父block下，
     // 例如v-if会单独生成一个block

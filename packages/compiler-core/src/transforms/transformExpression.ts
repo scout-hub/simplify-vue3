@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 23:38:10
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:22:18
+ * @LastEditTime: 2022-05-08 21:37:29
  */
-import { createCompoundExpression, NodeTypes } from "../ast";
+import { ConstantTypes, createCompoundExpression, NodeTypes } from "../ast";
 import { parse } from "@babel/parser";
 import { isSimpleIdentifier } from "../utils";
 import { walkIdentifiers } from "../babelUtils";
@@ -44,7 +44,11 @@ export function processExpression(node, context) {
     const isScopeVarReference = context.identifiers[value];
     return !isScopeVarReference ? `_ctx.${value}` : value;
   };
+
   const content = node.content;
+  // 判断内容是不是一个常量
+  const bailConstant = content.indexOf(`(`) > -1 || content.indexOf(".") > 0;
+
   // 处理简单标识符，例如{{xxx}}
   if (isSimpleIdentifier(content)) {
     node.content = rewriteIdentifier(content);
@@ -74,14 +78,25 @@ export function processExpression(node, context) {
     if (leadingText) {
       children.push(leadingText);
     }
-    children.push(createSimpleExpression(name, false));
+    children.push(
+      createSimpleExpression(
+        name,
+        false,
+        id.isConstant ? ConstantTypes.CAN_STRINGIFY : ConstantTypes.NOT_CONSTANT
+      )
+    );
     // 如果标识符后面还有其他字符，则全部截取，例如：_ctx.show === 2中遍历到show之后的 === 2需要全部截取
     if (i === ids.length - 1 && end < content.length) {
       children.push(content.slice(end));
     }
   });
+
   if (children.length) {
     return createCompoundExpression(children);
+  } else {
+    node.constType = bailConstant
+      ? ConstantTypes.NOT_CONSTANT
+      : ConstantTypes.CAN_STRINGIFY;
   }
   return node;
 }
