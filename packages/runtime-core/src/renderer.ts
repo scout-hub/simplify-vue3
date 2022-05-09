@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:14:50
+ * @LastEditTime: 2022-05-09 20:22:03
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -735,6 +735,9 @@ function baseCreateRenderer(options) {
       // 创建两个变量用来遍历increasingNewIndexSequence和新子节点数组（去除前后置节点）
       let seq = increasingNewIndexSequence.length - 1;
       const j = toBePatched - 1;
+      // 这里进行倒序处理，保证后面的节点先被处理。因为这里可能存在节点的移动，移动的时候需要找到锚点节点
+      // 也就是当前节点的下一个节点，因此我们要确保锚点节点一定是稳定的，不会变动，所以这里从后往前进行
+      // 节点遍历处理
       for (let i = j; i >= 0; i--) {
         // 1. 找到需要新增的节点
         const pos = i + newStart;
@@ -746,7 +749,10 @@ function baseCreateRenderer(options) {
           // 索引为-1说明没有在老的里面找到对应的节点，说明是新节点，需要挂载
           patch(null, newVnode, container, anchor, parentComponent);
         } else if (moved) {
-          if (newIndexToOldIndexMap[i] !== increasingNewIndexSequence[seq]) {
+          // 需要移动的情况：
+          // 1、没有最长递增子序列元素可以遍历了（j<0）
+          // 2、最长递增子序列对应的元素索引和当前遍历到的元素的索引不一样（i !== increasingNewIndexSequence[seq]）
+          if (j < 0 || i !== increasingNewIndexSequence[seq]) {
             // 需要移动节点
             move(newVnode, container, anchor);
           } else {
