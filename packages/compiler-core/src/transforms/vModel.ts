@@ -8,9 +8,8 @@ import { createObjectProperty } from "./transformElement";
  * @return
  */
 export const transformModel = (dir) => {
-  const { exp, arg } = dir;
-  const expString = exp.content;
-  const propName = arg ? arg : createSimpleExpression("modelValue", true);
+  const { exp } = dir;
+  const propName = createSimpleExpression("modelValue", true);
   const eventName = `onUpdate:modelValue`;
   const eventArg = `$event`;
   let assignmentExp = createCompoundExpression([
