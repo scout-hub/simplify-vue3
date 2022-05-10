@@ -36,6 +36,7 @@ pnpm build
    - [x] attrs/props初始化和更新、props类型校验
    - [x] emit事件派发/emits选项校验
    - [x] $el/$slots/$props/$attrs/$data
+   - [x] 指令
    - [x] 生命周期
    - [x] nextTick
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
@@ -53,7 +54,7 @@ pnpm build
 - compiler-core
    - [x] 解析插值、文本、元素
    - [x] 插值、文本、元素组合（支持嵌套）的template编译、转化、生成
-   - [x] 普通元素v-show、v-if/v-else-if/v-else、v-bind、v-on、v-for
+   - [x] 普通元素v-show、v-if/v-else-if/v-else、v-bind、v-on、v-for、v-model
    - [x] template下多根标签节点渲染 
    - [x] patchFlag: 动态文本节点标记，动态class属性标记，动态props属性标记，指令标记(v-show)
    - [x] block标记：v-if、v-for等等
