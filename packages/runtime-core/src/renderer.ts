@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-09 20:22:03
+ * @LastEditTime: 2022-05-10 21:24:29
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -844,6 +844,11 @@ function baseCreateRenderer(options) {
       // mountChildren(children, el, anchor, parentComponent);
       mountChildren(children, el, null, parentComponent);
     }
+    
+    // 指令
+    if (dirs) {
+      invokeDirectiveHook(vnode, null, "created");
+    }
 
     if (props) {
       // 处理props
@@ -863,6 +868,11 @@ function baseCreateRenderer(options) {
       invokeDirectiveHook(vnode, null, "beforeMount");
     }
     hostInsert(el, container, anchor);
+
+    // 指令
+    if (dirs) {
+      invokeDirectiveHook(vnode, null, "mounted");
+    }
 
     if (transition) {
       queuePostRenderEffect(() => {

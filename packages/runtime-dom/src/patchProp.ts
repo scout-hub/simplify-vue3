@@ -2,9 +2,9 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 15:44:22
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:45:25
+ * @LastEditTime: 2022-05-10 20:29:37
  */
-import { isOn } from "@simplify-vue/shared";
+import { isModelListener, isOn } from "@simplify-vue/shared";
 import { patchAttr } from "./modules/attrs";
 import { patchEvent } from "./modules/events";
 import { patchDOMProp } from "./modules/props";
@@ -35,8 +35,10 @@ export function patchProp(el, key, preValue, nextValue) {
     // class通过className去设置性能最好
     el.className = nextValue;
   } else if (isOn(key)) {
-    // 注册事件
-    patchEvent(el, key, preValue, nextValue);
+    if (!isModelListener(key)) {
+      // 注册事件
+      patchEvent(el, key, preValue, nextValue);
+    }
   } else {
     // 更新html属性
     patchAttr(el, key, nextValue);

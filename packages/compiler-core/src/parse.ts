@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-08 21:46:34
+ * @LastEditTime: 2022-05-10 19:46:08
  */
 import { extend } from "@simplify-vue/shared";
 import { ConstantTypes, ElementTypes, NodeTypes } from "./ast";
@@ -198,7 +198,7 @@ function parseTextData(context, length) {
 function parseElement(context, ancestors) {
   const element: any = parseTag(context, TagType.Start);
   // 如果是自闭合标签则直接返回
-  if (element.isSelfClosing) return;
+  if (element.isSelfClosing) return element;
 
   ancestors.push(element);
   // 递归处理子节点

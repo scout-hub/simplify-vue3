@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-08 21:57:19
+ * @LastEditTime: 2022-05-10 20:20:41
  */
 /**
  * 1. text
@@ -49,6 +49,7 @@ import {
   TO_DISPLAY_STRING,
   WITH_DIRECTIVES,
 } from "./runtimeHelpers";
+import { isSimpleIdentifier } from "./utils";
 
 export function generate(ast, options = {}) {
   const context = createCodegenContext(ast, options);
@@ -227,8 +228,14 @@ function genObjectExpression(node, context) {
  */
 function genExpressionAsPropertyKey(node, context) {
   const { push } = context;
-  const text = node.content;
-  push(text);
+  if (node.isStatic) {
+    const text = isSimpleIdentifier(node.content)
+      ? node.content
+      : JSON.stringify(node.content);
+    push(text, node);
+  } else {
+    push(node.content);
+  }
 }
 
 /**
@@ -261,7 +268,7 @@ function genVNodeCall(node, context) {
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
   }
-  
+
   if (isBlock) {
     push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `);
   }
@@ -336,7 +343,7 @@ function genNodeListAsArray(nodes, context) {
  */
 function genNodeList(nodes, context) {
   const { push } = context;
-  
+
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (isString(node)) {

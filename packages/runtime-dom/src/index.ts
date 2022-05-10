@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:44
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 11:45:57
+ * @LastEditTime: 2022-05-10 21:19:08
  */
 import { createRenderer } from "@simplify-vue/runtime-core";
 import { extend } from "@simplify-vue/shared";
@@ -43,3 +43,4 @@ function normalizeContainer(container) {
 export * from "@simplify-vue/runtime-core";
 export { Transition } from "./components/Transition";
 export { vShow } from "./directives/vShow";
+export { vModelText } from "./directives/vModel";

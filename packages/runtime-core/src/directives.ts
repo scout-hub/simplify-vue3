@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-24 21:35:42
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-25 09:52:35
+ * @LastEditTime: 2022-05-10 21:24:58
  */
 import { currentRenderInstance } from "./componentRenderContext";
 
@@ -38,6 +38,6 @@ export function invokeDirectiveHook(vnode, oldVnode, name) {
       binding.oldValue = oldBindings[i].value;
     }
     const hook = binding.dir[name];
-    hook(vnode.el, binding);
+    hook && hook(vnode.el, binding, vnode);
   }
 }

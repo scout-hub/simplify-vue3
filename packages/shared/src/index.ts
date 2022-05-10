@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-21 20:00:07
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-03 19:42:12
+ * @LastEditTime: 2022-05-10 21:10:24
  */
 export * from "./shapeFlags";
 export * from "./normalizeProp";
@@ -61,10 +61,10 @@ export const EMPTY_OBJ = {};
 export const EMPTY_ARR = [];
 
 // 循环数组中的所有方法
-export const invokeArrayFns = (fns: Function[]) => {
+export const invokeArrayFns = (fns: Function[], args?: any) => {
   const length = fns.length;
   for (let i = 0; i < length; i++) {
-    fns[i]();
+    fns[i](args);
   }
 };
 
@@ -89,3 +89,6 @@ export const def = (obj: object, key: string | symbol, value: any) => {
     value,
   });
 };
+
+// 是否是v-model
+export const isModelListener = (key: string) => key.startsWith("onUpdate:");

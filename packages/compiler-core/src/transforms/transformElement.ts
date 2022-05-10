@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:21:28
+ * @LastEditTime: 2022-05-10 21:03:36
  */
 import { isString, isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -144,7 +144,7 @@ function buildProps(node, context) {
       // 处理v-bind、v-on、v-show
       const directiveTransform = context.directiveTransforms[name];
       if (directiveTransform) {
-        const { props, needRuntime } = directiveTransform(prop, context);
+        const { props, needRuntime } = directiveTransform(prop, node, context);
         // 分析props上的属性，对不同性质的props进行动态信息的标记
         props.forEach(analyzePatchFlag);
         properties.push(...props);

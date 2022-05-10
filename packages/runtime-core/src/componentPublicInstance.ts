@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 13:02:29
+ * @LastEditTime: 2022-05-10 21:34:07
  */
 import { shallowReadonly } from "@simplify-vue/reactivity";
 import { EMPTY_OBJ, hasOwn } from "@simplify-vue/shared";
@@ -68,5 +68,28 @@ export const PublicInstanceProxyHandlers = {
       `Property ${JSON.stringify(key)} was accessed during render ` +
         `but is not defined on instance.`
     );
+  },
+  set({ _: instance }, key: string, value: any) {
+    const { data, setupState, accessCache } = instance;
+    const t = accessCache[key];
+
+    if (t !== undefined) {
+      switch (t) {
+        case AccessTypes.SETUP:
+          setupState[key] = value;
+          return true;
+        case AccessTypes.DATA:
+          data[key] = value;
+          return true;
+      }
+    }
+
+    if (setupState !== EMPTY_OBJ && hasOwn(setupState, key)) {
+      setupState[key] = value;
+      return true;
+    } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
+      data[key] = value;
+      return true;
+    }
   },
 };
