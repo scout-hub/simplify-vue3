@@ -2,9 +2,15 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 11:33:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-05 21:15:20
+ * @LastEditTime: 2022-05-11 22:10:41
  */
 import { NodeTypes } from "./ast";
+import {
+  CREATE_BLOCK,
+  CREATE_ELEMENT_BLOCK,
+  CREATE_ELEMENT_VNODE,
+  CREATE_VNODE,
+} from "./runtimeHelpers";
 import { createObjectExpression } from "./transforms/transformElement";
 
 export function isText(node) {
@@ -25,4 +31,12 @@ export function injectProp(node, prop) {
   // 这里简单处理一下v-if的key属性注入
   const propsWithInjection = createObjectExpression([prop]);
   node.props = propsWithInjection;
+}
+
+export function getVNodeBlockHelper(isComponent: boolean) {
+  return isComponent ? CREATE_BLOCK : CREATE_ELEMENT_BLOCK;
+}
+
+export function getVNodeHelper(isComponent: boolean) {
+  return isComponent ? CREATE_VNODE : CREATE_ELEMENT_VNODE;
 }

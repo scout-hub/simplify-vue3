@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:34:26
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 20:00:38
+ * @LastEditTime: 2022-05-11 21:31:48
  */
 import { transformShow } from "../../compiler-dom/src/transform/vShow";
 import { generate } from "../src/codegen";
@@ -18,25 +18,23 @@ import { transformModel } from "../src/transforms/vModel";
 import { transformOn } from "../src/transforms/vOn";
 describe("Compiler: transform", () => {
   test("context state", () => {
-    const ast = baseParse(`
-    <input v-model="text" />
-`);
+    const ast = baseParse(`<Child />`);
 
     transform(ast, {
       nodeTransforms: [
         // transformIf,
         // transformFor,
-        transformExpression,
+        // transformExpression,
         transformElement,
-        transformText,
+        // transformText,
       ],
       // nodeTransforms: [transformExpression, transformElement, transformText],
-      directiveTransforms: {
-        model: transformModel,
-        // bind: transformBind,
-        // on: transformOn,
-        // show: transformShow,
-      },
+      // directiveTransforms: {
+      // model: transformModel,
+      // bind: transformBind,
+      // on: transformOn,
+      // show: transformShow,
+      // },
     });
 
     const code = generate(ast);

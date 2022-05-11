@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 21:03:36
+ * @LastEditTime: 2022-05-11 21:29:36
  */
 import { isString, isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -10,20 +10,31 @@ import {
   createCallExpression,
   createSimpleExpression,
   createVnodeCall,
+  ElementTypes,
   NodeTypes,
 } from "../ast";
-import { NORMALIZE_CLASS } from "../runtimeHelpers";
+import { NORMALIZE_CLASS, RESOLVE_COMPONENT } from "../runtimeHelpers";
 import { isStaticExp } from "../utils";
 
 const directiveImportMap = new WeakMap();
 
 export function transformElement(node, context) {
   return () => {
-    const { type } = node;
-    if (type !== NodeTypes.ELEMENT) return;
+    const { type, tagType } = node;
+    if (
+      !(
+        type === NodeTypes.ELEMENT &&
+        (tagType === ElementTypes.ELEMENT || tagType === ElementTypes.COMPONENT)
+      )
+    )
+      return;
 
     const { tag, props, children } = node;
-    const vnodeTag = `"${tag}"`;
+    const isComponent = tagType === ElementTypes.COMPONENT;
+
+    const vnodeTag = isComponent
+      ? resolveComponentType(node, context)
+      : `"${tag}"`;
     let vnodeProps;
     let vnodeChildren;
     let vnodeDirectives;
@@ -265,4 +276,18 @@ function buildDirectiveArgs(dir, context) {
   }
   if (dir.exp) dirArgs.push(dir.exp);
   return createArrayExpression(dirArgs);
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 解析组件
+ * @param node
+ * @param context
+ * @return
+ */
+function resolveComponentType(node, context) {
+  const { tag } = node;
+  context.helper(RESOLVE_COMPONENT);
+  context.components.add(tag);
+  return `_component_${tag}`;
 }

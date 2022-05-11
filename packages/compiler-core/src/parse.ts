@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 19:46:08
+ * @LastEditTime: 2022-05-11 21:20:42
  */
 import { extend } from "@simplify-vue/shared";
 import { ConstantTypes, ElementTypes, NodeTypes } from "./ast";
@@ -243,11 +243,17 @@ function parseTag(context, type: TagType) {
   // 如果是结束标签，直接结束
   if (type === TagType.End) return;
 
+  let tagType = ElementTypes.ELEMENT;
+  // 判断是否是组件
+  if (/^[A-Z]/.test(tag)) {
+    tagType = ElementTypes.COMPONENT;
+  }
+
   return {
     // 类型是节点类型
     type: NodeTypes.ELEMENT,
     tag,
-    tagType: ElementTypes.ELEMENT,
+    tagType,
     isSelfClosing,
     children: [],
     props,

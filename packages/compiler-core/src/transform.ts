@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-06 13:52:03
+ * @LastEditTime: 2022-05-11 21:26:58
  */
 import { isArray, isString, PatchFlags } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -35,8 +35,12 @@ function createTransformContext(
     // 当前节点在父节点children中索引
     childIndex: 0,
     root,
+    // 转换插件
     nodeTransforms,
+    // 存储辅助函数
     helpers: new Map(),
+    // 组件
+    components: new Set(),
     helper(name) {
       context.helpers.set(name, 1);
       return name;

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 22:07:33
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 21:26:27
+ * @LastEditTime: 2022-05-11 22:29:54
  */
 import {
   CREATE_ELEMENT_VNODE,
@@ -10,6 +10,7 @@ import {
   CREATE_ELEMENT_BLOCK,
   OPEN_BLOCK,
 } from "./runtimeHelpers";
+import { getVNodeBlockHelper, getVNodeHelper } from "./utils";
 
 export const enum NodeTypes {
   ELEMENT,
@@ -17,7 +18,6 @@ export const enum NodeTypes {
   INTERPOLATION,
   TEXT,
   ROOT,
-  // containers
   COMPOUND_EXPRESSION,
   ATTRIBUTE,
   DIRECTIVE,
@@ -44,6 +44,7 @@ export const enum ConstantTypes {
 
 export const enum ElementTypes {
   ELEMENT,
+  COMPONENT,
 }
 
 export function createVnodeCall(
@@ -55,15 +56,15 @@ export function createVnodeCall(
   dynamicProps?,
   directives?,
   isBlock = false,
-  disableTracking = false
+  disableTracking = false,
+  isComponent = false
 ) {
   if (context) {
     if (isBlock) {
       context.helper(OPEN_BLOCK);
-      // TODO component create_block
-      context.helper(CREATE_ELEMENT_BLOCK);
+      context.helper(getVNodeBlockHelper(isComponent));
     } else {
-      context.helper(CREATE_ELEMENT_VNODE);
+      context.helper(getVNodeHelper(isComponent));
     }
     if (directives) {
       context.helper(WITH_DIRECTIVES);
@@ -81,6 +82,7 @@ export function createVnodeCall(
     directives,
     isBlock,
     disableTracking,
+    isComponent,
   };
 }
 

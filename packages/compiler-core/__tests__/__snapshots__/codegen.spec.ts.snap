@@ -2,9 +2,8 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { resolveComponent: _resolveComponent, createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
 return function render(_ctx) { 
-  return (_openBlock(), _createElementBlock(\\"input\\", { modelValue: _ctx.text,
-  \\"onUpdate:modelValue\\": $event => ((_ctx.text) = $event)} , [], 8, [\\"modelValue\\",\\"onUpdate:modelValue\\"]))}",
+  return (_openBlock(), _createElementBlock(_component_Child, null, [], -2, null))}",
 }
 `;
