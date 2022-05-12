@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 20:20:41
+ * @LastEditTime: 2022-05-12 21:35:24
  */
 /**
  * 1. text
@@ -46,10 +46,15 @@ import {
   CREATE_ELEMENT_VNODE,
   helperNameMap,
   OPEN_BLOCK,
+  RESOLVE_COMPONENT,
   TO_DISPLAY_STRING,
   WITH_DIRECTIVES,
 } from "./runtimeHelpers";
-import { isSimpleIdentifier } from "./utils";
+import {
+  getVNodeBlockHelper,
+  getVNodeHelper,
+  isSimpleIdentifier,
+} from "./utils";
 
 export function generate(ast, options = {}) {
   const context = createCodegenContext(ast, options);
@@ -61,10 +66,25 @@ export function generate(ast, options = {}) {
   const args = ["_ctx"].join(", ");
   push(`function ${functionName}(${args}) { `);
   indent();
+
+  if (ast.components.length) {
+    genAssets(ast.components, "component", context);
+  }
+
   push(`return `);
   genNode(ast.codegenNode, context);
   push(`}`);
   return { code: context.code };
+}
+
+function genAssets(assets, type, context) {
+  const { helper, push, newline } = context;
+  const resolver = helper(RESOLVE_COMPONENT);
+  for (let i = 0; i < assets.length; i++) {
+    const id = assets[i];
+    push(`const _${type}_${id} = ${resolver}(${JSON.stringify(id)})`);
+    newline();
+  }
 }
 
 /**
@@ -264,6 +284,7 @@ function genVNodeCall(node, context) {
     patchFlag = "-2",
     dynamicProps,
     disableTracking,
+    isComponent,
   } = node;
   if (directives) {
     push(helper(WITH_DIRECTIVES) + `(`);
@@ -272,7 +293,11 @@ function genVNodeCall(node, context) {
   if (isBlock) {
     push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `);
   }
-  const callHelper = isBlock ? CREATE_ELEMENT_BLOCK : CREATE_ELEMENT_VNODE;
+
+  const callHelper = isBlock
+    ? getVNodeBlockHelper(isComponent)
+    : getVNodeHelper(isComponent);
+
   push(helper(callHelper) + `(`);
 
   genNodeList(
@@ -299,7 +324,7 @@ function genVNodeCall(node, context) {
 function genFunctionPreamble(ast, context) {
   const { push, runtimeGlobalName, newline } = context;
   const { helpers } = ast;
-
+  
   const aliasHelper = (s: symbol) =>
     `${helperNameMap[s]}: _${helperNameMap[s]}`;
 

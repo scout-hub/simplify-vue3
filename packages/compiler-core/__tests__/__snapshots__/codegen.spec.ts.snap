@@ -2,8 +2,9 @@
 
 exports[`Compiler: transform context state 1`] = `
 Object {
-  "code": "const { resolveComponent: _resolveComponent, createElementVNode: _createElementVNode, openBlock: _openBlock, createElementBlock: _createElementBlock } = Vue;
+  "code": "const { resolveComponent: _resolveComponent, createVNode: _createVNode, openBlock: _openBlock, createBlock: _createBlock } = Vue;
 return function render(_ctx) { 
-  return (_openBlock(), _createElementBlock(_component_Child, null, [], -2, null))}",
+  const _component_Child = _resolveComponent(\\"Child\\")
+  return (_openBlock(), _createBlock(_component_Child, null, [], -2, null))}",
 }
 `;

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 22:15:52
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-30 19:46:19
+ * @LastEditTime: 2022-05-12 21:48:02
  */
 
 import { shallowReadonly, proxyRefs } from "@simplify-vue/reactivity";
@@ -50,6 +50,9 @@ export function createComponentInstance(vnode, parent) {
     provides: parent ? parent.provides : Object.create(null),
     propsOptions: normalizePropsOptions(type),
     emitsOptions: normalizeEmitsOptions(type),
+
+    components: null,
+    directives: null,
 
     props: EMPTY_OBJ,
     data: EMPTY_OBJ,

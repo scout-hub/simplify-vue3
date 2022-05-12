@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 10:16:09
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-11 21:29:36
+ * @LastEditTime: 2022-05-12 21:00:01
  */
 import { isString, isSymbol, PatchFlags } from "@simplify-vue/shared";
 import {
@@ -42,6 +42,7 @@ export function transformElement(node, context) {
     let vnodePatchFlag;
     let dynamicPropNames;
     let vnodeDynamicProps;
+    let shouldUseBlock = false;
 
     // 处理props
     if (props.length) {
@@ -100,7 +101,10 @@ export function transformElement(node, context) {
       vnodeChildren,
       vnodePatchFlag,
       vnodeDynamicProps,
-      vnodeDirectives
+      vnodeDirectives,
+      shouldUseBlock,
+      false,
+      isComponent
     );
   };
 }

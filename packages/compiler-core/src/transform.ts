@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-11 21:26:58
+ * @LastEditTime: 2022-05-12 21:39:45
  */
 import { isArray, isString, PatchFlags } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -13,6 +13,7 @@ import {
   helperNameMap,
   FRAGMENT,
 } from "./runtimeHelpers";
+import { getVNodeBlockHelper } from "./utils";
 
 /**
  * @author: Zhouqi
@@ -88,6 +89,7 @@ export function transform(root, options = {}) {
   traverseNode(root, context);
   createRootCodegen(root, context);
   root.helpers = [...context.helpers.keys()];
+  root.components = [...context.components];
 }
 
 /**
@@ -254,5 +256,5 @@ export function makeBlock(node, context) {
   // 根元素标记为block
   node.isBlock = true;
   helper(OPEN_BLOCK);
-  helper(CREATE_ELEMENT_BLOCK);
+  helper(getVNodeBlockHelper(node.isComponent));
 }

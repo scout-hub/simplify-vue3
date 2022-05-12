@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 21:34:07
+ * @LastEditTime: 2022-05-12 21:47:22
  */
 import { shallowReadonly } from "@simplify-vue/reactivity";
 import { EMPTY_OBJ, hasOwn } from "@simplify-vue/shared";
@@ -86,10 +86,9 @@ export const PublicInstanceProxyHandlers = {
 
     if (setupState !== EMPTY_OBJ && hasOwn(setupState, key)) {
       setupState[key] = value;
-      return true;
     } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
       data[key] = value;
-      return true;
     }
+    return true;
   },
 };
