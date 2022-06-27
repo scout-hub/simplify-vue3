@@ -1,4 +1,4 @@
-# simplify-vue
+# simplify-vue3
 a simplified version of vue3 implementation for study
 
 ### 测试
