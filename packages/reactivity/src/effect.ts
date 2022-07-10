@@ -2,10 +2,17 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 10:36:35
+ * @LastEditTime: 2022-07-10 22:08:27
  */
 import { extend, isArray, isMap } from "@simplify-vue/shared";
-import { Dep } from "./dep";
+import {
+  createDep,
+  Dep,
+  finalizeDepMarkers,
+  initDepMarkers,
+  newTracked,
+  wasTracked,
+} from "./dep";
 import { TriggerOpTypes } from "./operations";
 
 interface RectiveEffectOptions {
@@ -18,6 +25,9 @@ interface ReactiveEffectRunner {
   _effect: ReactiveEffect;
 }
 
+// 最大深度
+const maxMarkerBits = 30;
+
 export const ITERATE_KEY = Symbol("iterate");
 export const MAP_KEY_ITERATE_KEY = Symbol("Map key iterate");
 
@@ -29,10 +39,13 @@ export class ReactiveEffect {
   constructor(public effectFn, public scheduler?) {}
 
   run() {
-    activeEffect = this;
-    activeEffectStack.push(this);
-    /**
-     * cleanup的作用是清除当前ReactiveEffect所关联的deps，即响应式对象key对应的Set依赖集合
+    try {
+      activeEffect = this;
+      activeEffectStack.push(this);
+      /**
+     * 下面是3.2之前的做法，3.2之后有所改动，不是全部清除，而是根据bit位和effect深度比较
+     * 
+     * cleanupEffect的作用是清除当前ReactiveEffect所关联的deps，即响应式对象key对应的Set依赖集合
      * effectFn = () => {
         // user.ok为false时，user.name始终应该是123，即使user.age发生改变也不应该触发副作用函数执行
         user.name = user.ok ? user.age : "123";
@@ -40,19 +53,37 @@ export class ReactiveEffect {
        当user.ok变成false时会触发副作用函数，此时会清空ok、age上面的依赖，并且重新收集ok的依赖，
        由于三元表达式的结果，age不会收集依赖，因此即使修改user.age也不再会触发副作用函数执行。
      */
-    cleanup(this);
-    const result = this.effectFn();
-    activeEffectStack.pop();
-    activeEffect = activeEffectStack[activeEffectStack.length - 1];
-    // activeEffect = undefined
-    return result;
+      /**
+       * 比如第一层的effect，effectTrackDepth就是1，trackOpBit就是10；
+       * 嵌套的第二层effect，effectTrackDepth就是2，trackOpBit就是100；
+       * 嵌套的第三层effect，effectTrackDepth就是3，trackOpBit就是1000；
+       */
+      trackOpBit = 1 << ++effectTrackDepth;
+      // 还没有超过最大层级限定，更新deps最新收集的标记
+      if (effectTrackDepth <= maxMarkerBits) {
+        initDepMarkers(this);
+      } else {
+        // 超过最大深度，清空所有依赖
+        cleanupEffect(this);
+      }
+      const result = this.effectFn();
+      activeEffectStack.pop();
+      activeEffect = activeEffectStack[activeEffectStack.length - 1];
+      // activeEffect = undefined
+      return result;
+    } finally {
+      // 重置dep标记位并处理过期依赖
+      if (effectTrackDepth <= maxMarkerBits) {
+        finalizeDepMarkers(this);
+      }
+    }
   }
 
   stop() {
     // active用于防止重复调用stop
     if (this.active) {
       // 移除依赖
-      cleanup(this);
+      cleanupEffect(this);
       this.onStop && this.onStop();
       this.active = false;
     }
@@ -60,11 +91,13 @@ export class ReactiveEffect {
 }
 
 // 找到所有依赖这个 effect 的响应式对象，从这些响应式对象里面把 effect 给删除掉
-function cleanup(effect: ReactiveEffect) {
-  effect.deps.forEach((deps) => {
-    deps.delete(effect);
-  });
-  effect.deps.length = 0;
+function cleanupEffect(effect: ReactiveEffect) {
+  const { deps } = effect;
+  for (let i = 0; i < deps.length; i++) {
+    const dep = deps[i];
+    dep.delete(effect);
+  }
+  deps.length = 0;
 }
 
 let activeEffect: ReactiveEffect | undefined;
@@ -134,6 +167,12 @@ export function effect(effectFn: Function, options: RectiveEffectOptions = {}) {
  */
 const targetMap = new WeakMap();
 
+// 标记effect的层级
+let effectTrackDepth = 0;
+
+// 操作位
+export let trackOpBit = 1;
+
 // 依赖收集函数
 export function track(target: object, key: unknown) {
   // if (!activeEffect) return;
@@ -143,18 +182,32 @@ export function track(target: object, key: unknown) {
     depsMap = new Map();
     targetMap.set(target, depsMap);
   }
-  let deps = depsMap.get(key);
-  if (!deps) {
-    deps = new Set();
-    depsMap.set(key, deps);
+  let dep = depsMap.get(key);
+  if (!dep) {
+    depsMap.set(key, (dep = createDep()));
   }
-  trackEffects(deps);
+  trackEffects(dep);
 }
 
 // 抽离收集依赖公共逻辑
-export function trackEffects(deps: Dep) {
-  deps.add(activeEffect!);
-  activeEffect!.deps.push(deps);
+export function trackEffects(dep: Dep) {
+  // 判断依赖是否需要重新被收集
+  let shouldTrack = false;
+  if (effectTrackDepth <= maxMarkerBits) {
+    // 不是最新收集的，
+    if (!newTracked(dep)) {
+      dep.n |= trackOpBit;
+      // 判断是否已经被收集过
+      shouldTrack = !wasTracked(dep);
+    }
+  } else {
+    // 全量cleanup模式下的处理
+    shouldTrack = !dep.has(activeEffect!);
+  }
+  if (shouldTrack) {
+    dep.add(activeEffect!);
+    activeEffect!.deps.push(dep);
+  }
 }
 
 // 触发依赖函数
