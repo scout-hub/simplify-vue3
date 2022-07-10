@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-10 22:08:27
+ * @LastEditTime: 2022-07-10 22:24:57
  */
 import { extend, isArray, isMap } from "@simplify-vue/shared";
 import {
@@ -76,6 +76,7 @@ export class ReactiveEffect {
       if (effectTrackDepth <= maxMarkerBits) {
         finalizeDepMarkers(this);
       }
+      trackOpBit = 1 << --effectTrackDepth;
     }
   }
 
