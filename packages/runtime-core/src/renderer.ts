@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 21:24:29
+ * @LastEditTime: 2022-07-11 22:42:30
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -844,7 +844,7 @@ function baseCreateRenderer(options) {
       // mountChildren(children, el, anchor, parentComponent);
       mountChildren(children, el, null, parentComponent);
     }
-    
+
     // 指令
     if (dirs) {
       invokeDirectiveHook(vnode, null, "created");
@@ -1056,3 +1056,24 @@ function getSequence(arr: number[]): number[] {
   }
   return result;
 }
+
+const getSequence1 = (arr) => {
+  // 用于回溯的数组，记录的是比当前数小的前一个数的下标
+  let p = Array(arr.length);
+  // 初始结果默认第一个为0，记录的是arr中数据对应的下标
+  let result = [0];
+  for (let i = 0; i < arr.length; i++) {
+    const num = arr[i];
+    if (num > 0) {
+      let j = result[result.length - 1];
+      // 如果当前遍历到的数字比结果中最后一个值对应的数字还要大，则直接添加到数组末尾
+      if (num > arr[j]) {
+        // j就是比当前这个数小的前一个数的索引，记录它
+        p[i] = j;
+        // 这里记录的是索引
+        result.push(i);
+        continue;
+      }
+    }
+  }
+};
