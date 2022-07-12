@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-11 22:42:30
+ * @LastEditTime: 2022-07-12 09:37:45
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -1012,52 +1012,10 @@ function baseCreateRenderer(options) {
 
 /**
  * @author: Zhouqi
- * @description: 最长递增子序列（vue3中的源码）
- * @param 需要计算的数组
+ * @description: 最长递增子序列
  * @return 最长递增序列的递增索引
  */
-function getSequence(arr: number[]): number[] {
-  const p = arr.slice();
-  const result = [0];
-  let i, j, u, v, c;
-  const len = arr.length;
-  for (i = 0; i < len; i++) {
-    const arrI = arr[i];
-    if (arrI !== 0) {
-      j = result[result.length - 1];
-      if (arr[j] < arrI) {
-        p[i] = j;
-        result.push(i);
-        continue;
-      }
-      u = 0;
-      v = result.length - 1;
-      while (u < v) {
-        c = (u + v) >> 1;
-        if (arr[result[c]] < arrI) {
-          u = c + 1;
-        } else {
-          v = c;
-        }
-      }
-      if (arrI < arr[result[u]]) {
-        if (u > 0) {
-          p[i] = result[u - 1];
-        }
-        result[u] = i;
-      }
-    }
-  }
-  u = result.length;
-  v = result[u - 1];
-  while (u-- > 0) {
-    result[u] = v;
-    v = p[v];
-  }
-  return result;
-}
-
-const getSequence1 = (arr) => {
+const getSequence = (arr: number[]): number[] => {
   // 用于回溯的数组，记录的是比当前数小的前一个数的下标
   let p = Array(arr.length);
   // 初始结果默认第一个为0，记录的是arr中数据对应的下标
@@ -1066,7 +1024,7 @@ const getSequence1 = (arr) => {
     const num = arr[i];
     if (num > 0) {
       let j = result[result.length - 1];
-      // 如果当前遍历到的数字比结果中最后一个值对应的数字还要大，则直接添加到数组末尾
+      // 如果当前遍历到的数字比结果中最后一个值对应的数字还要大，则直接将下标添加到result末尾
       if (num > arr[j]) {
         // j就是比当前这个数小的前一个数的索引，记录它
         p[i] = j;
@@ -1074,6 +1032,75 @@ const getSequence1 = (arr) => {
         result.push(i);
         continue;
       }
+      // 用二分法查找比当前这个数要大的第一个数的位置并替换它
+      let left = 0;
+      let right = result.length - 1;
+      while (left < right) {
+        const mid = (left + right) >> 1;
+        if (arr[result[mid]] < num) {
+          left = mid + 1;
+        } else {
+          right = mid;
+        }
+      }
+      // 最终left === right
+      // 判断找到的数是不是比当前这个数大
+      if (arr[result[left]] > num) {
+        if (left > 0) {
+          // left - 1就是比当前这个数小的前一个数的索引，记录它
+          p[i] = result[left - 1];
+        }
+        result[left] = i;
+      }
     }
   }
+  // 回溯，修正下标
+  let resultLen = result.length;
+  let k = result[resultLen - 1];
+  while (resultLen-- > 0) {
+    result[resultLen] = k;
+    k = p[k];
+  }
+  return result;
 };
+
+// function getSequence(arr: number[]): number[] {
+//   const p = arr.slice();
+//   const result = [0];
+//   let i, j, u, v, c;
+//   const len = arr.length;
+//   for (i = 0; i < len; i++) {
+//     const arrI = arr[i];
+//     if (arrI !== 0) {
+//       j = result[result.length - 1];
+//       if (arr[j] < arrI) {
+//         p[i] = j;
+//         result.push(i);
+//         continue;
+//       }
+//       u = 0;
+//       v = result.length - 1;
+//       while (u < v) {
+//         c = (u + v) >> 1;
+//         if (arr[result[c]] < arrI) {
+//           u = c + 1;
+//         } else {
+//           v = c;
+//         }
+//       }
+//       if (arrI < arr[result[u]]) {
+//         if (u > 0) {
+//           p[i] = result[u - 1];
+//         }
+//         result[u] = i;
+//       }
+//     }
+//   }
+//   u = result.length;
+//   v = result[u - 1];
+//   while (u-- > 0) {
+//     result[u] = v;
+//     v = p[v];
+//   }
+//   return result;
+// }
