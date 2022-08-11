@@ -2,10 +2,10 @@
  * @Author: Zhouqi
  * @Date: 2022-03-30 17:31:04
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-10 22:06:48
+ * @LastEditTime: 2022-08-10 15:16:51
  */
 
-import { effect, ReactiveEffect, trackOpBit } from "./effect";
+import { ReactiveEffect, trackOpBit } from "./effect";
 
 export type Dep = Set<ReactiveEffect> & TrackedMarkers;
 type TrackedMarkers = {

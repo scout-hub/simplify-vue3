@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-12 22:13:50
+ * @LastEditTime: 2022-07-14 17:20:29
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -1026,7 +1026,7 @@ const getSequence = (arr: number[]): number[] => {
       let j = result[result.length - 1];
       // 如果当前遍历到的数字比结果中最后一个值对应的数字还要大，则直接将下标添加到result末尾
       if (num > arr[j]) {
-        // j就是比当前这个数小的前一个数的索引，记录它
+        // j就是比当前这个数小的前一个数的索引，记录它（为了最后修正下标）
         p[i] = j;
         // 这里记录的是索引
         result.push(i);
