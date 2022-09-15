@@ -25,7 +25,7 @@ pnpm build
    - [x] 等等
 - runtime-core
    - [x] createApp
-   - [x] defineAsyncComponent/defineComponent
+   - [x] defineAsyncComponent
    - [x] Transition组件
    - [x] Teleport组件
    - [x] KeepAlive组件
