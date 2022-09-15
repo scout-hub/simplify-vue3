@@ -29,7 +29,6 @@ pnpm build
    - [x] Transition组件
    - [x] Teleport组件
    - [x] KeepAlive组件
-   - [x] Functional Component
    - [x] slot插槽、组件类型、element类型、Text类型、Fragment类型、Comment类型节点的渲染更新卸载
    - [x] customRender自定义渲染器
    - [x] provide/inject
