@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-14 17:20:29
+ * @LastEditTime: 2022-09-16 15:24:00
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -379,7 +379,13 @@ function baseCreateRenderer(options) {
   const patchElement = (n1, n2, parentComponent) => {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
-    const { dynamicChildren, patchFlag } = n2;
+    const { dynamicChildren, patchFlag, dirs } = n2;
+
+    if (dirs) {
+      // 触发指令钩子函数beforeUpdate
+      invokeDirectiveHook(n2, n1, "beforeUpdate");
+    }
+
     // 只diff动态节点，跳过静态节点的diff
     // TODO 先改成 dynamicChildren.length 以保证不影响之前的demo
     if (dynamicChildren && dynamicChildren.length) {
@@ -429,8 +435,8 @@ function baseCreateRenderer(options) {
       patchProps(el, n2, oldProps, newProps);
     }
 
-    if (n2.dirs) {
-      // 触发指令钩子函数beforeMount
+    if (dirs) {
+      // 触发指令钩子函数updated
       invokeDirectiveHook(n2, n1, "updated");
     }
   };
