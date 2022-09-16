@@ -1,12 +1,12 @@
-import { isArray, invokeArrayFns } from "@simplify-vue/shared";
-import { addEventListener } from "../modules/events";
-
 /*
  * @Author: Zhouqi
  * @Date: 2022-05-10 21:06:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-10 21:47:28
+ * @LastEditTime: 2022-09-16 15:12:23
  */
+import { isArray, invokeArrayFns } from "@simplify-vue/shared";
+import { addEventListener } from "../modules/events";
+
 export const vModelText = {
   created(el, binding, vnode) {
     el._assign = getModelAssigner(vnode);

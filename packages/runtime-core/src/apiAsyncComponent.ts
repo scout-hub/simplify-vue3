@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:19:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 11:46:18
+ * @LastEditTime: 2022-09-15 10:35:17
  */
 import { isFunction } from "@simplify-vue/shared";
 import { ref } from "@simplify-vue/reactivity";
@@ -21,13 +21,15 @@ export function defineAsyncComponent(source) {
   const {
     // 异步加载组件的函数
     loader,
+    // 加载组件
     loadingComponent,
     // 组件加载失败时显示的错误组件
     errorComponent,
+    // 展示加载组件前的延迟时间，默认为 200ms
     delay = 200,
     // 超时时间
     timeout,
-    suspensible,
+    // suspensible,
     onError: userOnError,
   } = source;
 
@@ -65,7 +67,6 @@ export function defineAsyncComponent(source) {
 
   return defineComponent({
     name: "AsyncComponentWrapper",
-
     setup() {
       const loaded = ref(false);
       const errorLoaded = ref(false);
@@ -98,7 +99,9 @@ export function defineAsyncComponent(source) {
         timeoutTimer = setTimeout(() => {
           // 组件没有加载成功且没有加载失败的情况下，如果加载超时了，则赋值超时错误信息
           if (!loaded.value && !errorLoaded.value) {
-            const error = new Error("组件加载超时了");
+            const error = new Error(
+              `Async component timed out after ${timeout}ms.`
+            );
             errorLoaded.value = error;
           }
         }, timeout);

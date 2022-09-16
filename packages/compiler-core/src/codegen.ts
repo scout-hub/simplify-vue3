@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-12 21:35:24
+ * @LastEditTime: 2022-08-22 16:40:37
  */
 /**
  * 1. text
@@ -42,8 +42,6 @@
 import { isArray, isString, isSymbol } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
 import {
-  CREATE_ELEMENT_BLOCK,
-  CREATE_ELEMENT_VNODE,
   helperNameMap,
   OPEN_BLOCK,
   RESOLVE_COMPONENT,

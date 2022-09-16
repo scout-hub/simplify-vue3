@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-22 17:58:01
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 11:49:36
+ * @LastEditTime: 2022-09-13 21:47:20
  */
 import { isArray, isSymbol } from "@simplify-vue/shared";
 import {
@@ -117,7 +117,7 @@ const createGetter = function (isReadOnly = false, isShallow = false) {
       return result;
     }
 
-    // 只读属性不不能设置值，所以无需建立依赖关系
+    // 只读属性不能设置值，所以无需建立依赖关系
     if (!isReadOnly) {
       track(target, key);
     }

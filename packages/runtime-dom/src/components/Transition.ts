@@ -25,7 +25,7 @@ Transition.props = {
  */
 function resolveTransitionProps(rawProps) {
   const {
-    type,
+    // type,
     enterFromClass,
     enterToClass,
     enterActiveClass,

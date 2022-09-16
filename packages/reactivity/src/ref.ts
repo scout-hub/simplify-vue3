@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 10:36:47
+ * @LastEditTime: 2022-08-22 16:28:33
  */
 
 import { hasChanged, isArray } from "@simplify-vue/shared";
@@ -20,6 +20,7 @@ class RefImpl {
     // 如果不是shallow的情况且value是obj时需要响应式处理
     this._value = __v_isShallow ? value : toReactive(value);
     // 如果不是shallow的情况且value如果是响应式的，则需要拿到原始对象
+    // ref.spec.ts（should make nested properties reactive）
     this._rawValue = __v_isShallow ? value : toRaw(value);
     this.deps = new Set();
   }
@@ -30,7 +31,7 @@ class RefImpl {
   }
 
   set value(newValue) {
-    // 如果不是shallow的情况且value如果是响应式的，则需要拿到原始对象
+    // 如果不是shallow的情况且value如果是响应式的，则需要拿到原始对象 ref.spec.ts（should not trigger when setting value to same proxy）
     newValue = this.__v_isShallow ? newValue : toRaw(newValue);
     // 比较的时候拿原始值去比较
     if (hasChanged(newValue, this._rawValue)) {

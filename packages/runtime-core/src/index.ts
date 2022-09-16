@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-12 21:33:27
+ * @LastEditTime: 2022-09-16 15:42:22
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
@@ -36,4 +36,5 @@ export { BaseTransition } from "./component/BaseTransition";
 export { withDirectives } from "./directives";
 export { renderList } from "./helpers/renderList";
 export { resolveComponent } from "./helpers/resolveAssets";
+export { nextTick } from "./scheduler";
 export * from "@simplify-vue/reactivity";

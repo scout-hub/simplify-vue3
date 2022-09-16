@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-07-10 22:24:57
+ * @LastEditTime: 2022-09-14 14:25:31
  */
 import { extend, isArray, isMap } from "@simplify-vue/shared";
 import {
@@ -164,7 +164,7 @@ export function effect(effectFn: Function, options: RectiveEffectOptions = {}) {
  *    }
  * }
  * 这里使用WeakMap是因为当target引用对象被销毁时，它所建立的依赖关系其实已经没有存在的必要了
- * 可以被辣鸡回收机制回收
+ * 可以被垃圾回收机制回收
  */
 const targetMap = new WeakMap();
 
@@ -228,7 +228,7 @@ export function trigger(
   } else if (key === "length" && isArray(target)) {
     /**
      * 如果操作了数组的length，比如 arr = [1], arr.length = 0;
-     * 此时会删除arr[0]这个元素，需要触发key为0相关的依赖；当时假如
+     * 此时会删除arr[0]这个元素，需要触发key为0相关的依赖；但是假如
      * arr.length = 1，此时arr[0]依旧存在，不受影响，不需要触发依赖。
      * 因此我们得出一个结论，当修改数组的长度属性时，需要触发原数组中下标大于
      * 新length值的依赖。
