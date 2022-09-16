@@ -39,12 +39,10 @@ pnpm build
    - [x] 生命周期
    - [x] nextTick
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
-   - [x] setup函数
    - [x] render函数
    - [x] getCurrentInstance
-   - [x] vnode
    - [x] 快速diff算法
-   - [x] 根据patchFlag靶向更新文本节点、class属性、其他动态props、children节点
+   - [x] patchFlag靶向更新文本节点、class属性、其他动态props、children节点
    - [x] block树 
    - [x] 等等
 - runtime-dom
