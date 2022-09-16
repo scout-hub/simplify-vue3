@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-10 19:35:50
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:42:13
+ * @LastEditTime: 2022-09-16 16:43:26
  */
 import { isReactive, isRef, ReactiveEffect } from "@simplify-vue/reactivity";
 import {
@@ -139,13 +139,13 @@ function doWatch(
     // 立即执行，没有加入到回调缓冲队列中
     scheduler = job;
   } else if (flush === "post") {
-    // 放进微任务队列中执行（组件更新后）
-    scheduler = () => queuePostRenderEffect(job);
+    // 放进微任务队列中执行（组件更新后） 
+    scheduler = () => queuePostRenderEffect(job); 
   } else {
     // pre
     scheduler = () => {
       // 组件更新前调用
-      // TODO 加入回调缓冲队列中
+      // TODO 加入回调缓冲队列中 组件更新前调用 queuePreFlushCb(job)
       job();
     };
   }
