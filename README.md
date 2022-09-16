@@ -35,7 +35,7 @@ pnpm build
    - [x] attrs/props初始化和更新、props类型校验
    - [x] emit事件派发/emits选项校验
    - [x] $el/$slots/$props/$attrs/$data
-   - [x] 指令
+   - [x] 部分指令(v-show，v-model)
    - [x] 生命周期
    - [x] nextTick
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
