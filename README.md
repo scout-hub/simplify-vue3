@@ -39,7 +39,6 @@ pnpm build
    - [x] 生命周期
    - [x] nextTick
    - [x] watchEffect/watch/watchSyncEffect/watchPostEffect
-   - [x] setup函数
    - [x] render函数
    - [x] getCurrentInstance
    - [x] vnode
