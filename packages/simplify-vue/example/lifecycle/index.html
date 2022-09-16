@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-29 11:41:08
+ * @LastEditTime: 2022-09-16 15:27:30
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -33,6 +33,19 @@
         const Child = {
             name: 'Child',
             setup() {
+                onBeforeMount(() => {
+                    console.log('beforeMount children');
+                });
+                onMounted(() => {
+                    console.log('mounted children');
+                });
+                onBeforeUpdate(() => {
+                    console.log('beforeupdate children');
+                });
+                onUpdated(() => {
+                    console.log('updated children');
+                });
+
                 onBeforeUnmount(() => {
                     console.log('beforeUnmount children');
                 });
@@ -50,18 +63,18 @@
             name: "App",
             setup() {
                 onBeforeMount(() => {
-                    console.log('beforeMount');
+                    console.log('beforeMount parent');
                 });
                 onMounted(() => {
                     const instance = getCurrentInstance();
                     console.log(instance.isMounted);
-                    console.log('mounted');
+                    console.log('mounted parent');
                 });
                 onBeforeUpdate(() => {
-                    console.log('beforeupdate');
+                    console.log('beforeupdate parent');
                 });
                 onUpdated(() => {
-                    console.log('updated');
+                    console.log('updated parent');
                     const instance = getCurrentInstance();
                     console.log(instance.vnode.el.children[0].innerText);
                 });
