@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-29 11:37:29
+ * @LastEditTime: 2023-03-11 15:48:22
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +27,7 @@
         } = Vue;
         const Child = {
             name: "Child",
-            setup() {},
+            setup() { },
             props: ['text'],
             render() {
                 // let value = '';
@@ -66,7 +66,7 @@
                             text: 'old' + i
                         }) : h(Child, {
                             key,
-                            text: 'new'
+                            text: 'new' + i
                         })
                 });
             }

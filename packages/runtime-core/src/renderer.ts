@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-16 15:24:00
+ * @LastEditTime: 2023-03-11 16:20:49
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -25,7 +25,7 @@ import {
   renderComponentRoot,
   shouldUpdateComponent,
 } from "./componentRenderUtils";
-import { flushPostFlushCbs, queueJob, queuePostFlushCb } from "./scheduler";
+import { flushPostFlushCbs, invalidateJob, queueJob, queuePostFlushCb } from "./scheduler";
 import { updateProps } from "./componentProps";
 import { updateSlots } from "./componentSlots";
 import { isKeepAlive } from "./component/KeepAlive";
@@ -235,6 +235,9 @@ function baseCreateRenderer(options) {
     const instance = (n2.component = n1.component);
     if (shouldUpdateComponent(n1, n2)) {
       instance.next = n2;
+      // 在同一个任务队列中可能存在多个重复更新同一个子组件的任务，为了防止重复更新同一个子组件，这里需要删除后续相同任务。
+      // 详见example中的keep-alive示例
+      invalidateJob(instance.update);
       instance.update();
     } else {
       n2.el = n1.el;

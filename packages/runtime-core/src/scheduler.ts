@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-05 21:16:28
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:43:24
+ * @LastEditTime: 2023-03-11 16:24:07
  */
 
 import { isArray } from "@simplify-vue/shared";
@@ -15,11 +15,14 @@ const resolvedPromise = Promise.resolve();
 let currentFlushPromise;
 // 是否正在调度任务
 let isFlushing = false;
+let isFlushPending = false;
 
 // 正在等待的PostFlush队列
 const pendingPostFlushCbs: Function[] = [];
 // 正在执行的PostFlush队列
 let activePostFlushCbs: Function[] | null = null;
+
+let flushIndex = 0
 
 /**
  * @author: Zhouqi
@@ -98,7 +101,8 @@ export function flushPostFlushCbs() {
  */
 function queueFlush() {
   // 避免多次调用
-  if (!isFlushing) {
+  if (!isFlushing && !isFlushPending) {
+    isFlushPending = true;
     currentFlushPromise = resolvedPromise.then(flushJobs);
   }
 }
@@ -109,18 +113,32 @@ function queueFlush() {
  */
 function flushJobs() {
   isFlushing = true;
+  isFlushPending = false;
   try {
-    for (let i = 0; i < queue.length; i++) {
-      const job = queue[i];
+    for (flushIndex; flushIndex < queue.length; flushIndex++) {
+      const job = queue[flushIndex];
       job();
     }
   } catch (error) {
     console.log(error);
   } finally {
     isFlushing = false;
+    flushIndex = 0
     // 任务执行完成，重置微任务队列
     queue.length = 0;
     // 执行需要在更新之后触发的任务
     flushPostFlushCbs();
+  }
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 删除无效的任务
+ * @param {any} job 任务
+ */
+export function invalidateJob(job) {
+  const i = queue.indexOf(job)
+  if (i > flushIndex) {
+    queue.splice(i, 1)
   }
 }

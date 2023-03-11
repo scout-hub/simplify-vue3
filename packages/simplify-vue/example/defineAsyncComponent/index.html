@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-04 13:02:55
+ * @LastEditTime: 2023-03-10 16:58:51
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -97,21 +97,21 @@
             setup() {},
             render() {
                 return h("div", null, [
-                    h(SlotChild, {
-                        text: 'slotChild',
-                    }, {
-                        body: () => h('div', null, 'xxxx')
-                    }),
-                    h(Child, {
-                        text: 'Child',
-                        name: 'xxx'
-                    }),
-                    h(timeoutChild, {
-                        text: 'timeoutChild'
-                    }),
-                    h(ErrorChild, {
-                        text: 6
-                    }),
+                    // h(SlotChild, {
+                    //     text: 'slotChild',
+                    // }, {
+                    //     body: () => h('div', null, 'xxxx')
+                    // }),
+                    // h(Child, {
+                    //     text: 'Child',
+                    //     name: 'xxx'
+                    // }),
+                    // h(timeoutChild, {
+                    //     text: 'timeoutChild'
+                    // }),
+                    // h(ErrorChild, {
+                    //     text: 6
+                    // }),
                     h(LoadingChild, {
                         text: 'LoadingChild'
                     })

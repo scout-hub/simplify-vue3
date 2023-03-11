@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:57:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-12 21:44:54
+ * @LastEditTime: 2023-03-10 14:44:37
  */
 
 import {
@@ -47,7 +47,7 @@ export function createVnode(
   if (!type) {
     type = Comment;
   }
-  
+
   if (props) {
     /**
      * 规范化class的值

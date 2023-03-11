@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:47:45
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 11:38:02
+ * @LastEditTime: 2023-03-06 14:01:46
  */
 import { def, isObject, toRawType } from "@simplify-vue/shared";
 import {
@@ -175,9 +175,9 @@ function createReactiveObject(
     return raw;
   }
 
-  // 集合类型例如Set、WeakSet、Map、WeakMap需要另外的handler处理
   const proxy = new Proxy(
     raw,
+    // 集合类型例如Set、WeakSet、Map、WeakMap需要另外的handler处理
     targetType === TargetType.COLLECTION ? collectionHandlers : baseHandler
   );
   proxyMap.set(raw, proxy);

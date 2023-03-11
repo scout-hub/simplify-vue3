@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-17 15:01:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:44:46
+ * @LastEditTime: 2023-03-11 09:13:07
  */
 import { BaseTransition, h } from "@simplify-vue/runtime-core";
 export const Transition = (props, { slots }) =>

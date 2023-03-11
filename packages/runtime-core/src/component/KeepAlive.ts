@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-16 17:21:02
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-26 09:41:19
+ * @LastEditTime: 2023-03-11 16:24:59
  */
 import { isArray, isString } from "@simplify-vue/shared";
 import { ShapeFlags } from "@simplify-vue/shared";
@@ -63,7 +63,7 @@ export const KeepAlive = {
     // 键是vnode的type或者用户绑定的key
     // 值是vnode
     const cache = new Map();
-    // 管理缓存组件的key
+    // 管理缓存组件的key，这里其实不需要set，只需要上面的map
     const keys = new Set();
 
     // 在上下文对象中绑定activate方法，在patch的时候调用进行DOM搬运
