@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 21:11:23
+ * @LastEditTime: 2023-03-12 20:20:24
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -39,12 +39,12 @@
                     say
                 };
             },
-            emits: {
-                click(args) {
-                    console.log('args' + args);
-                    return true;
-                }
-            },
+            // emits: {
+            //     click(args) {
+            //         // console.log('args' + args);
+            //         return true;
+            //     }
+            // },
             render() {
                 return h('button', {
                     onClick: this.say

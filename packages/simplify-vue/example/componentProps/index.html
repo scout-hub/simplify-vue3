@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 16:05:19
+ * @LastEditTime: 2023-03-12 10:13:54
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -60,19 +60,22 @@
                 }
             },
             render() {
-                return h("div", null, [h(Child, {
-                    id: 'div',
-                    class: ['red', 'green'],
-                    msg: this.msg,
-                    onClick: [
-                        () => {
-                            console.log(1);
-                        },
-                        () => {
-                            console.log(2);
-                        }
-                    ]
-                }), h('div', null, this.msg + 'p')]);
+                return h("div", null, [
+                    h(Child, {
+                        id: 'div',
+                        class: ['red', 'green'],
+                        msg: this.msg,
+                        onClick: [
+                            () => {
+                                console.log(1);
+                            },
+                            () => {
+                                console.log(2);
+                            }
+                        ]
+                    }),
+                    h('div', null, this.msg + 'p')
+                ]);
             }
         };
 
