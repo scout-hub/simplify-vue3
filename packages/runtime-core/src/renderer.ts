@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2023-03-11 16:20:49
+ * @LastEditTime: 2023-04-19 22:20:35
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -69,8 +69,9 @@ function baseCreateRenderer(options) {
    * @param container 容器
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
-  const patch = (n1, n2, container, anchor = null, parentComponent) => {
+  const patch = (n1, n2, container, anchor = null, parentComponent, optimized = !!n2.dynamicChildren) => {
     if (n1 === n2) return;
 
     // 1. 更新的时候可能vnode对应的key是一样的，但是type不一样，这种情况也是需要删除旧的节点
@@ -90,7 +91,7 @@ function baseCreateRenderer(options) {
       // 特殊虚拟节点类型处理
       case Fragment:
         // 处理type为Fragment的节点（插槽）
-        processFragment(n1, n2, container, anchor, parentComponent);
+        processFragment(n1, n2, container, anchor, parentComponent, optimized);
         break;
       case Comment:
         // 处理注释节点
@@ -103,7 +104,7 @@ function baseCreateRenderer(options) {
       default:
         // if is element
         if (shapeFlag & ShapeFlags.ELEMENT) {
-          processElement(n1, n2, container, anchor, parentComponent);
+          processElement(n1, n2, container, anchor, parentComponent, optimized);
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
           // 有状态、函数式组件
           processComponent(n1, n2, container, anchor, parentComponent);
@@ -139,8 +140,9 @@ function baseCreateRenderer(options) {
    * @param container 容器
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
-  const processFragment = (n1, n2, container, anchor, parentComponent) => {
+  const processFragment = (n1, n2, container, anchor, parentComponent, optimized) => {
     let { patchFlag, dynamicChildren } = n2;
 
     // #fix: example slots demo when update slot, the new node insertion exception
@@ -157,7 +159,7 @@ function baseCreateRenderer(options) {
       hostInsert(fragmentStartAnchor, container, anchor);
       hostInsert(fragmentEndAnchor, container, anchor);
       const { children } = n2;
-      mountChildren(children, container, fragmentEndAnchor, parentComponent);
+      mountChildren(children, container, fragmentEndAnchor, parentComponent, optimized);
     } else {
       if (
         patchFlag > 0 &&
@@ -173,7 +175,7 @@ function baseCreateRenderer(options) {
         );
       } else {
         // 全量更新节点，比如v-for 产生的不稳定的Fragment
-        patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
+        patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent, optimized);
       }
     }
   };
@@ -361,14 +363,15 @@ function baseCreateRenderer(options) {
    * @param container 父容器
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
-  const processElement = (n1, n2, container, anchor, parentComponent) => {
+  const processElement = (n1, n2, container, anchor, parentComponent, optimized) => {
     // 旧的虚拟节点不存在，说明是初始化渲染
     if (n1 === null) {
-      mountElement(n2, container, anchor, parentComponent);
+      mountElement(n2, container, anchor, parentComponent, optimized);
     } else {
       // 更新
-      patchElement(n1, n2, parentComponent);
+      patchElement(n1, n2, parentComponent, optimized);
     }
   };
 
@@ -379,7 +382,7 @@ function baseCreateRenderer(options) {
    * @param n2 新的虚拟节点
    * @param parentComponent 父组件实例
    */
-  const patchElement = (n1, n2, parentComponent) => {
+  const patchElement = (n1, n2, parentComponent, optimized) => {
     // 新的虚拟节点上没有el，需要继承老的虚拟节点上的el
     const el = (n2.el = n1.el);
     const { dynamicChildren, patchFlag, dirs } = n2;
@@ -398,9 +401,9 @@ function baseCreateRenderer(options) {
         el,
         parentComponent
       );
-    } else {
+    } else if (!optimized) {
       // 全量diff
-      patchChildren(n1, n2, el, null, parentComponent);
+      patchChildren(n1, n2, el, null, parentComponent, false);
     }
 
     const oldProps = n1.props || EMPTY_OBJ;
@@ -426,6 +429,13 @@ function baseCreateRenderer(options) {
           if (next !== prev) {
             hostPatchProp(el, key, prev, next);
           }
+        }
+      }
+
+      // 动态唯一子文本节点更新
+      if (patchFlag & PatchFlags.TEXT) {
+        if (n1.children !== n2.children) {
+          hostSetElementText(el, n2.children as string)
         }
       }
     } else {
@@ -458,7 +468,7 @@ function baseCreateRenderer(options) {
         oldVNode.el && oldVNode.type === Fragment
           ? hostParentNode(oldVNode.el)
           : fallbackContainer;
-      patch(oldVNode, newVNode, container, null, parentComponent);
+      patch(oldVNode, newVNode, container, null, parentComponent, true);
     }
   };
 
@@ -470,8 +480,9 @@ function baseCreateRenderer(options) {
    * @param container 容器
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
-  const patchChildren = (n1, n2, container, anchor, parentComponent) => {
+  const patchChildren = (n1, n2, container, anchor, parentComponent, optimized = false) => {
     const c1 = n1.children;
     const c2 = n2.children;
     const prevShapeFlag = n1 ? n1.shapeFlag : 0;
@@ -482,11 +493,11 @@ function baseCreateRenderer(options) {
       // 处理children节点有key属性的情况（部分有，部分没有也算）
       // 处理children节点没有key属性的情况（先针对v-for没有绑定key的情况）
       if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
-        patchKeyedChildren(c1, c2, container, anchor, parentComponent);
+        patchKeyedChildren(c1, c2, container, anchor, parentComponent, optimized);
         return;
       } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
         // unkeyed
-        patchUnkeyedChildren(c1, c2, container, anchor, parentComponent);
+        patchUnkeyedChildren(c1, c2, container, anchor, parentComponent, optimized);
         return;
       }
     }
@@ -506,7 +517,7 @@ function baseCreateRenderer(options) {
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           // 3. 新旧孩子节点都是数组的情况下需要进行 dom diff，这种情况也是最复杂的
-          patchKeyedChildren(c1, c2, container, anchor, parentComponent);
+          patchKeyedChildren(c1, c2, container, anchor, parentComponent, optimized);
         } else {
           // 4. 新的节点不存在，则删除旧的子节点
           unmountChildren(c1, parentComponent);
@@ -519,7 +530,7 @@ function baseCreateRenderer(options) {
         }
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           // 6. 旧的是文本节点，新的是数组节点，则清空文本并创建新的子节点
-          mountChildren(c2, container, anchor, parentComponent);
+          mountChildren(c2, container, anchor, parentComponent, optimized);
         }
       }
     }
@@ -533,19 +544,20 @@ function baseCreateRenderer(options) {
    * @param parentAnchor 锚点元素
    * @param container 容器
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
-  const patchUnkeyedChildren = (c1, c2, container, anchor, parentComponent) => {
+  const patchUnkeyedChildren = (c1, c2, container, anchor, parentComponent, optimized) => {
     // TODO optimized优化，对原节点进行克隆，以避免重新normalizeVNode带来的消耗
     const oldLen = c1.length;
     const newLen = c2.length;
     const minLen = Math.min(oldLen, newLen);
     for (let i = 0; i < minLen; i++) {
       const newChild = normalizeVNode(c2[i]);
-      patch(c1[i], newChild, container, null, parentComponent);
+      patch(c1[i], newChild, container, null, parentComponent, optimized);
     }
     // 说明有新增的节点，需要新增
     if (oldLen < newLen) {
-      mountChildren(c2, container, anchor, parentComponent, minLen);
+      mountChildren(c2, container, anchor, parentComponent, optimized, minLen);
     } else {
       // 说明有要删除的节点
       unmountChildren(c1, parentComponent, minLen);
@@ -560,13 +572,15 @@ function baseCreateRenderer(options) {
    * @param parentAnchor 锚点元素
    * @param container 容器
    * @param parentComponent 父组件实例
+   * @param optimized 是否优化
    */
   const patchKeyedChildren = (
     c1,
     c2,
     container,
     parentAnchor,
-    parentComponent
+    parentComponent,
+    optimized
   ) => {
     // 快速diff算法的几种情况
     /**
@@ -582,7 +596,7 @@ function baseCreateRenderer(options) {
       const n1 = c1[i];
       const n2 = c2[i];
       if (isSameVNodeType(n1, n2)) {
-        patch(n1, n2, container, parentAnchor, parentComponent);
+        patch(n1, n2, container, parentAnchor, parentComponent, optimized);
       } else {
         break;
       }
@@ -597,7 +611,7 @@ function baseCreateRenderer(options) {
       const n1 = c1[oldEnd];
       const n2 = c2[newEnd];
       if (isSameVNodeType(n1, n2)) {
-        patch(n1, n2, container, parentAnchor, parentComponent);
+        patch(n1, n2, container, parentAnchor, parentComponent, optimized);
       } else {
         break;
       }
@@ -620,7 +634,7 @@ function baseCreateRenderer(options) {
       // 锚点元素
       const anchor = anchorIndex < l2 ? c2[anchorIndex].el : parentAnchor;
       while (i <= newEnd) {
-        patch(null, c2[i], container, anchor, parentComponent);
+        patch(null, c2[i], container, anchor, parentComponent, optimized);
         i++;
       }
     }
@@ -724,7 +738,8 @@ function baseCreateRenderer(options) {
             c2[keyIndex],
             container,
             parentAnchor,
-            parentComponent
+            parentComponent,
+            optimized
           );
           // 递增，表示新子节点数组中又更新了一个节点
           patched++;
@@ -756,7 +771,7 @@ function baseCreateRenderer(options) {
         // 3. 挂载
         if (newIndexToOldIndexMap[i] === -1) {
           // 索引为-1说明没有在老的里面找到对应的节点，说明是新节点，需要挂载
-          patch(null, newVnode, container, anchor, parentComponent);
+          patch(null, newVnode, container, anchor, parentComponent, optimized);
         } else if (moved) {
           // 需要移动的情况：
           // 1、没有最长递增子序列元素可以遍历了（j<0）
@@ -840,7 +855,7 @@ function baseCreateRenderer(options) {
    * @param  anchor 锚点元素
    * @param  parentComponent 父组件实例
    */
-  const mountElement = (vnode, container, anchor, parentComponent) => {
+  const mountElement = (vnode, container, anchor, parentComponent, optimized) => {
     const { type, props, children, shapeFlag, transition, dirs } = vnode;
     const el = (vnode.el = hostCreateElement(type));
     // 处理children
@@ -851,7 +866,7 @@ function baseCreateRenderer(options) {
       // 处理数组类型的孩子节点
       // #fix bug example defineAsyncComponent 新建子节点的时候不需要锚点元素
       // mountChildren(children, el, anchor, parentComponent);
-      mountChildren(children, el, null, parentComponent);
+      mountChildren(children, el, null, parentComponent, optimized);
     }
 
     // 指令
@@ -898,16 +913,18 @@ function baseCreateRenderer(options) {
    * @param anchor 锚点元素
    * @param parentComponent 父组件实例
    * @param start children子节点起始遍历的位置
+   * @param optimized 是否优化
    */
   const mountChildren = (
     children,
     container,
     anchor,
     parentComponent,
+    optimized,
     start = 0
   ) => {
     for (let i = start; i < children.length; i++) {
-      patch(null, children[i], container, anchor, parentComponent);
+      patch(null, children[i], container, anchor, parentComponent, optimized);
     }
   };
 
@@ -1026,7 +1043,7 @@ function baseCreateRenderer(options) {
  */
 const getSequence = (arr: number[]): number[] => {
   // 用于回溯的数组，记录的是比当前数小的前一个数的下标
-  let p = Array(arr.length);
+  let temp = Array(arr.length);
   // 初始结果默认第一个为0，记录的是arr中数据对应的下标
   let result = [0];
   for (let i = 0; i < arr.length; i++) {
@@ -1036,7 +1053,7 @@ const getSequence = (arr: number[]): number[] => {
       // 如果当前遍历到的数字比结果中最后一个值对应的数字还要大，则直接将下标添加到result末尾
       if (num > arr[j]) {
         // j就是比当前这个数小的前一个数的索引，记录它（为了最后修正下标）
-        p[i] = j;
+        temp[i] = j;
         // 这里记录的是索引
         result.push(i);
         continue;
@@ -1057,7 +1074,7 @@ const getSequence = (arr: number[]): number[] => {
       if (arr[result[left]] > num) {
         if (left > 0) {
           // left - 1就是比当前这个数小的前一个数的索引，记录它
-          p[i] = result[left - 1];
+          temp[i] = result[left - 1];
         }
         result[left] = i;
       }
@@ -1068,7 +1085,7 @@ const getSequence = (arr: number[]): number[] => {
   let k = result[resultLen - 1];
   while (resultLen-- > 0) {
     result[resultLen] = k;
-    k = p[k];
+    k = temp[k];
   }
   return result;
 };

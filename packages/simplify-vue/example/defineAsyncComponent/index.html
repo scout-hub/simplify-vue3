@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2023-03-10 16:58:51
+ * @LastEditTime: 2023-04-16 21:13:57
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -24,39 +24,32 @@
             defineAsyncComponent
         } = Vue;
 
-        const Error = {  
-            name: "Error",
-            props: ['error'],
-            setup(props) {
-                return () => h('div', null, props.error.message);
-            }       
-        };
+        // const SlotChild = defineAsyncComponent({
+        //     loader: () => import('./Child.js'),
+        //     text: 1
+        // })
 
-        const Loading = {
-            name: "Loading",
-            setup(props) {
-                return () => h('div', null, 'loading……');
-            },
-        };
+        // const Child = defineAsyncComponent(() => import('./Child.js'));
 
-        const SlotChild = defineAsyncComponent({
-            loader: () => import('./Child.js'),
-            text: 1
-        })
+        // const Error = {
+        //     name: "Error",
+        //     props: ['error'],
+        //     setup(props) {
+        //         return () => h('div', null, props.error.message);
+        //     }
+        // };
 
-        const Child = defineAsyncComponent(() => import('./Child.js'));
-
-        const timeoutChild = defineAsyncComponent({
-            loader: () => {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve(import('./Child.js'))
-                    }, 3000);
-                })
-            },
-            timeout: 2000,
-            errorComponent: Error
-        })
+        // const timeoutChild = defineAsyncComponent({
+        //     loader: () => {
+        //         return new Promise((resolve) => {
+        //             setTimeout(() => {
+        //                 resolve(import('./Child.js'))
+        //             }, 3000);
+        //         })
+        //     },
+        //     timeout: 2000,
+        //     errorComponent: Error
+        // })
         let times = 0
         const ErrorChild = defineAsyncComponent({
             loader: () => {
@@ -80,21 +73,28 @@
             }
         })
 
-        const LoadingChild = defineAsyncComponent({
-            loader: () => {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve(import('./Child.js'))
-                    }, 3000);
-                })
-            },
-            delay: 1000,
-            loadingComponent: Loading
-        });
+        // const Loading = {
+        //     name: "Loading",
+        //     setup(props) {
+        //         return () => h('div', null, 'loading……');
+        //     },
+        // };
+
+        // const LoadingChild = defineAsyncComponent({
+        //     loader: () => {
+        //         return new Promise((resolve) => {
+        //             setTimeout(() => {
+        //                 resolve(import('./Child.js'))
+        //             }, 3000);
+        //         })
+        //     },
+        //     delay: 1000,
+        //     loadingComponent: Loading
+        // });
 
         const App = {
             name: "App",
-            setup() {},
+            setup() { },
             render() {
                 return h("div", null, [
                     // h(SlotChild, {
@@ -109,12 +109,12 @@
                     // h(timeoutChild, {
                     //     text: 'timeoutChild'
                     // }),
-                    // h(ErrorChild, {
-                    //     text: 6
-                    // }),
-                    h(LoadingChild, {
-                        text: 'LoadingChild'
-                    })
+                    h(ErrorChild, {
+                        text: 6
+                    }),
+                    // h(LoadingChild, {
+                    //     text: 'LoadingChild'
+                    // })
                 ]);
             }
         }

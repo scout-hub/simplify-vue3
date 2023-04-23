@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-15 09:57:42
+ * @LastEditTime: 2023-04-16 22:09:52
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -36,6 +36,9 @@
             name: "Child",
             setup(props) {
                 props.count = 2;
+                return {
+                    count: props.count
+                }
             },
             render() {
                 return h('div', null, this.count);

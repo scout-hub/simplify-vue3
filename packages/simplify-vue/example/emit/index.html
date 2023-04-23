@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2023-03-12 20:20:24
+ * @LastEditTime: 2023-04-18 21:19:30
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -25,6 +25,7 @@
 
         const Child = {
             name: "Child",
+            inheritAttrs: false,
             setup(props, {
                 emit
             }) {
@@ -67,6 +68,7 @@
                 return h("div", {
                     id: 'div',
                 }, [h('div', null, this.msg), h(Child, {
+                    name: 'xxx',
                     onSayParent: this.sayParent,
                     onClick: (data) => {
                         console.log(data);
@@ -74,7 +76,6 @@
                 })]);
             }
         };
-
         createApp(App).mount('#app')
     </script>
 </body>

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-07 16:56:10
+ * @LastEditTime: 2023-04-21 21:53:03
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -35,14 +35,12 @@
         const App = {
             name: "App",
             template: `
-            <div>
+            <div>  
                 <h1 v-for="item in arr">
                     <span :class="item.class">姓名：{{item.name}};</span>    
                     <span>年龄：{{item.age}};</span>    
                     <span>性别：男;</span>    
-                    <span v-for="items in item.hobby" v-if="item.show">爱好：{{items}}</span>    
                 </h1>    
-                <div v-for="(item,index) in [1,2,3]">item:{{item}}====index:{{index}}</div>    
             </div>`,
             setup() {
                 const arr = reactive([{

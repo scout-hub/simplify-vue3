@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-16 16:32:11
+ * @LastEditTime: 2023-04-18 21:40:18
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +22,7 @@
             h,
             createApp,
             watch,
+            reactive,
             ref
         } = Vue;
 
@@ -30,10 +31,16 @@
             template: `<div>{{msg}}</div><button @click="update">更新</button>`,
             setup() {
                 const msg = ref('123');
+                const reac = reactive({
+                    a: 1,
+                    b: {
+                        c: 2
+                    }
+                });
                 const update = () => {
                     msg.value = msg.value + 1;
                 }
-                watch(msg, (newVal, oldVal) => {
+                watch(() => reac, (newVal, oldVal) => {
                     console.log(newVal, oldVal);
                 }, {
                     immediate: true

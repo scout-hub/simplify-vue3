@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-29 11:53:34
+ * @LastEditTime: 2023-04-16 21:52:54
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +30,7 @@
 
         const Child = {
             name: "Child",
-            setup() {},
+            setup() { },
             props: ['text'],
             render() {
                 return h('div', null, [createTextVNode(`I am a teleport component${this.$props.text} `)])
@@ -57,7 +57,7 @@
                         [
                             h(Teleport, {
                                 to: '#teleport',
-                                disabled: false
+                                disabled: true
                             }, [
                                 h('div', null, 'div1'),
                                 // h(Child, {

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-07 21:59:46
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-11 21:20:42
+ * @LastEditTime: 2023-03-13 17:20:17
  */
 import { extend } from "@simplify-vue/shared";
 import { ConstantTypes, ElementTypes, NodeTypes } from "./ast";
@@ -115,6 +115,9 @@ function parseChildren(context, ancestors) {
         ) {
           shouldRemoveWhitespace = true;
           nodes[i] = null;
+        } else {
+          // 其它情况压缩成一个空格
+          node.content = ' '
         }
       }
     }

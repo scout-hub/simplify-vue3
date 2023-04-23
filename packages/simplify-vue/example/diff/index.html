@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-18 21:09:07
+ * @LastEditTime: 2023-04-18 22:08:08
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -75,7 +75,7 @@
 
                 // 6.1 相同前置节点且有需要新增的节点 (a b) ====> (a b) c d
                 // return this.update ?
-                //     h("div", null, [h('div', {
+                //     h("div", { key: 0 }, [h('div', {
                 //         key: 1
                 //     }, '1'), h('div', {
                 //         key: 2
@@ -85,6 +85,7 @@
                 //         key: 4
                 //     }, '4')]) :
                 //     h("div", {
+                //         key: 0,
                 //         onClick: this.change,
                 //     }, [h('div', {
                 //         key: 1
@@ -94,7 +95,7 @@
 
                 // 6.2 相同后置节点且有需要新增的节点 (a b) ====> c d (a b)
                 // return this.update ?
-                //     h("div", null, [
+                //     h("div", { key: 0 }, [
                 //         h('div', {
                 //             key: 3
                 //         }, '3'),
@@ -109,6 +110,7 @@
                 //         }, '2')
                 //     ]) :
                 //     h("div", {
+                //         key: 0,
                 //         onClick: this.change,
                 //     }, [h('div', {
                 //         key: 1
@@ -118,7 +120,7 @@
 
                 // 6.3 相同前置和后置节点且有需要新增的节点 (a b) (e) ====> (a b) c d (e)
                 // return this.update ?
-                //     h("div", null, [
+                //     h("div", { key: 0 }, [
                 //         h('div', {
                 //             key: 1
                 //         }, '1'),
@@ -136,21 +138,22 @@
                 //         }, '5')
                 //     ]) :
                 //     h("div", {
+                //         key: 0,
                 //         onClick: this.change,
                 //     }, [h('div', {
-                //             key: 1
-                //         }, '1'),
-                //         h('div', {
-                //             key: 2
-                //         }, '22'),
-                //         h('div', {
-                //             key: 5
-                //         }, '5')
+                //         key: 1
+                //     }, '1'),
+                //     h('div', {
+                //         key: 2
+                //     }, '22'),
+                //     h('div', {
+                //         key: 5
+                //     }, '5')
                 //     ]);
 
                 // 6.4 相同前置节点，且需要删除元素
                 // return this.update ?
-                //     h("div", null, [
+                //     h("div", { key: 0 }, [
                 //         h('div', {
                 //             key: 1
                 //         }, '1'),
@@ -159,16 +162,17 @@
                 //         }, '2')
                 //     ]) :
                 //     h("div", {
+                //         key: 0,
                 //         onClick: this.change,
                 //     }, [h('div', {
-                //             key: 1
-                //         }, '1'),
-                //         h('div', {
-                //             key: 2
-                //         }, '2'),
-                //         h('div', {
-                //             key: 3
-                //         }, '3')
+                //         key: 1
+                //     }, '1'),
+                //     h('div', {
+                //         key: 2
+                //     }, '2'),
+                //     h('div', {
+                //         key: 3
+                //     }, '3')
                 //     ]);
 
                 // 6.5 相同的后置节点，且需要删除元素
