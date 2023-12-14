@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 21:13:43
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-08-22 16:40:37
+ * @LastEditTime: 2023-12-14 16:39:30
  */
 /**
  * 1. text
@@ -42,6 +42,7 @@
 import { isArray, isString, isSymbol } from "@simplify-vue/shared";
 import { NodeTypes } from "./ast";
 import {
+  CREATE_COMMENT,
   helperNameMap,
   OPEN_BLOCK,
   RESOLVE_COMPONENT,
@@ -173,7 +174,19 @@ function genNode(node, context) {
     case NodeTypes.JS_FUNCTION_EXPRESSION:
       genFunctionExpression(node, context);
       break;
+    case NodeTypes.COMMENT:
+      genComment(node, context)
+      break
   }
+}
+
+/**
+ * @author: Zhouqi
+ * @description: 处理注释节点
+ */
+function genComment(node, context) {
+  const { push, helper } = context
+  push(`${helper(CREATE_COMMENT)}(${JSON.stringify(node.content)})`, node);
 }
 
 function genFunctionExpression(node, context) {
@@ -322,7 +335,6 @@ function genVNodeCall(node, context) {
 function genFunctionPreamble(ast, context) {
   const { push, runtimeGlobalName, newline } = context;
   const { helpers } = ast;
-  
   const aliasHelper = (s: symbol) =>
     `${helperNameMap[s]}: _${helperNameMap[s]}`;
 

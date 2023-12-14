@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 22:40:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-12 21:10:45
+ * @LastEditTime: 2023-12-14 16:25:17
  */
 export const TO_DISPLAY_STRING = Symbol(`toDisplayString`);
 export const OPEN_BLOCK = Symbol(`openBlock`);
@@ -17,6 +17,7 @@ export const CREATE_COMMENT = Symbol(`createCommentVNode`);
 export const FRAGMENT = Symbol(`Fragment`);
 export const RENDER_LIST = Symbol(`renderList`);
 export const RESOLVE_COMPONENT = Symbol(`resolveComponent`);
+
 
 export const helperNameMap: any = {
   [TO_DISPLAY_STRING]: `toDisplayString`,

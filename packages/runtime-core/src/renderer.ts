@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:59:49
  * @LastEditors: Zhouqi
- * @LastEditTime: 2023-04-19 22:20:35
+ * @LastEditTime: 2023-12-14 14:03:46
  */
 import { createComponentInstance, setupComponent } from "./component";
 import {
@@ -150,10 +150,10 @@ function baseCreateRenderer(options) {
     // 这时候需要我们手动去创建一个空的文本节点去包裹所有的插槽节点。
     const fragmentStartAnchor = (n2.el = n1
       ? n1.el
-      : hostCreateComment("fragment start"));
+      : hostCreateText(""));
     const fragmentEndAnchor = (n2.anchor = n1
       ? n1.anchor
-      : hostCreateComment("fragment end"));
+      : hostCreateText(""));
     if (n1 === null) {
       // #fix: example slots demo when update slot, the new node insertion exception
       hostInsert(fragmentStartAnchor, container, anchor);

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-04-09 20:33:38
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-05-12 21:39:45
+ * @LastEditTime: 2023-12-14 16:32:46
  */
 import { isArray, isString, PatchFlags } from "@simplify-vue/shared";
 import { createVnodeCall, NodeTypes } from "./ast";
@@ -12,6 +12,7 @@ import {
   CREATE_ELEMENT_BLOCK,
   helperNameMap,
   FRAGMENT,
+  CREATE_COMMENT,
 } from "./runtimeHelpers";
 import { getVNodeBlockHelper } from "./utils";
 
@@ -59,8 +60,8 @@ function createTransformContext(
       const nodeIndex = node
         ? children.indexOf(node)
         : context.currentNode
-        ? context.childIndex
-        : -1;
+          ? context.childIndex
+          : -1;
       // 上下文中清空当前节点
       context.currentNode = null;
       // 此时在遍历traverseChildren的时候，由于当前node会从children中删除，会影响到遍历
@@ -68,7 +69,7 @@ function createTransformContext(
       context.onNodeRemoved();
       children.splice(nodeIndex, 1);
     },
-    onNodeRemoved: () => {},
+    onNodeRemoved: () => { },
     addIdentifiers(value) {
       context.identifiers[value.content] = 1;
     },
@@ -173,6 +174,9 @@ export function traverseNode(node, context) {
   const { type } = node;
 
   switch (type) {
+    case NodeTypes.COMMENT:
+      context.helper(CREATE_COMMENT);
+      break
     case NodeTypes.INTERPOLATION:
       context.helper(TO_DISPLAY_STRING);
       break;
