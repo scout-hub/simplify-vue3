@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-27 21:17:03
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-14 17:10:05
+ * @LastEditTime: 2024-01-24 17:16:52
  */
 import { shallowReadonly } from "@simplify-vue/reactivity";
 import { EMPTY_OBJ, hasOwn } from "@simplify-vue/shared";
@@ -43,7 +43,7 @@ export const PublicInstanceProxyHandlers = {
             return props[key];
         }
       }
-      if (setupState !== EMPTY_OBJ && hasOwn(setupState, key)) {
+      else if (setupState !== EMPTY_OBJ && hasOwn(setupState, key)) {
         accessCache[key] = AccessTypes.SETUP;
         return setupState[key];
       } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {

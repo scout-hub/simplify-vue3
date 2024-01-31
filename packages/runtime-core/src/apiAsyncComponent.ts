@@ -2,13 +2,13 @@
  * @Author: Zhouqi
  * @Date: 2022-04-14 22:19:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-15 10:35:17
+ * @LastEditTime: 2023-12-22 14:44:21
  */
 import { isFunction } from "@simplify-vue/shared";
 import { ref } from "@simplify-vue/reactivity";
 import { defineComponent } from "./apiDefineComponent";
 import { currentInstance } from "./component";
-import { createTextVNode, createVnode } from "./vnode";
+import { createTextVNode, createVNode } from "./vnode";
 import { onBeforeUnmount } from "./apiLifecycle";
 
 // 创建异步组件
@@ -131,11 +131,11 @@ export function defineAsyncComponent(source) {
           return createInnerComp(resolvedComp, instance);
         } else if (errorLoaded.value && errorComponent) {
           // 将错误信息传递给error组件，便于用户进行更精细的操作
-          return createVnode(errorComponent, {
+          return createVNode(errorComponent, {
             error: errorLoaded.value,
           });
         } else if (!delayed.value && loadingComponent) {
-          return createVnode(loadingComponent);
+          return createVNode(loadingComponent);
         }
         return createTextVNode("");
       };
@@ -155,5 +155,5 @@ function createInnerComp(comp, instance?) {
   const {
     vnode: { children, props },
   } = instance;
-  return createVnode(comp, props, children);
+  return createVNode(comp, props, children);
 }

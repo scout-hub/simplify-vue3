@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:26:23
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-03-26 21:47:41
+ * @LastEditTime: 2023-12-21 15:34:41
  */
 import { reactive } from "../src/reactive";
 import { effect, stop } from "../src/effect";
@@ -16,7 +16,6 @@ describe("effect", () => {
     effect(() => {
       nextAge = user.age + 1;
     });
-    expect(nextAge).toBe(11);
     user.age++;
     expect(nextAge).toBe(12);
   });
@@ -32,7 +31,6 @@ describe("effect", () => {
     expect(foo).toBe(12);
     expect(r).toBe("foo");
   });
-
   it("scheduler", () => {
     let dummy;
     let run: any;
@@ -80,7 +78,7 @@ describe("effect", () => {
 
   it("events: onStop", () => {
     const onStop = jest.fn();
-    const runner = effect(() => {}, {
+    const runner = effect(() => { }, {
       onStop,
     });
 

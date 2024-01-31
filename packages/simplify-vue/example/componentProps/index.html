@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:15:56
  * @LastEditors: Zhouqi
- * @LastEditTime: 2023-03-12 10:13:54
+ * @LastEditTime: 2023-12-25 14:48:15
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -29,54 +29,31 @@
     <script>
         const {
             createApp,
-            h
         } = Vue;
 
         const Child = {
             name: "Child",
             props: {
-                msg: {
-                    type: String,
-                    default: 'xxx'
-                }
+                'msg': {
+                    type: String
+                },
             },
-            setup(props) {
-                console.log(props);
-            },
-            render() {
-                return h('div', {
-                    onClick: () => {
-                        console.log(this.$attrs);
-                    }
-                }, this.msg);
+            setup(props, { attrs }) {
+                console.log(props, attrs);
             }
         }
 
         const App = {
             name: "App",
+            components: {
+                Child
+            },
             setup() {
                 return {
-                    msg: 'test123'
+                    msg: 'test123',
                 }
             },
-            render() {
-                return h("div", null, [
-                    h(Child, {
-                        id: 'div',
-                        class: ['red', 'green'],
-                        msg: this.msg,
-                        onClick: [
-                            () => {
-                                console.log(1);
-                            },
-                            () => {
-                                console.log(2);
-                            }
-                        ]
-                    }),
-                    h('div', null, this.msg + 'p')
-                ]);
-            }
+            template: `<Child id="div" class="red green" :msg="msg"/>`
         };
 
         createApp(App).mount('#app')

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 21:20:31
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-16 15:42:22
+ * @LastEditTime: 2023-12-22 14:43:48
  */
 export { renderSlot } from "./helpers/renderSlot";
 export {
@@ -13,6 +13,7 @@ export {
   openBlock,
   Fragment,
   createBlock,
+  createVNode
 } from "./vnode";
 export { getCurrentInstance, registerRuntimeCompiler } from "./component";
 export { provide, inject } from "./apiInject";

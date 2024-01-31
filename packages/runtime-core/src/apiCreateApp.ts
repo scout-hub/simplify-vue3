@@ -5,7 +5,7 @@
  * @LastEditTime: 2023-03-10 14:44:44
  */
 
-import { createVnode } from "./vnode";
+import { createVNode } from "./vnode";
 
 export function createAppApi(render) {
   return function createApp(rootComponent) {
@@ -17,7 +17,7 @@ export function createAppApi(render) {
       directive() { },
       mount(rootContainer) {
         // 创建虚拟节点
-        const vnode = createVnode(rootComponent);
+        const vnode = createVNode(rootComponent);
         // 渲染真实节点
         render(vnode, rootContainer);
         app._container = rootContainer;

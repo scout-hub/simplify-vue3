@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-23 21:32:36
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-08-22 16:28:33
+ * @LastEditTime: 2024-01-03 18:50:28
  */
 
 import { hasChanged, isArray } from "@simplify-vue/shared";
@@ -45,7 +45,7 @@ class RefImpl {
 
 class ObjectRefImpl {
   public readonly __v_isRef = true;
-  constructor(private readonly _target, private readonly _key) {}
+  constructor(private readonly _target, private readonly _key) { }
   get value() {
     const val = this._target[this._key];
     return val;
@@ -65,19 +65,19 @@ export function proxyRefs(objectWithRefs) {
   return isReactive(objectWithRefs)
     ? objectWithRefs
     : new Proxy(objectWithRefs, {
-        get(target, key, receiver) {
-          return unRef(Reflect.get(target, key, receiver));
-        },
-        set(target, key, newValue, receiver) {
-          // 旧的值是ref，但是新的值不是ref时，直接修改.value的值。否则直接设置新值
-          const oldValue = target[key];
-          if (isRef(oldValue) && !isRef(newValue)) {
-            oldValue.value = newValue;
-            return true;
-          }
-          return Reflect.set(target, key, newValue, receiver);
-        },
-      });
+      get(target, key, receiver) {
+        return unRef(Reflect.get(target, key, receiver));
+      },
+      set(target, key, newValue, receiver) {
+        // 旧的值是ref，但是新的值不是ref时，直接修改.value的值。否则直接设置新值
+        const oldValue = target[key];
+        if (isRef(oldValue) && !isRef(newValue)) {
+          oldValue.value = newValue;
+          return true;
+        }
+        return Reflect.set(target, key, newValue, receiver);
+      },
+    });
 }
 
 // 浅ref，只对value做响应式处理
@@ -126,5 +126,6 @@ export function toRefs(object) {
 
 // 创建ref的工厂函数
 function createRef(value, shallow) {
+  if (isRef(value)) return value;
   return new RefImpl(value, shallow);
 }

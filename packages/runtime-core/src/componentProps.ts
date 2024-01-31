@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-28 22:34:06
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-28 22:35:11
+ * @LastEditTime: 2023-12-22 16:51:26
  */
 
 import { shallowReactive } from "@simplify-vue/reactivity";
@@ -267,7 +267,7 @@ function validatePropName(key: string) {
  */
 export function normalizePropsOptions(comp) {
   /**
-   * ropsOptions类型
+   * propsOptions类型
    * 1、数组 =====> props:['name','value']
    * 2、对象 =====> props:{name:{type:'xxx'……}} || props:{name:Person} || props:{name:[String,……]}
    */

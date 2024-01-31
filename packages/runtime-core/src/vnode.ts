@@ -36,7 +36,7 @@ export function isSameVNodeType(n1, n2) {
 }
 
 // 创建虚拟节点函数
-export function createVnode(
+export function createVNode(
   type,
   props: any = null,
   children: unknown = null,
@@ -134,14 +134,14 @@ function createBaseVNode(
 
 // 创建文本节点的vnode
 export function createTextVNode(text: string, patchFlag: number = 0) {
-  return createVnode(Text, null, text, patchFlag);
+  return createVNode(Text, null, text, patchFlag);
 }
 
 // 创建注释节点的vnode
 export function createCommentVNode(text: string, asBlock: boolean = false) {
   return asBlock
     ? (openBlock(), createBlock(Comment, null, text))
-    : createVnode(Comment, null, text);
+    : createVNode(Comment, null, text);
 }
 
 // 规范化子节点，子节点的类型有多种，比如string、function、object等等
@@ -178,7 +178,7 @@ export function normalizeChildren(vnode, children) {
 export function normalizeVNode(child) {
   if (child == null) {
     // 如果render函数没有返回对应的vnode，则默认创建一个注释节点
-    return createVnode(Comment);
+    return createVNode(Comment);
   } else if (isObject(child)) {
     // 显然已经是一个vnode类型的数据
     // 如果vnode上没有el，说明是初始化渲染，直接返回vnode即可
@@ -266,7 +266,7 @@ export function createBlock(
   dynamicProps?
 ) {
   return setupBlock(
-    createVnode(type, props, children, patchFlag, dynamicProps, true)
+    createVNode(type, props, children, patchFlag, dynamicProps, true)
   );
 }
 

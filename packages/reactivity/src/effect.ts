@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-20 20:52:58
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-09-14 14:25:31
+ * @LastEditTime: 2024-01-10 17:02:12
  */
 import { extend, isArray, isMap } from "@simplify-vue/shared";
 import {
@@ -36,7 +36,7 @@ export class ReactiveEffect {
   onStop?: Function;
   private active = true;
 
-  constructor(public effectFn, public scheduler?) {}
+  constructor(public effectFn, public scheduler?) { }
 
   run() {
     try {

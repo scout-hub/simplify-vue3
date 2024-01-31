@@ -1,0 +1,109 @@
+<!--
+ * @Author: Zhouqi
+ * @Date: 2023-12-06 18:52:11
+ * @LastEditors: Zhouqi
+ * @LastEditTime: 2023-12-27 17:31:13
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const data = {
+      text: 123,
+      color: 'red',
+      fontSize: '18px'
+    }
+
+    const data1 = {
+      text: 123,
+      color: 'red',
+      fontSize: '18px'
+    }
+
+    let activeEffect;
+
+    const createReactive = (data) => {
+      return new Proxy(data, {
+        get(target, key, receiver) {
+          track(target, key, activeEffect);
+          return Reflect.get(setTarget, key, receiver);
+        },
+        set(target, key, value, receiver) {
+          Reflect.set(target, key, value, receiver);
+          trigger(target, key);
+        }
+      });
+    };
+
+    const trigger = (target, key) => {
+      const targetMap = reactiveMap.get(target);
+      if(!targetMap) return;
+      const deep = targetMap.get(key);
+      [...deep].forEach(dep => {
+        dep.run();
+      });
+    }
+
+    const track = (target, key, dep) => {
+      let targetMap = reactiveMap.get(target);
+      if(!targetMap) {
+        targetMap = new Map();
+      }
+      let deep = targetMap.get(key);
+      if(!deep) {
+        deep = new Set();
+      }
+      deep.add(dep);
+      targetMap.set(key, deep)
+      reactiveMap.set(target, targetMap);
+    }
+
+    const reactiveMap = new WeakMap();
+
+    // const pData = createReactive(data);
+
+    // const effect = (cb) => {
+    //   const reactiveEffect = new ReactiveEffect(cb);
+    //   reactiveEffect.run();
+    // }
+
+    // class ReactiveEffect {
+    //   constructor(cb) {
+    //     this.cb = cb;
+    //   }
+    //   run() {
+    //     activeEffect = this;
+    //     this.cb();
+    //   }
+    // }
+
+    // effect(() => {
+    //   const color = pData.color;
+    //   console.log(color);
+    // })
+
+    // pData.color = 'green';
+    // pData.color = 'blue';
+
+    // let opt = 1;  10
+    // let effectFn = () => {
+    //   i++;
+    //   user.name = user.ok ? user.age : "123";
+    // };
+
+    // effect(effectFn);
+
+    const set = new Set([1, 2, 3]);
+    const rSet = createReactive(set);
+    console.log(rSet.size);
+  </script>
+</body>
+
+</html>

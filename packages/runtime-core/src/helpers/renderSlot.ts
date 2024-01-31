@@ -5,7 +5,7 @@
  * @LastEditTime: 2022-04-26 09:41:45
  */
 import { isFunction } from "@simplify-vue/shared";
-import { createVnode, Fragment } from "../vnode";
+import { createVNode, Fragment } from "../vnode";
 
 /**
  * @author: Zhouqi
@@ -19,8 +19,8 @@ export function renderSlot(slots, name, props) {
   const slot = slots[name];
   if (slot) {
     if (isFunction(slot)) {
-      return createVnode(Fragment, null, slot(props));
+      return createVNode(Fragment, null, slot(props));
     }
   }
-  return createVnode(Fragment, null, []);
+  return createVNode(Fragment, null, []);
 }

@@ -2,7 +2,7 @@
  * @Author: Zhouqi
  * @Date: 2022-03-26 14:52:24
  * @LastEditors: Zhouqi
- * @LastEditTime: 2022-04-11 13:40:06
+ * @LastEditTime: 2023-12-27 17:45:38
  */
 import { computed } from "../src/computed";
 import { effect } from "../src/effect";
@@ -17,7 +17,7 @@ describe("computed", () => {
     const getter = computed(() => {
       return value.foo;
     });
-
+    expect(getter.value).toBe(1);
     value.foo = 2;
     expect(getter.value).toBe(2);
   });
